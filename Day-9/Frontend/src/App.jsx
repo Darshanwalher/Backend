@@ -8,7 +8,7 @@ const App = () => {
   const [editId, setEditId] = useState(null)
 
   function fetchNotes(){
-    axios.get("http://localhost:3000/api/notes")
+    axios.get("https://backend-9c7e.onrender.com/api/notes")
       .then(res => {
         setNotes(res.data.notes)
       })
@@ -27,7 +27,7 @@ const App = () => {
 
     // 👉 If editing note
     if(editId){
-      axios.patch(`http://localhost:3000/api/notes/${editId}`, {
+      axios.patch(`https://backend-9c7e.onrender.com/api/notes/${editId}`, {
         title,
         description
       })
@@ -41,7 +41,7 @@ const App = () => {
 
     // 👉 If adding new note
     else{
-      axios.post("http://localhost:3000/api/notes", {
+      axios.post("https://backend-9c7e.onrender.com/api/notes", {
         title,
         description
       })
@@ -54,7 +54,7 @@ const App = () => {
   }
 
   function handleDeleteNote(noteId){
-    axios.delete(`http://localhost:3000/api/notes/${noteId}`)
+    axios.delete(`https://backend-9c7e.onrender.com/api/notes/${noteId}`)
       .then(() => fetchNotes())
       .catch(err => console.log(err))
   }
