@@ -53,6 +53,85 @@ async function createPostController(req,res) {
     
 }
 
+async function getPostController(req,res){
+
+    const token = req.cookies.token;
+
+    if(!token){
+        return res.status(401).json({
+            message:"Unotheried Access",
+        })
+    }
+
+    let decode = null;
+   try{
+      decode = jwt.verify(token,process.env.JWT_SECRET_KEY)
+   }
+   catch(err){
+        return res.status(401).json({
+            message:"Token Invalid"
+        })
+   }
+
+   const userId = decode.id;
+
+   const post = await postModel.find({
+        user:userId,
+
+   })
+   res.status(200).json({
+    message:"post fetched successfully.",
+    post
+   })
+}
+
+async function getPostDetailsController(req,res){
+    const token = req.cookies.token;
+
+    if(!token){
+        return res.status(401).json({
+            message:"Unotheried Access",
+        })
+    }
+
+    let decode;
+    try{
+        decode = jwt.verify(token,process.env.JWT_SECRET_KEY);
+    }
+    catch(err){
+        return res.status(401).json({
+            message:"Invalid Token"
+        })
+    }
+
+    const userId = decode.id
+    const postId = req.params.postId;
+
+    const post = await postModel.findById(postId);
+
+    if(!post){
+        return res.status(404).json({
+            message:"post not found."
+        })
+    }
+
+    const isValidUser = post.user.toString() === userId
+
+    if(!isValidUser){
+        return res.status(403).json({
+            message:"Forbbiden content."
+        })
+    }
+
+    return res.status(200).json({
+        message:"post fetched successfully.",
+        post
+    })
+
+}
+
 module.exports = {
-    createPostController
+    createPostController,
+    getPostController,
+    getPostDetailsController
 }
