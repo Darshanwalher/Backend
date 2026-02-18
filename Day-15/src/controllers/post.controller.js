@@ -130,6 +130,7 @@ async function getPostDetailsController(req,res){
 
 }
 
+
 module.exports = {
     createPostController,
     getPostController,
