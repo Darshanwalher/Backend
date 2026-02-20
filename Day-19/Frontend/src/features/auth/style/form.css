@@ -1,0 +1,147 @@
+@charset "UTF-8";
+/* =========================
+   VARIABLES — Social Space
+========================= */
+/* =========================
+   GOOGLE FONTS
+========================= */
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap");
+/* =========================
+   PAGE
+========================= */
+.login-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0D0506;
+  background-image: radial-gradient(ellipse 60% 50% at 20% 30%, rgba(192, 57, 43, 0.14) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 80% 70%, rgba(150, 40, 27, 0.08) 0%, transparent 60%);
+  font-family: "DM Sans", "Segoe UI", sans-serif;
+}
+
+/* =========================
+   CARD
+========================= */
+.form-container {
+  width: 380px;
+  padding: 45px 35px;
+  border-radius: 20px;
+  background: rgba(192, 57, 43, 0.07);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(192, 57, 43, 0.2);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+  transition: 0.3s ease;
+}
+.form-container:hover {
+  transform: translateY(-6px);
+  border-color: rgba(192, 57, 43, 0.35);
+}
+
+/* =========================
+   BRAND
+========================= */
+.brand {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.brand__name {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: #E84040;
+  text-shadow: 0 0 30px rgba(232, 64, 64, 0.4);
+  letter-spacing: 0.5px;
+}
+.brand__tagline {
+  margin-top: 6px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.4px;
+  font-style: italic;
+}
+
+/* =========================
+   TITLE
+========================= */
+.title {
+  text-align: center;
+  font-family: "DM Sans", "Segoe UI", sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 25px;
+  letter-spacing: 0.3px;
+}
+
+/* =========================
+   FORM
+========================= */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.form input {
+  padding: 13px;
+  border-radius: 12px;
+  border: 1px solid rgba(192, 57, 43, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-family: "DM Sans", "Segoe UI", sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: 0.3s ease;
+  width: 100%;
+}
+.form input::-moz-placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+.form input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+.form input:focus {
+  border-color: rgba(220, 80, 60, 0.6);
+  background: rgba(192, 57, 43, 0.08);
+  box-shadow: 0 0 12px rgba(192, 57, 43, 0.25);
+}
+.form button {
+  padding: 13px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-family: "DM Sans", "Segoe UI", sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: white;
+  background: linear-gradient(135deg, #ff6b6b, #e84040, #c0392b);
+  box-shadow: 0 4px 20px rgba(192, 57, 43, 0.5);
+  transition: 0.3s ease;
+}
+.form button:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 28px rgba(192, 57, 43, 0.55);
+}
+.form button:active {
+  transform: scale(0.98);
+}
+
+/* =========================
+   ALT ACTION
+========================= */
+.alt-action {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.45);
+}
+.alt-action .link-btn {
+  color: #FF6B6B;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 5px;
+  transition: 0.3s ease;
+}
+.alt-action .link-btn:hover {
+  color: #E84040;
+  text-decoration: underline;
+}/*# sourceMappingURL=form.css.map */
