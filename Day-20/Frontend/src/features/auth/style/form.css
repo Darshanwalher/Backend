@@ -1,0 +1,292 @@
+@charset "UTF-8";
+/* =========================
+   VARIABLES — Social Space
+   Theme: Professional Slate
+========================= */
+/* =========================
+   GOOGLE FONTS
+========================= */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+/* =========================
+   PAGE
+========================= */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #1A1E24;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  padding: 16px;
+}
+
+/* =========================
+   CARD
+========================= */
+.form-container {
+  width: 400px;
+  padding: 40px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  transition: 0.2s ease;
+}
+.form-container:hover {
+  border-color: rgba(74, 144, 226, 0.2);
+}
+
+/* =========================
+   BRAND
+========================= */
+.brand {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.brand__name {
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: -0.5px;
+}
+.brand__name span {
+  color: #4A90E2;
+  font-weight: 700;
+}
+.brand__tagline {
+  margin-top: 8px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 400;
+}
+
+/* =========================
+   TITLE
+========================= */
+.title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 24px;
+  letter-spacing: -0.2px;
+}
+
+/* =========================
+   FORM
+========================= */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.form .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form label {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+}
+.form input {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.2);
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 15px;
+  outline: none;
+  transition: 0.2s ease;
+}
+.form input::-moz-placeholder {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 14px;
+}
+.form input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 14px;
+}
+.form input:focus {
+  border-color: #4A90E2;
+  background: rgba(0, 0, 0, 0.3);
+}
+.form input.error {
+  border-color: #E25C5C;
+}
+.form .error-message {
+  color: #E25C5C;
+  font-size: 12px;
+  margin-top: 2px;
+}
+.form button {
+  padding: 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  color: white;
+  background: #4A90E2;
+  transition: 0.2s ease;
+  margin-top: 8px;
+}
+.form button:hover {
+  background: rgb(95.9785714286, 157.4785714286, 229.5214285714);
+}
+.form button:active {
+  transform: translateY(1px);
+}
+.form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.form .checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+}
+.form .checkbox-group input[type=checkbox] {
+  width: 16px;
+  height: 16px;
+  accent-color: #4A90E2;
+}
+.form .checkbox-group label {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 14px;
+  font-weight: 400;
+}
+.form .forgot-password {
+  text-align: right;
+  margin-top: -8px;
+}
+.form .forgot-password a {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 13px;
+  text-decoration: none;
+}
+.form .forgot-password a:hover {
+  color: #4A90E2;
+}
+
+/* =========================
+   DIVIDER
+========================= */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 24px 0 20px;
+}
+.divider::before, .divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.divider span {
+  padding: 0 12px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+/* =========================
+   SOCIAL LOGIN
+========================= */
+.social-login {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.social-login__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.social-login__btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* =========================
+   ALT ACTION
+========================= */
+.alt-action {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+.alt-action .link-btn {
+  color: #4A90E2;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+.alt-action .link-btn:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   TERMS
+========================= */
+.terms {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.5;
+}
+.terms a {
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+}
+.terms a:hover {
+  color: #4A90E2;
+  text-decoration: underline;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 480px) {
+  .form-container {
+    width: 100%;
+    padding: 32px 24px;
+  }
+}
+/* =========================
+   ANIMATIONS
+========================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.form-container {
+  animation: fadeIn 0.3s ease-out;
+}/*# sourceMappingURL=form.css.map */
