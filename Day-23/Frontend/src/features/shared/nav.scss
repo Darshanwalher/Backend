@@ -1,0 +1,48 @@
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  // Layout Logic
+  position: sticky;
+  top: 15px;               /* Floats slightly from the top */
+  width: 90%;              /* Doesn't touch the screen edges */
+  max-width: 600px;        /* Slightly wider than the posts for a nice framing effect */
+  margin-inline: auto;     /* Centers the bar */
+  z-index: 100;
+
+  // Professional Aesthetics
+  padding: 0.6rem 1.2rem;
+  background: rgba(255, 255, 255, 0.03); /* Extremely subtle dark tint */
+  backdrop-filter: blur(12px);           /* The "Glass" effect */
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Thin, soft border */
+  border-radius: 100px;                  /* Pill shape for a modern look */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  p {
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;    /* Professional branding feel */
+    color: #ffffff;
+    margin: 0;
+  }
+
+  .primary-btn {
+    background: #ffffff;    /* High contrast button */
+    color: #000;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 50px;    /* Matches the nav shape */
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      background: #e0e0e0;
+      transform: scale(1.05); /* Slight "pop" on hover */
+    }
+  }
+}
