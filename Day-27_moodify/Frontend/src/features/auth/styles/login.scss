@@ -1,0 +1,252 @@
+// ─── Black Aesthetic Color Palette (matches expression page) ─────────────────
+$primary-amber:   #f59e0b;
+$electric-gold:   #fbbf24;
+$neon-crimson:    #f43f5e;
+$dark-bg:         #000000;
+$deep-bg:         #050505;
+$card-bg:         rgba(255, 255, 255, 0.03);
+$border-glow:     rgba(251, 191, 36, 0.2);
+$text-white:      #ffffff;
+
+// ─── Login Page ───────────────────────────────────────────────────────────────
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  font-family: "DM Mono", "Fira Code", "Courier New", monospace;
+
+  // Deep true-black with warm amber core — mirrors expression page
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, #1a0e00 0%, #000000 65%),
+    radial-gradient(ellipse 50% 40% at 80% 90%, #0f0800 0%, transparent 60%);
+
+  // Grain texture overlay
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  // ─── Background Blobs ────────────────────────────────────────────────────
+  .background-visuals {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+
+    .blob {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(130px);
+      animation: float 12s infinite alternate;
+
+      &:nth-child(1) {
+        top: -120px;
+        left: -120px;
+        background: radial-gradient(circle, #f59e0b, #92400e);
+        opacity: 0.14;
+      }
+
+      &:nth-child(2) {
+        bottom: -120px;
+        right: -120px;
+        background: radial-gradient(circle, #f43f5e, #7f1d1d);
+        opacity: 0.09;
+        animation-delay: -6s;
+      }
+    }
+  }
+
+  // ─── Form Container ──────────────────────────────────────────────────────
+  .form-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 400px;
+    padding: 2.5rem;
+
+    background: $card-bg;
+    backdrop-filter: blur(40px) saturate(0.8);
+
+    border: 1px solid $border-glow;
+    outline: 1px solid rgba(0, 0, 0, 0.9);
+    border-radius: 24px;
+
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.08),
+      0 0 60px rgba(0, 0, 0, 0.9),
+      0 20px 40px rgba(0, 0, 0, 0.8),
+      inset 0 0 12px rgba(255, 255, 255, 0.02),
+      inset 0 1px 0 rgba(251, 191, 36, 0.08);
+
+    text-align: center;
+    color: $text-white;
+
+    // ─── Brand Header ──────────────────────────────────────────────────
+    .brand-header {
+      margin-bottom: 2rem;
+
+      .logo-icon {
+        font-size: 2.8rem;
+        filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.4));
+      }
+
+      h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin: 0.5rem 0;
+
+        // Gold foil gradient — matches expression page h1
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 40%, #d97706 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.3));
+      }
+
+      p {
+        font-size: 0.82rem;
+        opacity: 0.45;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #a8a29e;
+      }
+    }
+
+    // ─── Form Groups ───────────────────────────────────────────────────
+    .form-group {
+      text-align: left;
+      margin-bottom: 1.5rem;
+
+      label {
+        display: block;
+        font-size: 0.72rem;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        opacity: 0.45;
+        color: #a8a29e;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px 16px;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(251, 191, 36, 0.12);
+        border-radius: 10px;
+        color: #fde68a;
+        font-family: inherit;
+        font-size: 0.9rem;
+        transition: all 0.25s ease;
+        box-sizing: border-box;
+
+        &::placeholder {
+          color: #44403c;
+          opacity: 1;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: rgba(251, 191, 36, 0.45);
+          background: rgba(0, 0, 0, 0.7);
+          box-shadow:
+            0 0 0 3px rgba(251, 191, 36, 0.07),
+            inset 0 0 10px rgba(0, 0, 0, 0.4);
+          color: #fff;
+        }
+      }
+    }
+
+    // ─── Submit Button ─────────────────────────────────────────────────
+    .button {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-family: inherit;
+
+      // Matte black with gold shimmer — matches detect-btn
+      background: linear-gradient(180deg, #1c1009 0%, #0a0601 100%);
+      color: $electric-gold;
+
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s ease;
+
+      // Gold gleam sweep on hover
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 60%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.08), transparent);
+        transition: left 0.5s ease;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        border-color: rgba(251, 191, 36, 0.6);
+        background: linear-gradient(180deg, #2d1c0e 0%, #120a02 100%);
+        color: #fde68a;
+        box-shadow:
+          0 8px 24px rgba(0, 0, 0, 0.7),
+          0 0 20px rgba(251, 191, 36, 0.15),
+          inset 0 1px 0 rgba(251, 191, 36, 0.2);
+
+        &::before { left: 140%; }
+      }
+
+      &:active {
+        transform: scale(0.97);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+      }
+    }
+
+    // ─── Footer Text ───────────────────────────────────────────────────
+    .footer-text {
+      margin-top: 1.5rem;
+      font-size: 0.78rem;
+      opacity: 0.45;
+      color: #a8a29e;
+      letter-spacing: 0.04em;
+
+      a {
+        color: $electric-gold;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s, text-shadow 0.2s;
+
+        &:hover {
+          color: #fde68a;
+          text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}
+
+// ─── Animations ───────────────────────────────────────────────────────────────
+@keyframes float {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(50px, 80px) scale(1.05); }
+}

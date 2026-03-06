@@ -1,0 +1,319 @@
+// ─── Black Aesthetic Color Palette ───────────────────────────────────────────
+$primary-amber:   #f59e0b;       // Warm amber — replaces purple
+$electric-gold:   #fbbf24;       // Bright gold — replaces cyan
+$neon-crimson:    #f43f5e;       // Hot red-pink — replaces green
+$dark-bg:         #000000;       // True black
+$deep-bg:         #050505;       // Near-black with zero blue cast
+$card-bg:         rgba(255, 255, 255, 0.03);
+$border-glow:     rgba(251, 191, 36, 0.2); // Gold glow border
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+.expression-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+
+  // Deep black with a subtle warm-core radial gradient
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, #1a0e00 0%, #000000 65%),
+    radial-gradient(ellipse 50% 40% at 80% 90%, #0f0800 0%, transparent 60%);
+
+  color: #fff;
+  font-family: "DM Mono", "Fira Code", "Courier New", monospace;
+  overflow: hidden;
+  position: relative;
+
+  // Subtle grain texture overlay for depth
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  // ─── Background Visuals ──────────────────────────────────────────────────
+  .background-visuals {
+    position: absolute;
+    inset: 0;
+
+    .blob {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      filter: blur(140px);
+      opacity: 0.12;
+      animation: drift 20s infinite linear;
+
+      &:nth-child(1) {
+        top: -15%;
+        left: -15%;
+        background: radial-gradient(circle, #f59e0b, #92400e);
+      }
+
+      &:nth-child(2) {
+        bottom: -15%;
+        right: -15%;
+        background: radial-gradient(circle, #f43f5e, #7f1d1d);
+        animation-direction: reverse;
+        opacity: 0.08;
+      }
+    }
+  }
+
+  // ─── Scanner Card ────────────────────────────────────────────────────────
+  .scanner-container {
+    position: relative;
+    z-index: 2;
+
+    background: $card-bg;
+    backdrop-filter: blur(40px) saturate(0.8);
+
+    // Layered border: hair-thin gold on jet black
+    border: 1px solid $border-glow;
+    outline: 1px solid rgba(0, 0, 0, 0.9);
+
+    padding: 2.5rem;
+    border-radius: 24px;
+    text-align: center;
+
+    width: 100%;
+    max-width: 420px;
+
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.08),
+      0 0 60px rgba(0, 0, 0, 0.9),
+      0 20px 40px rgba(0, 0, 0, 0.8),
+      inset 0 0 12px rgba(255, 255, 255, 0.02),
+      inset 0 1px 0 rgba(251, 191, 36, 0.08);
+
+    // Brand Header
+    .brand-header {
+      margin-bottom: 1.8rem;
+
+      h1 {
+        font-size: 1.9rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 6px;
+
+        // Gold foil gradient text
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 40%, #d97706 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.3));
+      }
+
+      p {
+        opacity: 0.45;
+        font-size: 0.82rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #a8a29e;
+      }
+    }
+
+    // ─── Video Section ────────────────────────────────────────────────────
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(251, 191, 36, 0.12);
+      background: #050505;
+      margin-bottom: 1.8rem;
+
+      // Inner vignette
+      &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.7) 100%);
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      .mood-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scaleX(-1);
+        filter: contrast(1.05) brightness(0.95);
+      }
+
+      // Gold scan line
+      .scan-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, $electric-gold, transparent);
+        box-shadow: 0 0 18px $electric-gold, 0 0 40px rgba(251, 191, 36, 0.4);
+        opacity: 0.9;
+        animation: scan 2.8s infinite ease-in-out;
+        z-index: 3;
+      }
+
+      // Corner brackets — gold
+      .corners span {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border: 1.5px solid $electric-gold;
+        z-index: 4;
+        filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.6));
+
+        &:nth-child(1) { top: 10px; left: 10px; border-right: 0; border-bottom: 0; }
+        &:nth-child(2) { top: 10px; right: 10px; border-left: 0; border-bottom: 0; }
+        &:nth-child(3) { bottom: 10px; left: 10px; border-right: 0; border-top: 0; }
+        &:nth-child(4) { bottom: 10px; right: 10px; border-left: 0; border-top: 0; }
+      }
+    }
+
+    // ─── Result Card ──────────────────────────────────────────────────────
+    .result-card {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 1.2rem;
+      border-radius: 12px;
+      margin-bottom: 1.8rem;
+      border: 1px solid rgba(251, 191, 36, 0.1);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+
+      .label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        opacity: 0.4;
+        margin-bottom: 6px;
+        color: #a8a29e;
+      }
+
+      .expression-text {
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+
+        // Crimson neon for detected expression
+        color: $neon-crimson;
+        text-shadow:
+          0 0 12px rgba(244, 63, 94, 0.6),
+          0 0 30px rgba(244, 63, 94, 0.2);
+
+        &.detecting {
+          color: #44403c;
+          text-shadow: none;
+          animation: blink 1.5s infinite;
+        }
+      }
+    }
+
+    // ─── Button ───────────────────────────────────────────────────────────
+    .detect-btn {
+      width: 100%;
+      padding: 14px 20px;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+
+      // Matte black with a gold shimmer top border
+      background: linear-gradient(180deg, #1c1009 0%, #0a0601 100%);
+      color: $electric-gold;
+
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+
+      // Gold gleam sweep on hover
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 60%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.08), transparent);
+        transition: left 0.5s ease;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        border-color: rgba(251, 191, 36, 0.6);
+        background: linear-gradient(180deg, #2d1c0e 0%, #120a02 100%);
+        color: #fde68a;
+        box-shadow:
+          0 8px 24px rgba(0, 0, 0, 0.7),
+          0 0 20px rgba(251, 191, 36, 0.15),
+          inset 0 1px 0 rgba(251, 191, 36, 0.2);
+
+        &::before { left: 140%; }
+      }
+
+      &:active {
+        transform: scale(0.97);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+      }
+    }
+  }
+}
+
+// ─── Animations ───────────────────────────────────────────────────────────────
+@keyframes scan {
+  0%   { top: 0%; opacity: 0.9; }
+  48%  { opacity: 0.6; }
+  50%  { top: 100%; opacity: 0.9; }
+  100% { top: 0%; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+@keyframes drift {
+  from { transform: rotate(0deg) translate(30px) rotate(0deg); }
+  to   { transform: rotate(360deg) translate(30px) rotate(-360deg); }
+}
+
+// ─── Responsive ───────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .scanner-container { padding: 2rem; }
+  .brand-header h1   { font-size: 1.6rem; }
+  .result-card .expression-text { font-size: 1.4rem; }
+}
+
+@media (max-width: 480px) {
+  .expression-page { padding: 15px; }
+
+  .scanner-container {
+    padding: 1.6rem;
+    border-radius: 18px;
+  }
+
+  .brand-header h1 { font-size: 1.35rem; }
+  .brand-header p  { font-size: 0.78rem; }
+  .video-wrapper   { aspect-ratio: 3/2; }
+
+  .detect-btn {
+    font-size: 13px;
+    padding: 12px;
+  }
+
+  .result-card .expression-text { font-size: 1.25rem; }
+}

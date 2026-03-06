@@ -1,0 +1,360 @@
+// ─── Black Aesthetic Color Palette (matches all pages) ───────────────────────
+$primary-amber:   #f59e0b;
+$electric-gold:   #fbbf24;
+$neon-crimson:    #f43f5e;
+$dark-bg:         #000000;
+$border-glow:     rgba(251, 191, 36, 0.2);
+
+// ─── Player ───────────────────────────────────────────────────────────────────
+.player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  // True black base with warm amber tint
+  background: rgba(8, 4, 0, 0.92);
+  backdrop-filter: blur(24px) saturate(0.8);
+
+  border-top: 1px solid $border-glow;
+
+  padding: 12px 24px;
+
+  display: flex;
+  align-items: center;
+  gap: 24px;
+
+  z-index: 100;
+
+  box-shadow:
+    0 -10px 50px rgba(0, 0, 0, 0.85),
+    0 -1px 0 rgba(251, 191, 36, 0.06),
+    inset 0 1px 0 rgba(251, 191, 36, 0.07);
+
+  font-family: "DM Mono", "Fira Code", "Courier New", monospace;
+
+  // ─── Song Info ─────────────────────────────────────────────────────────
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 200px;
+  }
+
+  &__poster {
+    width: 52px;
+    height: 40px;
+    border-radius: 10px;
+    object-fit: cover;
+
+    box-shadow:
+      0 4px 14px rgba(0, 0, 0, 0.7),
+      0 0 12px rgba(251, 191, 36, 0.2);
+
+    border: 1px solid rgba(251, 191, 36, 0.15);
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fde68a;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
+
+  &__mood {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+
+    color: $electric-gold;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+
+    padding: 2px 8px;
+    border-radius: 20px;
+
+    font-weight: 600;
+  }
+
+  // ─── Progress ──────────────────────────────────────────────────────────
+  &__progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+  }
+
+  &__time {
+    font-size: 0.72rem;
+    color: #57534e;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__progress {
+    position: relative;
+    flex: 1;
+    height: 3px;
+    background: #1c1917;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: height 0.2s;
+
+    &:hover {
+      height: 5px;
+    }
+  }
+
+  &__progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #92400e, $primary-amber, $electric-gold);
+    border-radius: 4px;
+    transition: width 0.1s linear;
+  }
+
+  &__progress-thumb {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: $electric-gold;
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+    opacity: 0;
+    transition: 0.2s;
+  }
+
+  &__progress:hover &__progress-thumb {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  // ─── Controls ──────────────────────────────────────────────────────────
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__btn {
+    background: none;
+    border: none;
+    color: #57534e;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: inherit;
+    transition: all 0.2s;
+
+    &:hover {
+      color: #fde68a;
+      background: rgba(251, 191, 36, 0.07);
+    }
+  }
+
+  // ─── Play Button ───────────────────────────────────────────────────────
+  &__btn--play {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+
+    // Matte black with gold rim — matches button style across pages
+    background: linear-gradient(180deg, #1c1009 0%, #0a0601 100%);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    color: $electric-gold;
+
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.08),
+      0 6px 18px rgba(0, 0, 0, 0.7),
+      0 0 20px rgba(251, 191, 36, 0.12);
+
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    &:hover {
+      transform: scale(1.06);
+      border-color: rgba(251, 191, 36, 0.7);
+      color: #fde68a;
+      box-shadow:
+        0 0 0 1px rgba(251, 191, 36, 0.15),
+        0 8px 24px rgba(0, 0, 0, 0.8),
+        0 0 28px rgba(251, 191, 36, 0.2);
+
+      &::before { left: 140%; }
+    }
+  }
+
+  // ─── Skip ──────────────────────────────────────────────────────────────
+  &__btn--skip {
+    font-size: 0.8rem;
+    color: #44403c;
+
+    &:hover { color: #fde68a; }
+  }
+
+  // ─── Speed ─────────────────────────────────────────────────────────────
+  &__speed-wrap {
+    position: relative;
+  }
+
+  &__btn--speed {
+    border: 1px solid rgba(251, 191, 36, 0.18);
+    border-radius: 6px;
+    padding: 5px 10px;
+    color: #78716c;
+    font-family: inherit;
+    font-size: 0.78rem;
+
+    &:hover {
+      border-color: rgba(251, 191, 36, 0.5);
+      color: $electric-gold;
+      background: rgba(251, 191, 36, 0.06);
+    }
+  }
+
+  // ─── Speed Menu ────────────────────────────────────────────────────────
+  &__speed-menu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+
+    background: rgba(8, 4, 0, 0.97);
+    backdrop-filter: blur(20px);
+
+    border: 1px solid $border-glow;
+    border-radius: 10px;
+    padding: 6px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    min-width: 70px;
+
+    box-shadow:
+      0 6px 24px rgba(0, 0, 0, 0.8),
+      0 0 0 1px rgba(251, 191, 36, 0.06);
+  }
+
+  &__speed-option {
+    border: none;
+    background: none;
+    color: #78716c;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-family: inherit;
+    transition: all 0.15s;
+
+    &:hover {
+      background: rgba(251, 191, 36, 0.07);
+      color: #fde68a;
+    }
+
+    &.active {
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.25);
+      color: $electric-gold;
+      font-weight: 700;
+    }
+  }
+
+  // ─── Volume ────────────────────────────────────────────────────────────
+  &__volume {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__volume-slider {
+    appearance: none;
+    width: 80px;
+    height: 3px;
+    border-radius: 4px;
+    background: #1c1917;
+    cursor: pointer;
+    transition: height 0.2s;
+
+    &:hover { height: 5px; }
+
+    &::-webkit-slider-thumb {
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: $electric-gold;
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(251, 191, 36, 0.5);
+    }
+
+    &::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: $electric-gold;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(251, 191, 36, 0.5);
+    }
+  }
+}
+
+// ─── Responsive ───────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .player {
+    gap: 12px;
+    padding: 10px 16px;
+  }
+
+  .player__title { max-width: 120px; }
+}
+
+@media (max-width: 600px) {
+  .player { flex-wrap: wrap; }
+
+  .player__progress-wrap {
+    order: 3;
+    width: 100%;
+  }
+
+  .player__volume-slider { width: 60px; }
+}
+
+@media (max-width: 420px) {
+  .player__poster   { width: 42px; height: 42px; }
+  .player__btn--play { width: 44px; height: 44px; }
+
+  .player__title {
+    max-width: 90px;
+    font-size: 0.82rem;
+  }
+}
