@@ -6,13 +6,13 @@ import Home from "./features/home/pages/Home"
 
 export const router = createBrowserRouter([
     {
-        path:"/home",
+        path:"/",
         element: <Protected>
            <Home />
         </Protected>
     },
     {
-        path:"/",
+        path:"/login",
         element: <Login />
     },
     {
