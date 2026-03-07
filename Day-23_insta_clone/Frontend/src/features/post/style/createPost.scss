@@ -1,0 +1,98 @@
+.create-post-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; /* Adjust based on your nav height */
+  background-color: #0a0a0a;
+  padding: 20px;
+
+  .form-container {
+    width: 100%;
+    max-width: 450px;
+    background: #161616;
+    padding: 2.5rem;
+    border-radius: 24px;
+    border: 1px solid #262626;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+    h1 {
+      color: #ffffff;
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin-bottom: 2rem;
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+
+      // The Image Upload Area
+      .post-img-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+        background: #1f1f1f;
+        border: 2px dashed #333;
+        border-radius: 16px;
+        color: #888;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: #252525;
+          border-color: #0095f6;
+          color: #fff;
+        }
+      }
+
+      // The Caption Input
+      input[type="text"] {
+        background: #1f1f1f;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 14px 18px;
+        color: #fff;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s;
+
+        &::placeholder {
+          color: #555;
+        }
+
+        &:focus {
+          border-color: #0095f6;
+          background: #222;
+        }
+      }
+
+      // The Submit Button
+      .btn {
+        margin-top: 10px;
+        background: #ffffff;
+        color: #000;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+
+        &:hover {
+          background: #f0f0f0;
+          transform: translateY(-2px);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
+  }
+}

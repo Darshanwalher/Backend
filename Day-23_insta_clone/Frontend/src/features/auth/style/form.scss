@@ -1,0 +1,162 @@
+// Variables - Dark Theme Palette
+$primary-color: #0095f6; // Slightly brighter blue for dark background visibility
+$accent-gradient: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+$text-dark: #f5f5f5;      // Primary text (Light)
+$text-light: #a8a8a8;     // Secondary text (Muted)
+$border-color: #262626;   // Dark borders
+$bg-color: #000000;       // True black for outer background
+$card-bg: #121212;        // Surface color for the form container
+$input-bg: #1a1a1a;       // Slightly lighter than card for inputs
+$mobile-breakpoint: 450px;
+
+// Mixin for responsiveness
+@mixin tablet-up {
+  @media (min-width: #{$mobile-breakpoint}) {
+    @content;
+  }
+}
+
+.login-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: $bg-color; // Mobile defaults to dark
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: $text-dark;
+
+  @include tablet-up {
+    background-color: $bg-color;
+  }
+
+  .form-container {
+    background: $card-bg;
+    padding: 2rem 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+
+    @include tablet-up {
+      max-width: 350px;
+      padding: 3rem 2.5rem;
+      border: 1px solid $border-color;
+      border-radius: 4px;
+      // Softened the shadow for dark mode
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .brand-header {
+      margin-bottom: 2.5rem;
+
+      h1 {
+        font-size: 2.2rem;
+        margin-bottom: 0.5rem;
+        letter-spacing: -1px;
+        background: $accent-gradient;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+
+        @include tablet-up {
+          font-size: 2.5rem;
+        }
+      }
+
+      p {
+        color: $text-light;
+        font-weight: 500;
+        font-size: 0.95rem;
+        padding: 0 10px;
+      }
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+
+      input {
+  // ... your existing styles ...
+
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover, 
+  &:-webkit-autofill:focus, 
+  &:-webkit-autofill:active {
+    // This transitions the background color to stay dark
+    -webkit-transition: background-color 5000s ease-in-out 0s;
+    transition: background-color 5000s ease-in-out 0s;
+    
+    // This forces the text to be your primary text color
+    -webkit-text-fill-color: $text-dark !important;
+  }
+}
+
+      input {
+        width: 100%;
+        padding: 14px 12px;
+        background: $input-bg; // Darker input background
+        border: 1px solid $border-color;
+        border-radius: 4px;
+        color: $text-dark; // White text inside inputs
+        font-size: 1rem;
+        transition: border 0.2s ease;
+
+        @include tablet-up {
+          font-size: 0.85rem;
+          padding: 12px;
+        }
+
+        &::placeholder {
+          color: #737373; // Muted placeholder
+        }
+
+        &:focus {
+          outline: none;
+          border-color: #555; // Slightly lighter border on focus
+        }
+      }
+
+      .login-btn {
+        margin-top: 0.5rem;
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        background-color: $primary-color;
+        color: white;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: transform 0.1s, opacity 0.2s;
+
+        &:active {
+          transform: scale(0.97);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        @include tablet-up {
+          padding: 10px;
+          font-size: 0.9rem;
+        }
+      }
+    }
+
+    .form-footer {
+      margin-top: 2.5rem;
+      font-size: 0.9rem;
+      color: $text-light;
+
+      a {
+        color: $primary-color;
+        text-decoration: none;
+        font-weight: 600;
+      }
+    }
+  }
+}

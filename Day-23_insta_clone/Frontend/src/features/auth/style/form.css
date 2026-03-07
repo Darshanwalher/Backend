@@ -1,0 +1,110 @@
+.login-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+@media (min-width: 450px) {
+  .login-page {
+    background-color: #fafafa;
+  }
+}
+.login-page .form-container {
+  background: white;
+  padding: 2rem 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+@media (min-width: 450px) {
+  .login-page .form-container {
+    max-width: 350px;
+    padding: 3rem 2.5rem;
+    border: 1px solid #dbdbdb;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+}
+.login-page .form-container .brand-header {
+  margin-bottom: 2.5rem;
+}
+.login-page .form-container .brand-header h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: -1px;
+  background: linear-gradient(45deg, #405de6, #5851db, #833ab4);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+@media (min-width: 450px) {
+  .login-page .form-container .brand-header h1 {
+    font-size: 2.5rem;
+  }
+}
+.login-page .form-container .brand-header p {
+  color: #8e8e8e;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0 10px;
+}
+.login-page .form-container .login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.login-page .form-container .login-form input {
+  width: 100%;
+  padding: 14px 12px;
+  background: #fafafa;
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border 0.2s ease;
+}
+@media (min-width: 450px) {
+  .login-page .form-container .login-form input {
+    font-size: 0.85rem;
+    padding: 12px;
+  }
+}
+.login-page .form-container .login-form input:focus {
+  outline: none;
+  border-color: #8e8e8e;
+}
+.login-page .form-container .login-form .login-btn {
+  margin-top: 0.5rem;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #405de6;
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.2s;
+}
+.login-page .form-container .login-form .login-btn:active {
+  transform: scale(0.97);
+}
+@media (min-width: 450px) {
+  .login-page .form-container .login-form .login-btn {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+}
+.login-page .form-container .form-footer {
+  margin-top: 2.5rem;
+  font-size: 0.9rem;
+  color: #262626;
+}
+.login-page .form-container .form-footer a {
+  color: #405de6;
+  text-decoration: none;
+  font-weight: 600;
+}/*# sourceMappingURL=form.css.map */
