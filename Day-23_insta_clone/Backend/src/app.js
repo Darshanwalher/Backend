@@ -6,7 +6,7 @@ const postRouter = require("./routes/post.routes")
 const userRouter = require("./routes/user.route")
 const app = express()
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"https://social-space-l1ot.onrender.com",
     credentials:true
 }))
 app.use(express.static("./public"))
