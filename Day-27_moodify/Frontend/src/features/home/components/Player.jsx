@@ -25,6 +25,7 @@ const Player = () => {
     const [volume, setVolume] = useState(1)
     const [showSpeed, setShowSpeed] = useState(false)
     const [isMuted, setIsMuted] = useState(false)
+    
 
     // Reset player when song changes
     useEffect(() => {

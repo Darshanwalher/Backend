@@ -1,123 +1,130 @@
-// ─── Black Aesthetic Color Palette (matches all pages) ───────────────────────
-$primary-amber:   #f59e0b;
-$electric-gold:   #fbbf24;
-$neon-crimson:    #f43f5e;
-$dark-bg:         #000000;
-$border-glow:     rgba(251, 191, 36, 0.2);
+// ─── Warm Brown + White Palette ───────────────────────────────────────────────
+$linen:      #faf4eb;
+$parchment:  #f0e6d0;
+$sand:       #ddc9a3;
+$tan:        #c4a882;
+$mocha:      #8b6343;
+$espresso:   #4a2e1a;
+$ink:        #2c1a0e;
+$border:     rgba(139, 99, 67, 0.22);
 
-// ─── Player ───────────────────────────────────────────────────────────────────
+// ─── Player — vertical card ───────────────────────────────────────────────────
 .player {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-
-  // True black base with warm amber tint
-  background: rgba(8, 4, 0, 0.92);
-  backdrop-filter: blur(24px) saturate(0.8);
-
-  border-top: 1px solid $border-glow;
-
-  padding: 12px 24px;
+  position: relative;
+  width: 100%;
+  max-width: 420px;
 
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
 
-  z-index: 100;
+  background: rgba(255, 248, 236, 0.75);
+  backdrop-filter: blur(32px) saturate(1.2);
+  border: 1px solid $border;
+  border-radius: 24px;
+  padding: 2rem;
+  overflow: hidden;
 
-  box-shadow:
-    0 -10px 50px rgba(0, 0, 0, 0.85),
-    0 -1px 0 rgba(251, 191, 36, 0.06),
-    inset 0 1px 0 rgba(251, 191, 36, 0.07);
-
+  color: $ink;
   font-family: "DM Mono", "Fira Code", "Courier New", monospace;
 
-  // ─── Song Info ─────────────────────────────────────────────────────────
+  box-shadow:
+    0 2px 0 rgba(255,255,255,.95) inset,
+    0 8px 40px rgba(74, 46, 26, 0.12),
+    0 24px 60px rgba(74, 46, 26, 0.07);
+
   &__info {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 12px;
-    min-width: 200px;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
   }
 
   &__poster {
-    width: 52px;
-    height: 40px;
-    border-radius: 10px;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
     object-fit: cover;
+    flex-shrink: 0;
 
     box-shadow:
-      0 4px 14px rgba(0, 0, 0, 0.7),
-      0 0 12px rgba(251, 191, 36, 0.2);
+      0 4px 20px rgba(74, 46, 26, 0.2),
+      0 0 0 3px rgba(240, 230, 208, 0.9),
+      0 0 0 4px rgba(139, 99, 67, 0.2);
 
-    border: 1px solid rgba(251, 191, 36, 0.15);
+    animation: poster-spin 8s linear infinite paused;
+  }
+
+  &.playing &__poster {
+    animation-play-state: running;
   }
 
   &__meta {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
   }
 
   &__title {
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 600;
-    color: #fde68a;
-
+    color: $espresso;
+    text-align: center;
+    letter-spacing: 0.02em;
+    width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 150px;
   }
 
   &__mood {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-
-    color: $electric-gold;
-    background: rgba(251, 191, 36, 0.1);
-    border: 1px solid rgba(251, 191, 36, 0.2);
-
-    padding: 2px 8px;
-    border-radius: 20px;
-
     font-weight: 600;
+    color: $mocha;
+    background: rgba(139, 99, 67, 0.1);
+    border: 1px solid rgba(139, 99, 67, 0.22);
+    padding: 3px 12px;
+    border-radius: 20px;
   }
 
-  // ─── Progress ──────────────────────────────────────────────────────────
   &__progress-wrap {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: 1;
+    width: 100%;
   }
 
   &__time {
-    font-size: 0.72rem;
-    color: #57534e;
+    font-size: 0.7rem;
+    color: $tan;
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
   }
 
   &__progress {
     position: relative;
     flex: 1;
     height: 3px;
-    background: #1c1917;
+    background: $sand;
     border-radius: 4px;
     cursor: pointer;
     transition: height 0.2s;
 
-    &:hover {
-      height: 5px;
-    }
+    &:hover { height: 5px; }
   }
 
   &__progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #92400e, $primary-amber, $electric-gold);
+    background: linear-gradient(90deg, $tan, $mocha, $espresso);
     border-radius: 4px;
     transition: width 0.1s linear;
   }
@@ -126,11 +133,10 @@ $border-glow:     rgba(251, 191, 36, 0.2);
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%) scale(0.8);
-    width: 12px;
-    height: 12px;
+    width: 12px; height: 12px;
     border-radius: 50%;
-    background: $electric-gold;
-    box-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+    background: $espresso;
+    box-shadow: 0 0 6px rgba(74, 46, 26, 0.4);
     opacity: 0;
     transition: 0.2s;
   }
@@ -140,17 +146,19 @@ $border-glow:     rgba(251, 191, 36, 0.2);
     transform: translate(-50%, -50%) scale(1);
   }
 
-  // ─── Controls ──────────────────────────────────────────────────────────
   &__controls {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    flex-wrap: nowrap;
   }
 
   &__btn {
     background: none;
     border: none;
-    color: #57534e;
+    color: $tan;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -161,28 +169,24 @@ $border-glow:     rgba(251, 191, 36, 0.2);
     font-weight: 600;
     font-family: inherit;
     transition: all 0.2s;
+    flex-shrink: 0;
 
     &:hover {
-      color: #fde68a;
-      background: rgba(251, 191, 36, 0.07);
+      color: $espresso;
+      background: rgba(139, 99, 67, 0.08);
     }
   }
 
-  // ─── Play Button ───────────────────────────────────────────────────────
   &__btn--play {
-    width: 50px;
-    height: 50px;
+    width: 52px; height: 52px;
     border-radius: 50%;
-
-    // Matte black with gold rim — matches button style across pages
-    background: linear-gradient(180deg, #1c1009 0%, #0a0601 100%);
-    border: 1px solid rgba(251, 191, 36, 0.4);
-    color: $electric-gold;
+    background: linear-gradient(180deg, $espresso 0%, $ink 100%);
+    border: 1px solid rgba(74, 46, 26, 0.3);
+    color: $parchment;
 
     box-shadow:
-      0 0 0 1px rgba(251, 191, 36, 0.08),
-      0 6px 18px rgba(0, 0, 0, 0.7),
-      0 0 20px rgba(251, 191, 36, 0.12);
+      0 4px 16px rgba(74, 46, 26, 0.28),
+      0 1px 0 rgba(255,255,255,.15) inset;
 
     position: relative;
     overflow: hidden;
@@ -190,117 +194,96 @@ $border-glow:     rgba(251, 191, 36, 0.2);
     &::before {
       content: "";
       position: absolute;
-      top: 0;
-      left: -100%;
-      width: 60%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.1), transparent);
+      top: 0; left: -100%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,248,236,.12), transparent);
       transition: left 0.5s ease;
     }
 
     &:hover {
       transform: scale(1.06);
-      border-color: rgba(251, 191, 36, 0.7);
-      color: #fde68a;
-      box-shadow:
-        0 0 0 1px rgba(251, 191, 36, 0.15),
-        0 8px 24px rgba(0, 0, 0, 0.8),
-        0 0 28px rgba(251, 191, 36, 0.2);
+      background: linear-gradient(180deg, $mocha 0%, $espresso 100%);
+      box-shadow: 0 6px 22px rgba(74, 46, 26, 0.35);
 
       &::before { left: 140%; }
     }
   }
 
-  // ─── Skip ──────────────────────────────────────────────────────────────
   &__btn--skip {
-    font-size: 0.8rem;
-    color: #44403c;
-
-    &:hover { color: #fde68a; }
+    font-size: 0.75rem;
+    color: $sand;
+    gap: 3px;
+    &:hover { color: $espresso; }
   }
 
-  // ─── Speed ─────────────────────────────────────────────────────────────
-  &__speed-wrap {
-    position: relative;
-  }
+  &__speed-wrap { position: relative; }
 
   &__btn--speed {
-    border: 1px solid rgba(251, 191, 36, 0.18);
+    border: 1px solid rgba(139, 99, 67, 0.2);
     border-radius: 6px;
-    padding: 5px 10px;
-    color: #78716c;
+    padding: 5px 9px;
+    color: $mocha;
     font-family: inherit;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
 
     &:hover {
-      border-color: rgba(251, 191, 36, 0.5);
-      color: $electric-gold;
-      background: rgba(251, 191, 36, 0.06);
+      border-color: rgba(139, 99, 67, 0.45);
+      color: $espresso;
+      background: rgba(139, 99, 67, 0.07);
     }
   }
 
-  // ─── Speed Menu ────────────────────────────────────────────────────────
   &__speed-menu {
     position: absolute;
     bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%);
-
-    background: rgba(8, 4, 0, 0.97);
+    background: rgba(250, 244, 235, 0.97);
     backdrop-filter: blur(20px);
-
-    border: 1px solid $border-glow;
+    border: 1px solid $border;
     border-radius: 10px;
     padding: 6px;
-
     display: flex;
     flex-direction: column;
     gap: 4px;
-
     min-width: 70px;
-
-    box-shadow:
-      0 6px 24px rgba(0, 0, 0, 0.8),
-      0 0 0 1px rgba(251, 191, 36, 0.06);
+    z-index: 20;
+    box-shadow: 0 6px 24px rgba(74, 46, 26, 0.15);
   }
 
   &__speed-option {
     border: none;
     background: none;
-    color: #78716c;
+    color: $mocha;
     padding: 6px 12px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-family: inherit;
     transition: all 0.15s;
 
-    &:hover {
-      background: rgba(251, 191, 36, 0.07);
-      color: #fde68a;
-    }
+    &:hover { background: rgba(139,99,67,.08); color: $espresso; }
 
     &.active {
-      background: rgba(251, 191, 36, 0.12);
-      border: 1px solid rgba(251, 191, 36, 0.25);
-      color: $electric-gold;
+      background: rgba(139, 99, 67, 0.12);
+      border: 1px solid rgba(139, 99, 67, 0.25);
+      color: $espresso;
       font-weight: 700;
     }
   }
 
-  // ─── Volume ────────────────────────────────────────────────────────────
   &__volume {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+    flex-shrink: 0;
   }
 
   &__volume-slider {
     appearance: none;
-    width: 80px;
-    height: 3px;
+    width: 70px; height: 3px;
     border-radius: 4px;
-    background: #1c1917;
+    background: $sand;
     cursor: pointer;
     transition: height 0.2s;
 
@@ -308,53 +291,38 @@ $border-glow:     rgba(251, 191, 36, 0.2);
 
     &::-webkit-slider-thumb {
       appearance: none;
-      width: 12px;
-      height: 12px;
+      width: 12px; height: 12px;
       border-radius: 50%;
-      background: $electric-gold;
+      background: $espresso;
       cursor: pointer;
-      box-shadow: 0 0 6px rgba(251, 191, 36, 0.5);
+      box-shadow: 0 0 4px rgba(74, 46, 26, 0.3);
     }
 
     &::-moz-range-thumb {
-      width: 12px;
-      height: 12px;
+      width: 12px; height: 12px;
       border-radius: 50%;
-      background: $electric-gold;
+      background: $espresso;
       border: none;
       cursor: pointer;
-      box-shadow: 0 0 6px rgba(251, 191, 36, 0.5);
+      box-shadow: 0 0 4px rgba(74, 46, 26, 0.3);
     }
   }
 }
 
-// ─── Responsive ───────────────────────────────────────────────────────────────
-@media (max-width: 768px) {
+@keyframes poster-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@media (max-width: 480px) {
   .player {
-    gap: 12px;
-    padding: 10px 16px;
+    padding: 1.6rem;
+    border-radius: 18px;
+    gap: 16px;
   }
 
-  .player__title { max-width: 120px; }
-}
-
-@media (max-width: 600px) {
-  .player { flex-wrap: wrap; }
-
-  .player__progress-wrap {
-    order: 3;
-    width: 100%;
-  }
-
-  .player__volume-slider { width: 60px; }
-}
-
-@media (max-width: 420px) {
-  .player__poster   { width: 42px; height: 42px; }
-  .player__btn--play { width: 44px; height: 44px; }
-
-  .player__title {
-    max-width: 90px;
-    font-size: 0.82rem;
-  }
+  .player__poster        { width: 85px; height: 85px; }
+  .player__btn--play     { width: 46px; height: 46px; }
+  .player__title         { font-size: 0.9rem; }
+  .player__volume-slider { width: 55px; }
 }

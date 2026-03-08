@@ -1,12 +1,13 @@
-// ─── Black Aesthetic Color Palette (matches expression page) ─────────────────
-$primary-amber:   #f59e0b;
-$electric-gold:   #fbbf24;
-$neon-crimson:    #f43f5e;
-$dark-bg:         #000000;
-$deep-bg:         #050505;
-$card-bg:         rgba(255, 255, 255, 0.03);
-$border-glow:     rgba(251, 191, 36, 0.2);
-$text-white:      #ffffff;
+// ─── Warm Brown + White Palette ───────────────────────────────────────────────
+$linen:      #faf4eb;
+$parchment:  #f0e6d0;
+$sand:       #ddc9a3;
+$tan:        #c4a882;
+$mocha:      #8b6343;
+$espresso:   #4a2e1a;
+$ink:        #2c1a0e;
+$card-bg:    rgba(255, 248, 236, 0.72);
+$border:     rgba(139, 99, 67, 0.22);
 
 // ─── Login Page ───────────────────────────────────────────────────────────────
 .login-page {
@@ -18,56 +19,49 @@ $text-white:      #ffffff;
   position: relative;
   font-family: "DM Mono", "Fira Code", "Courier New", monospace;
 
-  // Deep true-black with warm amber core — mirrors expression page
+  // Warm linen — no black
   background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, #1a0e00 0%, #000000 65%),
-    radial-gradient(ellipse 50% 40% at 80% 90%, #0f0800 0%, transparent 60%);
+    radial-gradient(ellipse 90% 70% at 50% 0%, #f5e9d0 0%, #faf4eb 55%),
+    radial-gradient(ellipse 60% 50% at 85% 100%, #ecdfc6 0%, #faf4eb 70%);
 
-  // Grain texture overlay
   &::before {
     content: "";
     position: absolute;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
     background-size: 200px 200px;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.6;
+    opacity: 1;
   }
 
-  // ─── Background Blobs ────────────────────────────────────────────────────
   .background-visuals {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    width: 100%; height: 100%;
     z-index: 0;
 
     .blob {
       position: absolute;
-      width: 500px;
-      height: 500px;
+      width: 500px; height: 500px;
       border-radius: 50%;
-      filter: blur(130px);
+      filter: blur(120px);
       animation: float 12s infinite alternate;
 
       &:nth-child(1) {
-        top: -120px;
-        left: -120px;
-        background: radial-gradient(circle, #f59e0b, #92400e);
-        opacity: 0.14;
+        top: -120px; left: -120px;
+        background: radial-gradient(circle, #ddb98a, #c4966a);
+        opacity: 0.3;
       }
 
       &:nth-child(2) {
-        bottom: -120px;
-        right: -120px;
-        background: radial-gradient(circle, #f43f5e, #7f1d1d);
-        opacity: 0.09;
+        bottom: -120px; right: -120px;
+        background: radial-gradient(circle, #e8d4b0, #c9aa7c);
+        opacity: 0.22;
         animation-delay: -6s;
       }
     }
   }
 
-  // ─── Form Container ──────────────────────────────────────────────────────
   .form-container {
     position: relative;
     z-index: 1;
@@ -76,29 +70,24 @@ $text-white:      #ffffff;
     padding: 2.5rem;
 
     background: $card-bg;
-    backdrop-filter: blur(40px) saturate(0.8);
-
-    border: 1px solid $border-glow;
-    outline: 1px solid rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(32px) saturate(1.2);
+    border: 1px solid $border;
     border-radius: 24px;
 
     box-shadow:
-      0 0 0 1px rgba(251, 191, 36, 0.08),
-      0 0 60px rgba(0, 0, 0, 0.9),
-      0 20px 40px rgba(0, 0, 0, 0.8),
-      inset 0 0 12px rgba(255, 255, 255, 0.02),
-      inset 0 1px 0 rgba(251, 191, 36, 0.08);
+      0 2px 0 rgba(255,255,255,.95) inset,
+      0 8px 40px rgba(74, 46, 26, 0.12),
+      0 24px 60px rgba(74, 46, 26, 0.07);
 
     text-align: center;
-    color: $text-white;
+    color: $ink;
 
-    // ─── Brand Header ──────────────────────────────────────────────────
     .brand-header {
       margin-bottom: 2rem;
 
       .logo-icon {
         font-size: 2.8rem;
-        filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.4));
+        filter: drop-shadow(0 2px 8px rgba(74, 46, 26, 0.2));
       }
 
       h1 {
@@ -107,24 +96,21 @@ $text-white:      #ffffff;
         letter-spacing: -0.02em;
         margin: 0.5rem 0;
 
-        // Gold foil gradient — matches expression page h1
-        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 40%, #d97706 100%);
+        background: linear-gradient(135deg, $ink 0%, $espresso 40%, $mocha 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.3));
       }
 
       p {
         font-size: 0.82rem;
-        opacity: 0.45;
-        letter-spacing: 0.08em;
+        opacity: 0.5;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
-        color: #a8a29e;
+        color: $mocha;
       }
     }
 
-    // ─── Form Groups ───────────────────────────────────────────────────
     .form-group {
       text-align: left;
       margin-bottom: 1.5rem;
@@ -136,44 +122,43 @@ $text-white:      #ffffff;
         font-weight: 500;
         letter-spacing: 2px;
         text-transform: uppercase;
-        opacity: 0.45;
-        color: #a8a29e;
+        opacity: 0.5;
+        color: $mocha;
       }
 
       input {
         width: 100%;
         padding: 12px 16px;
-        background: rgba(0, 0, 0, 0.5);
-        border: 1px solid rgba(251, 191, 36, 0.12);
+        background: rgba(255, 248, 236, 0.6);
+        border: 1px solid rgba(139, 99, 67, 0.2);
         border-radius: 10px;
-        color: #fde68a;
+        color: $ink;
         font-family: inherit;
         font-size: 0.9rem;
         transition: all 0.25s ease;
         box-sizing: border-box;
 
         &::placeholder {
-          color: #44403c;
+          color: $sand;
           opacity: 1;
         }
 
         &:focus {
           outline: none;
-          border-color: rgba(251, 191, 36, 0.45);
-          background: rgba(0, 0, 0, 0.7);
+          border-color: rgba(139, 99, 67, 0.5);
+          background: rgba(255, 248, 236, 0.9);
           box-shadow:
-            0 0 0 3px rgba(251, 191, 36, 0.07),
-            inset 0 0 10px rgba(0, 0, 0, 0.4);
-          color: #fff;
+            0 0 0 3px rgba(139, 99, 67, 0.08),
+            0 2px 0 rgba(255,255,255,.8) inset;
+          color: $ink;
         }
       }
     }
 
-    // ─── Submit Button ─────────────────────────────────────────────────
     .button {
       width: 100%;
       padding: 14px;
-      border: 1px solid rgba(251, 191, 36, 0.3);
+      border: 1px solid rgba(74, 46, 26, 0.25);
       border-radius: 10px;
       font-size: 13px;
       font-weight: 600;
@@ -181,72 +166,63 @@ $text-white:      #ffffff;
       text-transform: uppercase;
       font-family: inherit;
 
-      // Matte black with gold shimmer — matches detect-btn
-      background: linear-gradient(180deg, #1c1009 0%, #0a0601 100%);
-      color: $electric-gold;
+      // Dark espresso — strong CTA on light page
+      background: linear-gradient(180deg, $espresso 0%, $ink 100%);
+      color: $parchment;
 
       cursor: pointer;
       position: relative;
       overflow: hidden;
       transition: all 0.25s ease;
 
-      // Gold gleam sweep on hover
       &::before {
         content: "";
         position: absolute;
-        top: 0;
-        left: -100%;
-        width: 60%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.08), transparent);
+        top: 0; left: -100%;
+        width: 60%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,248,236,.1), transparent);
         transition: left 0.5s ease;
       }
 
       &:hover {
         transform: translateY(-2px);
-        border-color: rgba(251, 191, 36, 0.6);
-        background: linear-gradient(180deg, #2d1c0e 0%, #120a02 100%);
-        color: #fde68a;
+        background: linear-gradient(180deg, $mocha 0%, $espresso 100%);
+        color: $linen;
+        border-color: rgba(74, 46, 26, 0.4);
         box-shadow:
-          0 8px 24px rgba(0, 0, 0, 0.7),
-          0 0 20px rgba(251, 191, 36, 0.15),
-          inset 0 1px 0 rgba(251, 191, 36, 0.2);
+          0 8px 24px rgba(74, 46, 26, 0.22),
+          0 0 0 1px rgba(139, 99, 67, 0.1);
 
         &::before { left: 140%; }
       }
 
-      &:active {
-        transform: scale(0.97);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-      }
+      &:active { transform: scale(0.97); }
     }
 
-    // ─── Footer Text ───────────────────────────────────────────────────
     .footer-text {
       margin-top: 1.5rem;
       font-size: 0.78rem;
-      opacity: 0.45;
-      color: #a8a29e;
+      opacity: 0.5;
+      color: $mocha;
       letter-spacing: 0.04em;
 
       a {
-        color: $electric-gold;
+        color: $espresso;
         text-decoration: none;
         font-weight: 600;
-        transition: color 0.2s, text-shadow 0.2s;
+        transition: color 0.2s;
 
         &:hover {
-          color: #fde68a;
-          text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
-          text-decoration: none;
+          color: $ink;
+          text-decoration: underline;
+          text-underline-offset: 3px;
         }
       }
     }
   }
 }
 
-// ─── Animations ───────────────────────────────────────────────────────────────
 @keyframes float {
   from { transform: translate(0, 0) scale(1); }
-  to   { transform: translate(50px, 80px) scale(1.05); }
+  to   { transform: translate(40px, 60px) scale(1.04); }
 }

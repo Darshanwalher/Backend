@@ -1,11 +1,13 @@
-// ─── Black Aesthetic Color Palette ───────────────────────────────────────────
-$primary-amber:   #f59e0b;       // Warm amber — replaces purple
-$electric-gold:   #fbbf24;       // Bright gold — replaces cyan
-$neon-crimson:    #f43f5e;       // Hot red-pink — replaces green
-$dark-bg:         #000000;       // True black
-$deep-bg:         #050505;       // Near-black with zero blue cast
-$card-bg:         rgba(255, 255, 255, 0.03);
-$border-glow:     rgba(251, 191, 36, 0.2); // Gold glow border
+// ─── Warm Brown + White Palette ───────────────────────────────────────────────
+$linen:       #faf4eb;       // Warm off-white — page base
+$parchment:   #f0e6d0;       // Aged paper
+$sand:        #ddc9a3;       // Warm sand
+$tan:         #c4a882;       // Medium tan
+$mocha:       #8b6343;       // Mocha brown
+$espresso:    #4a2e1a;       // Deep espresso
+$ink:         #2c1a0e;       // Near-black brown — text
+$card-bg:     rgba(255, 248, 236, 0.72);
+$border:      rgba(139, 99, 67, 0.2);
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 .expression-page {
@@ -13,28 +15,28 @@ $border-glow:     rgba(251, 191, 36, 0.2); // Gold glow border
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 10px;
 
-  // Deep black with a subtle warm-core radial gradient
+  // Warm linen base — bright, airy, no black
   background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, #1a0e00 0%, #000000 65%),
-    radial-gradient(ellipse 50% 40% at 80% 90%, #0f0800 0%, transparent 60%);
+    radial-gradient(ellipse 90% 70% at 50% 0%,   #f5e9d0 0%, #faf4eb 55%),
+    radial-gradient(ellipse 60% 50% at 85% 100%,  #ecdfc6 0%, #faf4eb 70%);
 
-  color: #fff;
+  color: $ink;
   font-family: "DM Mono", "Fira Code", "Courier New", monospace;
   overflow: hidden;
   position: relative;
 
-  // Subtle grain texture overlay for depth
+  // Fine grain — like uncoated paper
   &::before {
     content: "";
     position: absolute;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
     background-size: 200px 200px;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.6;
+    opacity: 1;
   }
 
   // ─── Background Visuals ──────────────────────────────────────────────────
@@ -44,25 +46,23 @@ $border-glow:     rgba(251, 191, 36, 0.2); // Gold glow border
 
     .blob {
       position: absolute;
-      width: 700px;
-      height: 700px;
+      width: 640px;
+      height: 640px;
       border-radius: 50%;
-      filter: blur(140px);
-      opacity: 0.12;
-      animation: drift 20s infinite linear;
+      filter: blur(120px);
+      animation: drift 22s infinite linear;
 
       &:nth-child(1) {
-        top: -15%;
-        left: -15%;
-        background: radial-gradient(circle, #f59e0b, #92400e);
+        top: -10%; left: -10%;
+        background: radial-gradient(circle, #ddb98a, #c4966a);
+        opacity: 0.3;
       }
 
       &:nth-child(2) {
-        bottom: -15%;
-        right: -15%;
-        background: radial-gradient(circle, #f43f5e, #7f1d1d);
+        bottom: -10%; right: -10%;
+        background: radial-gradient(circle, #e8d4b0, #c9aa7c);
         animation-direction: reverse;
-        opacity: 0.08;
+        opacity: 0.22;
       }
     }
   }
@@ -73,27 +73,20 @@ $border-glow:     rgba(251, 191, 36, 0.2); // Gold glow border
     z-index: 2;
 
     background: $card-bg;
-    backdrop-filter: blur(40px) saturate(0.8);
-
-    // Layered border: hair-thin gold on jet black
-    border: 1px solid $border-glow;
-    outline: 1px solid rgba(0, 0, 0, 0.9);
-
+    backdrop-filter: blur(32px) saturate(1.2);
+    border: 1px solid $border;
     padding: 2.5rem;
-    border-radius: 24px;
+    border-radius: 22px;
     text-align: center;
-
     width: 100%;
     max-width: 420px;
 
     box-shadow:
-      0 0 0 1px rgba(251, 191, 36, 0.08),
-      0 0 60px rgba(0, 0, 0, 0.9),
-      0 20px 40px rgba(0, 0, 0, 0.8),
-      inset 0 0 12px rgba(255, 255, 255, 0.02),
-      inset 0 1px 0 rgba(251, 191, 36, 0.08);
+      0 2px 0 rgba(255,255,255,0.9) inset,
+      0 1px 0 $border,
+      0 8px 40px rgba(74, 46, 26, 0.1),
+      0 24px 60px rgba(74, 46, 26, 0.07);
 
-    // Brand Header
     .brand-header {
       margin-bottom: 1.8rem;
 
@@ -103,20 +96,19 @@ $border-glow:     rgba(251, 191, 36, 0.2); // Gold glow border
         letter-spacing: -0.02em;
         margin-bottom: 6px;
 
-        // Gold foil gradient text
-        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 40%, #d97706 100%);
+        // Deep espresso-to-mocha gradient
+        background: linear-gradient(135deg, $ink 0%, $espresso 40%, $mocha 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.3));
       }
 
       p {
-        opacity: 0.45;
+        opacity: 0.5;
         font-size: 0.82rem;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
-        color: #a8a29e;
+        color: $mocha;
       }
     }
 
@@ -125,18 +117,17 @@ $border-glow:     rgba(251, 191, 36, 0.2); // Gold glow border
       position: relative;
       width: 100%;
       aspect-ratio: 4/3;
-      border-radius: 14px;
+      border-radius: 12px;
       overflow: hidden;
-      border: 1px solid rgba(251, 191, 36, 0.12);
-      background: #050505;
+      border: 1px solid $border;
+      background: $parchment;
       margin-bottom: 1.8rem;
 
-      // Inner vignette
       &::after {
         content: "";
         position: absolute;
         inset: 0;
-        background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.7) 100%);
+        background: radial-gradient(ellipse at center, transparent 55%, rgba(196, 168, 130, 0.3) 100%);
         pointer-events: none;
         z-index: 2;
       }
@@ -146,31 +137,28 @@ $border-glow:     rgba(251, 191, 36, 0.2); // Gold glow border
         height: 100%;
         object-fit: cover;
         transform: scaleX(-1);
-        filter: contrast(1.05) brightness(0.95);
+        filter: contrast(1.05) brightness(1.02) sepia(0.08);
       }
 
-      // Gold scan line
+      // Warm scan line
       .scan-line {
         position: absolute;
-        top: 0;
-        left: 0;
+        top: 0; left: 0;
         width: 100%;
         height: 2px;
-        background: linear-gradient(90deg, transparent, $electric-gold, transparent);
-        box-shadow: 0 0 18px $electric-gold, 0 0 40px rgba(251, 191, 36, 0.4);
-        opacity: 0.9;
+        background: linear-gradient(90deg, transparent, $mocha, transparent);
+        box-shadow: 0 0 10px rgba(139, 99, 67, 0.5);
+        opacity: 0.7;
         animation: scan 2.8s infinite ease-in-out;
         z-index: 3;
       }
 
-      // Corner brackets — gold
+      // Corner brackets — mocha
       .corners span {
         position: absolute;
-        width: 18px;
-        height: 18px;
-        border: 1.5px solid $electric-gold;
+        width: 18px; height: 18px;
+        border: 1.5px solid rgba(139, 99, 67, 0.6);
         z-index: 4;
-        filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.6));
 
         &:nth-child(1) { top: 10px; left: 10px; border-right: 0; border-bottom: 0; }
         &:nth-child(2) { top: 10px; right: 10px; border-left: 0; border-bottom: 0; }
@@ -181,36 +169,30 @@ $border-glow:     rgba(251, 191, 36, 0.2); // Gold glow border
 
     // ─── Result Card ──────────────────────────────────────────────────────
     .result-card {
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(240, 230, 208, 0.6);
       padding: 1.2rem;
-      border-radius: 12px;
+      border-radius: 10px;
       margin-bottom: 1.8rem;
-      border: 1px solid rgba(251, 191, 36, 0.1);
-      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(139, 99, 67, 0.15);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
 
       .label {
         font-size: 0.7rem;
         text-transform: uppercase;
         letter-spacing: 3px;
-        opacity: 0.4;
+        opacity: 0.45;
         margin-bottom: 6px;
-        color: #a8a29e;
+        color: $espresso;
       }
 
       .expression-text {
         font-size: 1.6rem;
         font-weight: 700;
         letter-spacing: -0.01em;
-
-        // Crimson neon for detected expression
-        color: $neon-crimson;
-        text-shadow:
-          0 0 12px rgba(244, 63, 94, 0.6),
-          0 0 30px rgba(244, 63, 94, 0.2);
+        color: $espresso;
 
         &.detecting {
-          color: #44403c;
-          text-shadow: none;
+          color: $sand;
           animation: blink 1.5s infinite;
         }
       }
@@ -220,16 +202,16 @@ $border-glow:     rgba(251, 191, 36, 0.2); // Gold glow border
     .detect-btn {
       width: 100%;
       padding: 14px 20px;
-      border: 1px solid rgba(251, 191, 36, 0.3);
+      border: 1px solid rgba(139, 99, 67, 0.4);
       border-radius: 10px;
       font-size: 14px;
       font-weight: 600;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
 
-      // Matte black with a gold shimmer top border
-      background: linear-gradient(180deg, #1c1009 0%, #0a0601 100%);
-      color: $electric-gold;
+      // Rich espresso fill — stands out on the light page
+      background: linear-gradient(180deg, $espresso 0%, $ink 100%);
+      color: $parchment;
 
       cursor: pointer;
       display: flex;
@@ -240,34 +222,29 @@ $border-glow:     rgba(251, 191, 36, 0.2); // Gold glow border
       position: relative;
       overflow: hidden;
 
-      // Gold gleam sweep on hover
       &::before {
         content: "";
         position: absolute;
-        top: 0;
-        left: -100%;
-        width: 60%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.08), transparent);
+        top: 0; left: -100%;
+        width: 60%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,248,236,0.1), transparent);
         transition: left 0.5s ease;
       }
 
       &:hover {
         transform: translateY(-2px);
-        border-color: rgba(251, 191, 36, 0.6);
-        background: linear-gradient(180deg, #2d1c0e 0%, #120a02 100%);
-        color: #fde68a;
+        background: linear-gradient(180deg, $mocha 0%, $espresso 100%);
+        color: $linen;
+        border-color: rgba(139, 99, 67, 0.7);
         box-shadow:
-          0 8px 24px rgba(0, 0, 0, 0.7),
-          0 0 20px rgba(251, 191, 36, 0.15),
-          inset 0 1px 0 rgba(251, 191, 36, 0.2);
+          0 8px 24px rgba(74, 46, 26, 0.22),
+          0 0 0 1px rgba(139, 99, 67, 0.1);
 
         &::before { left: 140%; }
       }
 
       &:active {
         transform: scale(0.97);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
       }
     }
   }
@@ -275,15 +252,15 @@ $border-glow:     rgba(251, 191, 36, 0.2); // Gold glow border
 
 // ─── Animations ───────────────────────────────────────────────────────────────
 @keyframes scan {
-  0%   { top: 0%; opacity: 0.9; }
-  48%  { opacity: 0.6; }
-  50%  { top: 100%; opacity: 0.9; }
+  0%   { top: 0%; opacity: 0.7; }
+  48%  { opacity: 0.3; }
+  50%  { top: 100%; opacity: 0.7; }
   100% { top: 0%; }
 }
 
 @keyframes blink {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.35; }
+  50%       { opacity: 0.3; }
 }
 
 @keyframes drift {
@@ -300,20 +277,10 @@ $border-glow:     rgba(251, 191, 36, 0.2); // Gold glow border
 
 @media (max-width: 480px) {
   .expression-page { padding: 15px; }
-
-  .scanner-container {
-    padding: 1.6rem;
-    border-radius: 18px;
-  }
-
+  .scanner-container { padding: 1.6rem; border-radius: 16px; }
   .brand-header h1 { font-size: 1.35rem; }
   .brand-header p  { font-size: 0.78rem; }
   .video-wrapper   { aspect-ratio: 3/2; }
-
-  .detect-btn {
-    font-size: 13px;
-    padding: 12px;
-  }
-
+  .detect-btn { font-size: 13px; padding: 12px; }
   .result-card .expression-text { font-size: 1.25rem; }
 }
