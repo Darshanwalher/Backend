@@ -9,6 +9,7 @@ app.use(cors({
     origin:"https://social-space-l1ot.onrender.com",
     credentials:true
 }))
+app.use(express.json());
 app.use(express.static("./public"))
 app.use(express.json())
 app.use(cookieParser())

@@ -12,11 +12,11 @@ const registerUser = async (req, res) => {
 
         if (isUserExists) {
             return res.status(409).json({
-                message: `User already exists`
+                message: "User already exists"
             });
         }
 
-        const hash = await bcrypt.hash(password,10);
+        const hash = await bcrypt.hash(password, 10);
 
         const user = await userModel.create({
             username,
@@ -24,15 +24,18 @@ const registerUser = async (req, res) => {
             password: hash,
             bio,
             profileImage
-        }).select("+password");
+        });
 
         const token = jwt.sign(
-            { id: user._id ,username:user.username},
+            { id: user._id, username: user.username },
             process.env.JWT_SECRET_KEY,
             { expiresIn: "1d" }
         );
 
-        res.cookie("token", token);
+        res.cookie("token", token, {
+            httpOnly: true,
+            sameSite: "lax"
+        });
 
         res.status(201).json({
             message: "User created successfully",
@@ -45,6 +48,7 @@ const registerUser = async (req, res) => {
         });
 
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: error.message });
     }
 };

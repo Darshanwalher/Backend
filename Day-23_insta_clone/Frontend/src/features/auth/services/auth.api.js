@@ -23,6 +23,8 @@ export async function registerUser(username,email,password){
         email,
         password
     })
+    console.log(response.data);
+    
 
     return response.data;
 }
