@@ -72,7 +72,7 @@
 //     }
 // }
 
-import { use, useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../auth.context.jsx";
 import { loginUser, registerUser, getMeUser } from "../services/auth.api";
 import { useNavigate } from "react-router";
@@ -147,9 +147,9 @@ export const useAuth = () => {
         }
     };
 
-    useEffect(() => {
-        handleGetMe();
-    }, []);
+    // useEffect(() => {
+    //     handleGetMe();
+    // }, []);
 
 
     return {
