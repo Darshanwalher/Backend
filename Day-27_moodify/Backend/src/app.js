@@ -9,9 +9,10 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser())
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"https://moodify-41fv.onrender.com",
     credentials:true
 }))
+app.use(express.static("./public"))
 
 app.use("/api/auth",authRoutes);
 app.use("/api/songs",songRoutes);
