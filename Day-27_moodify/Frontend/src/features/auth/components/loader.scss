@@ -1,10 +1,10 @@
-// ─── Warm Brown + White Palette ───────────────────────────────────────────────
-$linen:      #faf4eb;
-$parchment:  #f0e6d0;
-$sand:       #ddc9a3;
-$mocha:      #8b6343;
-$espresso:   #4a2e1a;
-$ink:        #2c1a0e;
+// ─── Pure Monochrome Palette ───────────────────────────────────────────────────
+$linen:      #f5f5f5;
+$parchment:  #e5e5e5;
+$sand:       #a3a3a3;
+$mocha:      #525252;
+$espresso:   #262626;
+$ink:        #0a0a0a;
 
 // ─── Loading Screen ───────────────────────────────────────────────────────────
 .loading-screen {
@@ -16,14 +16,14 @@ $ink:        #2c1a0e;
   position: relative;
   overflow: hidden;
 
-  // Warm linen — no black
+  // Pure black base
   background:
-    radial-gradient(ellipse 90% 70% at 50% 0%, #f5e9d0 0%, #faf4eb 55%),
-    radial-gradient(ellipse 60% 50% at 85% 100%, #ecdfc6 0%, #faf4eb 70%);
+    radial-gradient(ellipse 90% 70% at 50% 0%, #141414 0%, #080808 55%),
+    radial-gradient(ellipse 60% 50% at 85% 100%, #1a1a1a 0%, #080808 70%);
 
   font-family: "DM Mono", "Fira Code", "Courier New", monospace;
 
-  // Paper grain
+  // Matte grain
   &::before {
     content: "";
     position: absolute;
@@ -35,15 +35,15 @@ $ink:        #2c1a0e;
     opacity: 1;
   }
 
-  // Warm amber blob center
+  // Dark charcoal blob center
   &::after {
     content: "";
     position: absolute;
     width: 500px; height: 500px;
     border-radius: 50%;
-    background: radial-gradient(circle, #ddb98a, #c4966a);
+    background: radial-gradient(circle, #2a2a2a, #1a1a1a);
     filter: blur(120px);
-    opacity: 0.28;
+    opacity: 0.7;
     top: -160px;
     left: 50%;
     transform: translateX(-50%);
@@ -54,7 +54,7 @@ $ink:        #2c1a0e;
 
 .loader-container {
   text-align: center;
-  color: $ink;
+  color: $linen;
   position: relative;
   z-index: 1;
 }
@@ -63,7 +63,7 @@ $ink:        #2c1a0e;
   font-size: 3rem;
   margin-bottom: 20px;
   animation: pulse 2.2s infinite ease-in-out;
-  filter: drop-shadow(0 2px 8px rgba(74, 46, 26, 0.2));
+  filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.1));
 }
 
 p {
@@ -71,7 +71,7 @@ p {
   font-size: 0.75rem;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: $mocha;
+  color: $sand;
   opacity: 0.55;
 }
 
@@ -90,13 +90,13 @@ p {
   animation: bounce 1s infinite ease-in-out;
 
   &:nth-child(odd) {
-    background: linear-gradient(180deg, $mocha, $sand);
-    box-shadow: 0 1px 4px rgba(74, 46, 26, 0.15);
+    background: linear-gradient(180deg, $sand, $mocha);
+    box-shadow: 0 1px 4px rgba(255, 255, 255, 0.06);
   }
 
   &:nth-child(even) {
-    background: linear-gradient(180deg, $espresso, $mocha);
-    box-shadow: 0 1px 4px rgba(74, 46, 26, 0.2);
+    background: linear-gradient(180deg, #ffffff, $sand);
+    box-shadow: 0 1px 4px rgba(255, 255, 255, 0.1);
   }
 
   &:nth-child(2) { animation-delay: 0.2s; }
@@ -111,7 +111,7 @@ p {
 }
 
 @keyframes pulse {
-  0%   { transform: scale(1);   opacity: 0.7;  filter: drop-shadow(0 2px 6px rgba(74,46,26,.15)); }
-  50%  { transform: scale(1.1); opacity: 1;    filter: drop-shadow(0 4px 14px rgba(74,46,26,.28)); }
-  100% { transform: scale(1);   opacity: 0.7;  filter: drop-shadow(0 2px 6px rgba(74,46,26,.15)); }
+  0%   { transform: scale(1);   opacity: 0.7;  filter: drop-shadow(0 2px 6px rgba(255,255,255,.08)); }
+  50%  { transform: scale(1.1); opacity: 1;    filter: drop-shadow(0 4px 14px rgba(255,255,255,.18)); }
+  100% { transform: scale(1);   opacity: 0.7;  filter: drop-shadow(0 2px 6px rgba(255,255,255,.08)); }
 }

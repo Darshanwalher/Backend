@@ -1,13 +1,13 @@
-// ─── Warm Brown + White Palette ───────────────────────────────────────────────
-$linen:       #faf4eb;       // Warm off-white — page base
-$parchment:   #f0e6d0;       // Aged paper
-$sand:        #ddc9a3;       // Warm sand
-$tan:         #c4a882;       // Medium tan
-$mocha:       #8b6343;       // Mocha brown
-$espresso:    #4a2e1a;       // Deep espresso
-$ink:         #2c1a0e;       // Near-black brown — text
-$card-bg:     rgba(255, 248, 236, 0.72);
-$border:      rgba(139, 99, 67, 0.2);
+// ─── Pure Monochrome Palette ───────────────────────────────────────────────────
+$linen:       #f5f5f5;       // Light grey — page base
+$parchment:   #e5e5e5;       // Soft light grey
+$sand:        #a3a3a3;       // Mid grey
+$tan:         #737373;       // Medium grey
+$mocha:       #525252;       // Dark grey
+$espresso:    #262626;       // Near black grey
+$ink:         #0a0a0a;       // True black — text
+$card-bg:     rgba(255, 255, 255, 0.08);
+$border:      rgba(255, 255, 255, 0.1);
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 .expression-page {
@@ -17,17 +17,17 @@ $border:      rgba(139, 99, 67, 0.2);
   justify-content: center;
   padding: 10px;
 
-  // Warm linen base — bright, airy, no black
+  // Pure black base — stark, editorial
   background:
-    radial-gradient(ellipse 90% 70% at 50% 0%,   #f5e9d0 0%, #faf4eb 55%),
-    radial-gradient(ellipse 60% 50% at 85% 100%,  #ecdfc6 0%, #faf4eb 70%);
+    radial-gradient(ellipse 90% 70% at 50% 0%,   #141414 0%, #080808 55%),
+    radial-gradient(ellipse 60% 50% at 85% 100%,  #1a1a1a 0%, #080808 70%);
 
-  color: $ink;
+  color: $linen;
   font-family: "DM Mono", "Fira Code", "Courier New", monospace;
   overflow: hidden;
   position: relative;
 
-  // Fine grain — like uncoated paper
+  // Fine grain — like matte black paper
   &::before {
     content: "";
     position: absolute;
@@ -54,15 +54,15 @@ $border:      rgba(139, 99, 67, 0.2);
 
       &:nth-child(1) {
         top: -10%; left: -10%;
-        background: radial-gradient(circle, #ddb98a, #c4966a);
-        opacity: 0.3;
+        background: radial-gradient(circle, #2a2a2a, #1a1a1a);
+        opacity: 0.6;
       }
 
       &:nth-child(2) {
         bottom: -10%; right: -10%;
-        background: radial-gradient(circle, #e8d4b0, #c9aa7c);
+        background: radial-gradient(circle, #1e1e1e, #111111);
         animation-direction: reverse;
-        opacity: 0.22;
+        opacity: 0.5;
       }
     }
   }
@@ -82,10 +82,10 @@ $border:      rgba(139, 99, 67, 0.2);
     max-width: 420px;
 
     box-shadow:
-      0 2px 0 rgba(255,255,255,0.9) inset,
+      0 2px 0 rgba(255,255,255,0.04) inset,
       0 1px 0 $border,
-      0 8px 40px rgba(74, 46, 26, 0.1),
-      0 24px 60px rgba(74, 46, 26, 0.07);
+      0 8px 40px rgba(0, 0, 0, 0.5),
+      0 24px 60px rgba(0, 0, 0, 0.4);
 
     .brand-header {
       margin-bottom: 1.8rem;
@@ -96,8 +96,8 @@ $border:      rgba(139, 99, 67, 0.2);
         letter-spacing: -0.02em;
         margin-bottom: 6px;
 
-        // Deep espresso-to-mocha gradient
-        background: linear-gradient(135deg, $ink 0%, $espresso 40%, $mocha 100%);
+        // White-to-grey gradient
+        background: linear-gradient(135deg, #ffffff 0%, #d4d4d4 40%, #a3a3a3 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -108,7 +108,7 @@ $border:      rgba(139, 99, 67, 0.2);
         font-size: 0.82rem;
         letter-spacing: 0.1em;
         text-transform: uppercase;
-        color: $mocha;
+        color: $sand;
       }
     }
 
@@ -120,14 +120,14 @@ $border:      rgba(139, 99, 67, 0.2);
       border-radius: 12px;
       overflow: hidden;
       border: 1px solid $border;
-      background: $parchment;
+      background: #111111;
       margin-bottom: 1.8rem;
 
       &::after {
         content: "";
         position: absolute;
         inset: 0;
-        background: radial-gradient(ellipse at center, transparent 55%, rgba(196, 168, 130, 0.3) 100%);
+        background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.4) 100%);
         pointer-events: none;
         z-index: 2;
       }
@@ -137,27 +137,28 @@ $border:      rgba(139, 99, 67, 0.2);
         height: 100%;
         object-fit: cover;
         transform: scaleX(-1);
-        filter: contrast(1.05) brightness(1.02) sepia(0.08);
+        // REMOVED grayscale filter - now shows original colors
+        filter: contrast(1.05) brightness(1.02);
       }
 
-      // Warm scan line
+      // Stark white scan line
       .scan-line {
         position: absolute;
         top: 0; left: 0;
         width: 100%;
         height: 2px;
-        background: linear-gradient(90deg, transparent, $mocha, transparent);
-        box-shadow: 0 0 10px rgba(139, 99, 67, 0.5);
-        opacity: 0.7;
+        background: linear-gradient(90deg, transparent, #ffffff, transparent);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+        opacity: 0.6;
         animation: scan 2.8s infinite ease-in-out;
         z-index: 3;
       }
 
-      // Corner brackets — mocha
+      // Corner brackets — white
       .corners span {
         position: absolute;
         width: 18px; height: 18px;
-        border: 1.5px solid rgba(139, 99, 67, 0.6);
+        border: 1.5px solid rgba(255, 255, 255, 0.5);
         z-index: 4;
 
         &:nth-child(1) { top: 10px; left: 10px; border-right: 0; border-bottom: 0; }
@@ -169,12 +170,12 @@ $border:      rgba(139, 99, 67, 0.2);
 
     // ─── Result Card ──────────────────────────────────────────────────────
     .result-card {
-      background: rgba(240, 230, 208, 0.6);
+      background: rgba(255, 255, 255, 0.05);
       padding: 1.2rem;
       border-radius: 10px;
       margin-bottom: 1.8rem;
-      border: 1px solid rgba(139, 99, 67, 0.15);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
 
       .label {
         font-size: 0.7rem;
@@ -182,17 +183,17 @@ $border:      rgba(139, 99, 67, 0.2);
         letter-spacing: 3px;
         opacity: 0.45;
         margin-bottom: 6px;
-        color: $espresso;
+        color: $sand;
       }
 
       .expression-text {
         font-size: 1.6rem;
         font-weight: 700;
         letter-spacing: -0.01em;
-        color: $espresso;
+        color: #ffffff;
 
         &.detecting {
-          color: $sand;
+          color: $tan;
           animation: blink 1.5s infinite;
         }
       }
@@ -202,16 +203,16 @@ $border:      rgba(139, 99, 67, 0.2);
     .detect-btn {
       width: 100%;
       padding: 14px 20px;
-      border: 1px solid rgba(139, 99, 67, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 10px;
       font-size: 14px;
       font-weight: 600;
       letter-spacing: 0.07em;
       text-transform: uppercase;
 
-      // Rich espresso fill — stands out on the light page
-      background: linear-gradient(180deg, $espresso 0%, $ink 100%);
-      color: $parchment;
+      // White fill on black — stark contrast
+      background: linear-gradient(180deg, #ffffff 0%, #d4d4d4 100%);
+      color: #080808;
 
       cursor: pointer;
       display: flex;
@@ -227,18 +228,18 @@ $border:      rgba(139, 99, 67, 0.2);
         position: absolute;
         top: 0; left: -100%;
         width: 60%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,248,236,0.1), transparent);
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
         transition: left 0.5s ease;
       }
 
       &:hover {
         transform: translateY(-2px);
-        background: linear-gradient(180deg, $mocha 0%, $espresso 100%);
-        color: $linen;
-        border-color: rgba(139, 99, 67, 0.7);
+        background: linear-gradient(180deg, #f5f5f5 0%, #a3a3a3 100%);
+        color: #080808;
+        border-color: rgba(255, 255, 255, 0.4);
         box-shadow:
-          0 8px 24px rgba(74, 46, 26, 0.22),
-          0 0 0 1px rgba(139, 99, 67, 0.1);
+          0 8px 24px rgba(0, 0, 0, 0.5),
+          0 0 0 1px rgba(255, 255, 255, 0.1);
 
         &::before { left: 140%; }
       }
@@ -252,9 +253,9 @@ $border:      rgba(139, 99, 67, 0.2);
 
 // ─── Animations ───────────────────────────────────────────────────────────────
 @keyframes scan {
-  0%   { top: 0%; opacity: 0.7; }
-  48%  { opacity: 0.3; }
-  50%  { top: 100%; opacity: 0.7; }
+  0%   { top: 0%; opacity: 0.6; }
+  48%  { opacity: 0.2; }
+  50%  { top: 100%; opacity: 0.6; }
   100% { top: 0%; }
 }
 
