@@ -20,3 +20,8 @@ export async function getMe(){
     return response.data
 }
 
+export async function logOut(){
+    const response = await api.get("/api/auth/logout")
+    return response.data
+}
+

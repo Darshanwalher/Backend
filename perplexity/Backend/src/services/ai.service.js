@@ -1,6 +1,8 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatMistralAI} from "@langchain/mistralai"
-import {HumanMessage,SystemMessage,AIMessage } from "langchain";
+import {HumanMessage,SystemMessage,AIMessage,tool,createAgent } from "langchain";
+import { searchInternet } from "./internet.service.js";
+import * as z from "zod"
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -16,17 +18,41 @@ const mistralModel = new ChatMistralAI({
 
 })
 
+const searchTool = tool(
+    searchInternet,
+    {
+        name:"searchInternet",
+        description:"tool used for searching the internet for information",
+        schema:z.object({
+            query:z.string().describe("the query to search for")
+        })
+    }
+)
+
+const agent = createAgent({
+    model:GeminiModel,
+    tools:[searchTool]
+})
+
 
 export async function genrateResponse(messages){
-    const response = await GeminiModel.invoke(messages.map(msg=>{
-        if(msg.role === "user"){
-            return new HumanMessage(msg.content)
-        }else{
-            return new AIMessage(msg.content)
-        }
-    }));
+    const response = await agent.invoke({
+        messages: [
+            new SystemMessage(`
+                You are a helpful and precise assistant for answering questions.
+                If you don't know the answer, say you don't know. 
+                If the question requires up-to-date information, use the "searchInternet" tool to get the latest information from the internet and then answer based on the search results.
+            `),
+            ...(messages.map(msg => {
+                if (msg.role == "user") {
+                    return new HumanMessage(msg.content)
+                } else if (msg.role == "ai") {
+                    return new AIMessage(msg.content)
+                }
+            })) ]
+    });
 
-    return response.text;
+    return response.messages[response.messages.length-1].text;
 }
 
 export async function genrateChatTitle(message){
