@@ -7,7 +7,8 @@ import {
     setError,
     createNewChat,
     addNewMessage,
-    addMessages
+    addMessages,
+    deleteChat as deleteChatFromSlice,
 } from "../chat.slice.js";
 
 import { useDispatch } from "react-redux";
@@ -159,11 +160,44 @@ export const useChat = () => {
     }
 
     function handleNewChat() {
-    // Clear current chat selection — sets currentChatId to null
-    // so the message area shows the empty state and next message
-    // creates a brand new chat automatically
-    dispatch(setCurrentChatId(null))
-}
+        // Clear current chat selection — sets currentChatId to null
+        // so the message area shows the empty state and next message
+        // creates a brand new chat automatically
+        dispatch(setCurrentChatId(null))
+    }
+
+    /**
+     * handleDeleteChat — Deletes a chat and removes it from Redux.
+     *
+     * Flow:
+     *  1. Call DELETE API — backend removes chat + all its messages from DB
+     *  2. On success, remove the chat from Redux state
+     *  3. On error, store error message
+     *  4. Always stop loading in finally
+     *
+     * @param {string} chatId - ID of the chat to delete
+     * @returns {{ success: boolean, message?: string }}
+     */
+    async function handleDeleteChat(chatId) {
+        dispatch(setLoading(true))
+
+        try {
+            await deleteChat(chatId)  // API call
+
+            // Remove from Redux — also resets currentChatId if it was active
+            dispatch(deleteChatFromSlice(chatId))
+
+            return { success: true }
+
+        } catch (error) {
+            const message = error.response?.data?.message || "Failed to delete chat"
+            dispatch(setError(message))
+            return { success: false, message }
+
+        } finally {
+            dispatch(setLoading(false))
+        }
+    }
 
 
     return {
@@ -171,6 +205,7 @@ export const useChat = () => {
         handleSendMessage,          // Send a message and get AI response
         handleGetChats,             // Load all chats on app start
         handleOpenChat,  
-        handleNewChat,           // Open a chat and lazy-load its messages
+        handleNewChat,     
+        handleDeleteChat,      // Open a chat and lazy-load its messages
     }
 }

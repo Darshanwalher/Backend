@@ -66,7 +66,21 @@ const chatSlice = createSlice({
         // ✅ Store error message (if API fails)
         setError: (state, action) => {
             state.error = action.payload
-        }
+        },
+
+        // Add inside reducers:
+        deleteChat: (state, action) => {
+            const chatId = action.payload
+
+            // Remove chat from state
+            delete state.chats[chatId]
+
+            // If deleted chat was the active one, reset to null
+            if (state.currentChatId === chatId) {
+                state.currentChatId = null
+            }
+        },
+        
     }
 })
 
@@ -78,7 +92,8 @@ export const {
     setLoading,
     setError,
     addNewMessage,
-    addMessages
+    addMessages,
+    deleteChat
 } = chatSlice.actions
 
 // Export reducer to use in store
