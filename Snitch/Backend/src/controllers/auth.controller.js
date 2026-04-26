@@ -2,11 +2,12 @@ import userModel from "../models/user.model";
 import jwt from "jsonwebtoken";
 import { config } from "../config/config";
 
-async function sendTokenResponse(user,res){
+
+async function sendTokenResponse(user,res,message){
     const token = jwt.sign(
         {id:user._id}
     , config.JWT_SECRET_KEY
-    , {expiresIn:"1d"});
+    , {expiresIn:"7d"});
     
     res.cookie("token", token)
 
