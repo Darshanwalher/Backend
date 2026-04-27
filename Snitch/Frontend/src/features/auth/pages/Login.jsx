@@ -1,42 +1,32 @@
 import React, { useState } from 'react';
-import { User, Phone, Mail, Lock, ArrowRight, Store } from 'lucide-react';
-import {useAuth} from "../hook/useAuth.js";
+import { Mail, Lock, ArrowRight } from 'lucide-react';
+import { useAuth } from "../hook/useAuth.js";
 import { useNavigate } from 'react-router';
 
-const Register = () => {
-
-  const {handleRegister} = useAuth();
+const Login = () => {
+  const { handleLogin } = useAuth();
   const navigate = useNavigate();
 
-
   const [formData, setFormData] = useState({
-    fullName: '',
-    contactNumber: '',
     email: '',
     password: '',
-    isSeller: false,
   });
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    await handleRegister({
-      email:formData.email,
-      contact:formData.contactNumber,
-      password:formData.password,
-      fullname:formData.fullName,
-      isSeller:formData.isSeller
-    })
-    navigate("/")
-
-
+    await handleLogin({
+      email: formData.email,
+      password: formData.password,
+    });
+    navigate("/");
   };
 
   return (
@@ -52,7 +42,7 @@ const Register = () => {
           <h1 className="text-5xl xl:text-6xl font-black tracking-tighter uppercase mb-2 opacity-90">Snitch</h1>
           <p className="text-lg xl:text-xl font-light tracking-wide max-w-md text-zinc-300">
             Redefining modern streetwear.
-            <br /> Join the movement.
+            <br /> Welcome back.
           </p>
         </div>
       </div>
@@ -67,59 +57,17 @@ const Register = () => {
           {/* Mobile Header (Shows only on mobile) */}
           <div className="lg:hidden mb-6">
             <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Snitch</h1>
-            <p className="text-xs text-zinc-500 font-light tracking-wide">Join the movement.</p>
+            <p className="text-xs text-zinc-500 font-light tracking-wide">Welcome back.</p>
           </div>
 
           <div className="mb-6 xl:mb-10">
-            <h2 className="text-2xl sm:text-3xl font-normal tracking-tight mb-2">Create Account</h2>
+            <h2 className="text-2xl sm:text-3xl font-normal tracking-tight mb-2">Log In</h2>
             <p className="text-zinc-400 text-xs sm:text-sm font-semibold tracking-wide leading-relaxed">
-              Register to access exclusive drops, manage orders, and enjoy swift checkout.
+              Enter your credentials to access your account.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 xl:space-y-6">
-            {/* Full Name */}
-            <div className="relative group">
-              <input
-                type="text"
-                id="fullName"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                className="peer w-full bg-transparent border-b border-zinc-700 py-2.5 xl:py-3 pr-8 text-sm text-white outline-none focus:border-white transition-colors duration-300 placeholder-transparent"
-                placeholder="Full Name"
-                required
-              />
-              <label
-                htmlFor="fullName"
-                className="absolute left-0 -top-3.5 text-xs text-zinc-500 transition-all duration-300 peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-zinc-500 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-white cursor-text"
-              >
-                Full Name
-              </label>
-              <User className="absolute right-0 top-2.5 w-4 h-4 text-zinc-600 peer-focus:text-white transition-colors duration-300" />
-            </div>
-
-            {/* Contact Number */}
-            <div className="relative group">
-              <input
-                type="tel"
-                id="contactNumber"
-                name="contactNumber"
-                value={formData.contactNumber}
-                onChange={handleChange}
-                className="peer w-full bg-transparent border-b border-zinc-700 py-2.5 xl:py-3 pr-8 text-sm text-white outline-none focus:border-white transition-colors duration-300 placeholder-transparent"
-                placeholder="Contact Number"
-                required
-              />
-              <label
-                htmlFor="contactNumber"
-                className="absolute left-0 -top-3.5 text-xs text-zinc-500 transition-all duration-300 peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-zinc-500 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-white cursor-text"
-              >
-                Contact Number
-              </label>
-              <Phone className="absolute right-0 top-2.5 w-4 h-4 text-zinc-600 peer-focus:text-white transition-colors duration-300" />
-            </div>
-
             {/* Email */}
             <div className="relative group">
               <input
@@ -162,31 +110,10 @@ const Register = () => {
               <Lock className="absolute right-0 top-2.5 w-4 h-4 text-zinc-600 peer-focus:text-white transition-colors duration-300" />
             </div>
 
-            {/* isSeller Checkbox */}
-            <div className="pt-2 xl:pt-4 flex items-center group cursor-pointer w-max">
-              <input
-                type="checkbox"
-                id="isSeller"
-                name="isSeller"
-                checked={formData.isSeller}
-                onChange={handleChange}
-                className="hidden peer"
-              />
-              <div
-                className={`w-4 h-4 flex flex-shrink-0 items-center justify-center border transition-all duration-300 mr-3 mt-0.5
-                  ${formData.isSeller ? 'bg-white border-white' : 'border-zinc-500 bg-transparent group-hover:border-white'}`
-                }
-              >
-                {formData.isSeller && (
-                  <svg className="w-2.5 h-2.5 text-black pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                )}
-              </div>
-              <Store className={`w-3.5 h-3.5 mr-2 transition-colors duration-300 ${formData.isSeller ? 'text-white' : 'text-zinc-600 group-hover:text-zinc-400'}`} />
-              <label htmlFor="isSeller" className="text-zinc-400 font-light cursor-pointer text-xs md:text-sm tracking-wide select-none group-hover:text-white transition-colors duration-300">
-                Register as a Seller
-              </label>
+            <div className="flex justify-end pt-2">
+              <a href="#" className="text-xs text-zinc-500 hover:text-white transition-colors duration-300">
+                Forgot password?
+              </a>
             </div>
 
             {/* Submit Button */}
@@ -195,14 +122,14 @@ const Register = () => {
                 type="submit"
                 className="flex justify-between items-center w-full bg-white text-black font-semibold tracking-[0.1em] py-3.5 xl:py-4 px-6 uppercase text-xs hover:bg-zinc-200 transition-all duration-500 group active:scale-90 cursor-pointer"
               >
-                <span>Complete Registration</span>
+                <span>Sign In</span>
                 <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1.5 transition-transform duration-500" />
               </button>
             </div>
 
             <div className="mt-6 xl:mt-8 text-center pb-4">
               <p className="text-zinc-500 text-xs font-semibold tracking-wide">
-                Already a member? <a href="/login" className="text-white hover:text-zinc-300 font-medium ml-1 underline underline-offset-4 decoration-zinc-700 hover:decoration-white transition-all duration-300">Log in</a>
+                Don't have an account? <a href="/register" className="text-white hover:text-zinc-300 font-medium ml-1 underline underline-offset-4 decoration-zinc-700 hover:decoration-white transition-all duration-300">Register</a>
               </p>
             </div>
           </form>
@@ -212,4 +139,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;
