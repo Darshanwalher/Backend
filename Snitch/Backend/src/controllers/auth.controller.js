@@ -1,6 +1,6 @@
-import userModel from "../models/user.model";
+import userModel from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import { config } from "../config/config";
+import { config } from "../config/config.js";
 
 
 async function sendTokenResponse(user,res,message){
@@ -25,7 +25,7 @@ async function sendTokenResponse(user,res,message){
 }
 
 export const register = async (req,res)=>{
-    const {email,contact,password,fullName} = req.body;
+    const {email,contact,password,fullname,isSeller} = req.body;
 
     try {
         const isUserExist = await userModel.findOne({
@@ -45,7 +45,7 @@ export const register = async (req,res)=>{
             email,
             contact,
             password,
-            fullName,
+            fullname,
             role:isSeller ? "seller" : "buyer"
         })
 
@@ -58,3 +58,32 @@ export const register = async (req,res)=>{
         })
     }
 }
+
+export const login = async (req,res)=>{
+    const {email,password} = req.body;
+
+    try{
+        const user = await userModel.findOne({email});
+        if(!user){
+            return res.status(400).json({
+                message:"User with this email does not exist"
+            })
+        }
+
+        const isPasswordMatch = await user.comparePassword(password);
+        if(!isPasswordMatch){
+            return res.status(400).json({
+                message:"Invalid email or password"
+            })
+        }
+
+        await sendTokenResponse(user,res,"User logged in successfully")
+        
+    }catch(error){
+        console.log(error);
+        res.status(500).json({
+            message:"Internal server error"
+        })
+    }
+}
+    
