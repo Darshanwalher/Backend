@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { useAuth } from "../hook/useAuth.js";
 import { useNavigate } from 'react-router';
+import ContinueWithGoogle from '../components/ContinueWithGoogle.jsx';
 
 const Login = () => {
   const { handleLogin } = useAuth();
@@ -110,11 +111,11 @@ const Login = () => {
               <Lock className="absolute right-0 top-2.5 w-4 h-4 text-zinc-600 peer-focus:text-white transition-colors duration-300" />
             </div>
 
-            <div className="flex justify-end pt-2">
+            {/* <div className="flex justify-end pt-2">
               <a href="#" className="text-xs text-zinc-500 hover:text-white transition-colors duration-300">
                 Forgot password?
               </a>
-            </div>
+            </div> */}
 
             {/* Submit Button */}
             <div className="pt-4 xl:pt-6">
@@ -127,9 +128,7 @@ const Login = () => {
               </button>
             </div>
 
-            <div>
-              <a  href="/api/auth/google" className="text-white hover:text-zinc-300 font-medium ml-1 underline underline-offset-4 decoration-zinc-700 hover:decoration-white transition-all duration-300">Continue with Google</a>
-            </div>
+            <ContinueWithGoogle />
 
             <div className="mt-6 xl:mt-8 text-center pb-4">
               <p className="text-zinc-500 text-xs font-semibold tracking-wide">

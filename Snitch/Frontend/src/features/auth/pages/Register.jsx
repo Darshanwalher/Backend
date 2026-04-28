@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, Phone, Mail, Lock, ArrowRight, Store } from 'lucide-react';
 import {useAuth} from "../hook/useAuth.js";
 import { useNavigate } from 'react-router';
+import ContinueWithGoogle from '../components/ContinueWithGoogle.jsx';
 
 const Register = () => {
 
@@ -189,9 +190,7 @@ const Register = () => {
               </label>
             </div>
 
-            <div>
-              <a  href="/api/auth/google" className="text-white hover:text-zinc-300 font-medium ml-1 underline underline-offset-4 decoration-zinc-700 hover:decoration-white transition-all duration-300">Continue with Google</a>
-            </div>
+            <ContinueWithGoogle />
 
             {/* Submit Button */}
             <div className="pt-4 xl:pt-6">
