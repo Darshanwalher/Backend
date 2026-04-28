@@ -189,6 +189,10 @@ const Register = () => {
               </label>
             </div>
 
+            <div>
+              <a  href="/api/auth/google" className="text-white hover:text-zinc-300 font-medium ml-1 underline underline-offset-4 decoration-zinc-700 hover:decoration-white transition-all duration-300">Continue with Google</a>
+            </div>
+
             {/* Submit Button */}
             <div className="pt-4 xl:pt-6">
               <button

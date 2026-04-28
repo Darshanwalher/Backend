@@ -127,6 +127,10 @@ const Login = () => {
               </button>
             </div>
 
+            <div>
+              <a  href="/api/auth/google" className="text-white hover:text-zinc-300 font-medium ml-1 underline underline-offset-4 decoration-zinc-700 hover:decoration-white transition-all duration-300">Continue with Google</a>
+            </div>
+
             <div className="mt-6 xl:mt-8 text-center pb-4">
               <p className="text-zinc-500 text-xs font-semibold tracking-wide">
                 Don't have an account? <a href="/register" className="text-white hover:text-zinc-300 font-medium ml-1 underline underline-offset-4 decoration-zinc-700 hover:decoration-white transition-all duration-300">Register</a>
