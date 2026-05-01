@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { User, Phone, Mail, Lock, ArrowRight, Store } from 'lucide-react';
-import {useAuth} from "../hook/useAuth.js";
+import { User, Phone, Mail, Lock, Store, ArrowRight } from 'lucide-react';
+import { useAuth } from "../hook/useAuth.js";
 import { useNavigate } from 'react-router';
 import ContinueWithGoogle from '../components/ContinueWithGoogle.jsx';
 
+const BEBAS = "'Bebas Neue', sans-serif";
+const DM    = "'DM Sans', sans-serif";
+
 const Register = () => {
-
-  const {handleRegister} = useAuth();
+  const { handleRegister } = useAuth();
   const navigate = useNavigate();
-
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -18,211 +19,201 @@ const Register = () => {
     isSeller: false,
   });
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     if (error) setError('');
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       await handleRegister({
-        email:formData.email,
-        contact:formData.contactNumber,
-        password:formData.password,
-        fullname:formData.fullName,
-        isSeller:formData.isSeller
+        email: formData.email,
+        contact: formData.contactNumber,
+        password: formData.password,
+        fullname: formData.fullName,
+        isSeller: formData.isSeller,
       });
-      navigate("/");
+      navigate('/');
     } catch (err) {
-      const errorMessage = err?.response?.data?.message || "Registration failed. Please try again.";
-      setError(errorMessage);
+      setError(err?.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="h-screen w-full overflow-hidden flex bg-black font-sans selection:bg-white selection:text-black">
-      {/* Left Column: Brand/Image (Hidden on mobile, visible on desktop) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-black relative items-center justify-center overflow-hidden h-full">
-        {/* Generated custom fashion image */}
-        <div className="absolute inset-0 opacity-80 bg-[url('/snitch-aesthetic.png')] bg-cover bg-center transition-transform hover:scale-105 duration-[20s] ease-out"></div>
-        <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black"></div>
+    <div
+      className="h-screen w-full overflow-hidden flex bg-[#060606] text-white selection:bg-white selection:text-black"
+      style={{ fontFamily: DM }}
+    >
+      {/* ── LEFT — brand panel ── */}
+      <div className="hidden lg:flex lg:w-[52%] relative overflow-hidden">
+        <div
+          className="absolute inset-0 bg-[url('/snitch-aesthetic.png')] bg-cover bg-center transition-transform duration-[25s] ease-out hover:scale-105"
+          style={{ opacity: 0.75 }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#060606] via-[#060606]/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#060606]" />
 
-        <div className="relative z-10 text-white p-12 flex flex-col justify-end h-full w-full pb-16">
-          <h1 className="text-5xl xl:text-6xl font-black tracking-tighter uppercase mb-2 opacity-90">Snitch</h1>
-          <p className="text-lg xl:text-xl font-light tracking-wide max-w-md text-zinc-300">
-            Redefining modern streetwear.
-            <br /> Join the movement.
+        <div className="relative z-10 flex flex-col justify-end h-full w-full p-14 pb-16">
+          <div className="flex items-center gap-3 mb-5">
+            <span className="text-[11px] text-zinc-400 font-semibold tracking-[0.28em] uppercase">Join the Movement</span>
+            <div className="h-px w-10 bg-zinc-600" />
+          </div>
+          <h1
+            className="text-[clamp(3.5rem,5.5vw,5rem)] text-white uppercase leading-[0.9] mb-4"
+            style={{ fontFamily: BEBAS, letterSpacing: '0.04em' }}
+          >
+            Snitch
+          </h1>
+          <p className="text-[13px] text-zinc-400 tracking-wide leading-[1.7] max-w-xs">
+            Redefining modern streetwear.<br />Create your account today.
           </p>
         </div>
       </div>
 
-      {/* Right Column: Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 lg:p-12 relative text-white h-full overflow-hidden">
-        {/* Subtle cinematic ambient glows */}
-        <div className="absolute top-1/4 right-0 w-72 h-72 lg:w-96 lg:h-96 bg-zinc-800 rounded-full mix-blend-screen filter blur-[150px] opacity-20 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-1/4 w-72 h-72 lg:w-96 lg:h-96 bg-zinc-900 rounded-full mix-blend-screen filter blur-[120px] opacity-30 pointer-events-none"></div>
+      {/* ── RIGHT — form panel (no scroll) ── */}
+      <div className="flex-1 h-full flex items-center justify-center px-6 sm:px-10 lg:px-14 relative overflow-hidden">
+        {/* ambient glow */}
+        <div className="absolute top-1/3 right-0 w-80 h-80 bg-zinc-800 rounded-full filter blur-[160px] opacity-10 pointer-events-none" />
 
-        <div className="w-full max-w-md relative z-10">
-          {/* Mobile Header (Shows only on mobile) */}
+        <div className="w-full max-w-sm relative z-10">
+
+          {/* Mobile wordmark */}
           <div className="lg:hidden mb-6">
-            <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Snitch</h1>
-            <p className="text-xs text-zinc-500 font-light tracking-wide">Join the movement.</p>
-          </div>
-
-          <div className="mb-6 xl:mb-10">
-            <h2 className="text-2xl sm:text-3xl font-normal tracking-tight mb-2">Create Account</h2>
-            <p className="text-zinc-400 text-xs sm:text-sm font-semibold tracking-wide leading-relaxed">
-              Register to access exclusive drops, manage orders, and enjoy swift checkout.
+            <span
+              className="text-[2.2rem] text-white uppercase leading-none tracking-[0.06em]"
+              style={{ fontFamily: BEBAS }}
+            >
+              Snitch
+            </span>
+            <p className="text-[11px] text-zinc-500 font-semibold tracking-[0.2em] uppercase mt-0.5">
+              Join the movement
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 xl:space-y-6">
+          {/* Heading */}
+          <div className="mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-[10px] text-zinc-600 font-bold tracking-[0.25em] uppercase">01</span>
+              <div className="h-px flex-1 bg-white/[0.06]" />
+              <span className="text-[10px] text-zinc-500 font-bold tracking-[0.22em] uppercase">New Account</span>
+            </div>
+            <h2
+              className="text-[2.4rem] text-white uppercase leading-[0.9]"
+              style={{ fontFamily: BEBAS, letterSpacing: '0.04em' }}
+            >
+              Register
+            </h2>
+            <p className="mt-1.5 text-[12px] text-zinc-400 tracking-wide leading-[1.6]">
+              Access exclusive drops and manage your orders.
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="bg-transparent border-l-2 border-red-500 text-red-400 px-3 py-2 text-xs sm:text-sm font-medium tracking-wide">
-                {error}
+              <div className="flex items-start gap-3 border border-red-800/60 bg-red-950/20 px-3 py-2.5">
+                <div className="w-[3px] self-stretch bg-red-500 shrink-0" />
+                <p className="text-red-300 text-[12px] font-medium tracking-wide">{error}</p>
               </div>
             )}
-            {/* Full Name */}
-            <div className="relative group">
-              <input
-                type="text"
-                id="fullName"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                className="peer w-full bg-transparent border-b border-zinc-700 py-2.5 xl:py-3 pr-8 text-sm text-white outline-none focus:border-white transition-colors duration-300 placeholder-transparent"
-                placeholder="Full Name"
-                required
-              />
-              <label
-                htmlFor="fullName"
-                className="absolute left-0 -top-3.5 text-xs text-zinc-500 transition-all duration-300 peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-zinc-500 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-white cursor-text"
-              >
-                Full Name
-              </label>
-              <User className="absolute right-0 top-2.5 w-4 h-4 text-zinc-600 peer-focus:text-white transition-colors duration-300" />
+
+            {/* Two-column row: Full Name + Contact */}
+            <div className="grid grid-cols-2 gap-4">
+              <CompactField id="fullName"      name="fullName"      type="text"  label="Full Name"    icon={<User  className="w-3.5 h-3.5" strokeWidth={1.5} />} value={formData.fullName}      onChange={handleChange} required />
+              <CompactField id="contactNumber" name="contactNumber" type="tel"   label="Contact"      icon={<Phone className="w-3.5 h-3.5" strokeWidth={1.5} />} value={formData.contactNumber} onChange={handleChange} required />
             </div>
 
-            {/* Contact Number */}
-            <div className="relative group">
-              <input
-                type="tel"
-                id="contactNumber"
-                name="contactNumber"
-                value={formData.contactNumber}
-                onChange={handleChange}
-                className="peer w-full bg-transparent border-b border-zinc-700 py-2.5 xl:py-3 pr-8 text-sm text-white outline-none focus:border-white transition-colors duration-300 placeholder-transparent"
-                placeholder="Contact Number"
-                required
-              />
-              <label
-                htmlFor="contactNumber"
-                className="absolute left-0 -top-3.5 text-xs text-zinc-500 transition-all duration-300 peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-zinc-500 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-white cursor-text"
-              >
-                Contact Number
-              </label>
-              <Phone className="absolute right-0 top-2.5 w-4 h-4 text-zinc-600 peer-focus:text-white transition-colors duration-300" />
-            </div>
+            <CompactField id="email"    name="email"    type="email"    label="Email Address" icon={<Mail className="w-3.5 h-3.5" strokeWidth={1.5} />} value={formData.email}    onChange={handleChange} required />
+            <CompactField id="password" name="password" type="password" label="Password"      icon={<Lock className="w-3.5 h-3.5" strokeWidth={1.5} />} value={formData.password} onChange={handleChange} required />
 
-            {/* Email */}
-            <div className="relative group">
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="peer w-full bg-transparent border-b border-zinc-700 py-2.5 xl:py-3 pr-8 text-sm text-white outline-none focus:border-white transition-colors duration-300 placeholder-transparent"
-                placeholder="Email Address"
-                required
-              />
-              <label
-                htmlFor="email"
-                className="absolute left-0 -top-3.5 text-xs text-zinc-500 transition-all duration-300 peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-zinc-500 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-white cursor-text"
-              >
-                Email Address
-              </label>
-              <Mail className="absolute right-0 top-2.5 w-4 h-4 text-zinc-600 peer-focus:text-white transition-colors duration-300" />
-            </div>
-
-            {/* Password */}
-            <div className="relative group">
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="peer w-full bg-transparent border-b border-zinc-700 py-2.5 xl:py-3 pr-8 text-sm text-white outline-none focus:border-white transition-colors duration-300 placeholder-transparent"
-                placeholder="Password"
-                required
-              />
-              <label
-                htmlFor="password"
-                className="absolute left-0 -top-3.5 text-xs text-zinc-500 transition-all duration-300 peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-zinc-500 peer-focus:-top-3.5 peer-focus:text-xs peer-focus:text-white cursor-text"
-              >
-                Password
-              </label>
-              <Lock className="absolute right-0 top-2.5 w-4 h-4 text-zinc-600 peer-focus:text-white transition-colors duration-300" />
-            </div>
-
-            {/* isSeller Checkbox */}
-            <div className="pt-2 xl:pt-4 flex items-center group cursor-pointer w-max">
-              <input
-                type="checkbox"
-                id="isSeller"
-                name="isSeller"
-                checked={formData.isSeller}
-                onChange={handleChange}
-                className="hidden peer"
-              />
+            {/* isSeller toggle */}
+            <div
+              className="flex items-center gap-2.5 cursor-pointer group"
+              onClick={() => setFormData((p) => ({ ...p, isSeller: !p.isSeller }))}
+            >
               <div
-                className={`w-4 h-4 flex flex-shrink-0 items-center justify-center border transition-all duration-300 mr-3 mt-0.5
-                  ${formData.isSeller ? 'bg-white border-white' : 'border-zinc-500 bg-transparent group-hover:border-white'}`
-                }
+                className={`w-3.5 h-3.5 shrink-0 flex items-center justify-center border transition-all duration-300 ${
+                  formData.isSeller ? 'bg-white border-white' : 'border-zinc-600 group-hover:border-zinc-400'
+                }`}
               >
                 {formData.isSeller && (
-                  <svg className="w-2.5 h-2.5 text-black pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                  <svg className="w-2 h-2 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.5" d="M5 13l4 4L19 7" />
                   </svg>
                 )}
               </div>
-              <Store className={`w-3.5 h-3.5 mr-2 transition-colors duration-300 ${formData.isSeller ? 'text-white' : 'text-zinc-600 group-hover:text-zinc-400'}`} />
-              <label htmlFor="isSeller" className="text-zinc-400 font-light cursor-pointer text-xs md:text-sm tracking-wide select-none group-hover:text-white transition-colors duration-300">
+              <Store
+                className={`w-3.5 h-3.5 transition-colors duration-300 ${formData.isSeller ? 'text-white' : 'text-zinc-600 group-hover:text-zinc-400'}`}
+                strokeWidth={1.5}
+              />
+              <span className={`text-[12px] tracking-wide select-none transition-colors duration-300 font-medium ${
+                formData.isSeller ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-300'
+              }`}>
                 Register as a Seller
-              </label>
+              </span>
             </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="relative flex items-center justify-between w-full bg-white text-black font-black tracking-[0.15em] py-3.5 px-5 uppercase text-[11px] hover:bg-zinc-100 active:scale-[0.99] transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group overflow-hidden"
+              style={{ fontFamily: DM }}
+            >
+              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-black/10 to-transparent pointer-events-none" />
+              <span className="relative">{isLoading ? 'Creating account…' : 'Create Account'}</span>
+              <ArrowRight className="relative w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={2.5} />
+            </button>
 
             <ContinueWithGoogle />
 
-            {/* Submit Button */}
-            <div className="pt-4 xl:pt-6">
-              <button
-                type="submit"
-                className="flex justify-between items-center w-full bg-white text-black font-semibold tracking-[0.1em] py-3.5 xl:py-4 px-6 uppercase text-xs hover:bg-zinc-200 transition-all duration-500 group active:scale-90 cursor-pointer"
-              >
-                <span>Complete Registration</span>
-                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1.5 transition-transform duration-500" />
-              </button>
-            </div>
-
-            <div className="mt-6 xl:mt-8 text-center pb-4">
-              <p className="text-zinc-500 text-xs font-semibold tracking-wide">
-                Already a member? <a href="/login" className="text-white hover:text-zinc-300 font-medium ml-1 underline underline-offset-4 decoration-zinc-700 hover:decoration-white transition-all duration-300">Log in</a>
-              </p>
-            </div>
+            <p className="text-[11px] text-zinc-500 font-semibold tracking-wide text-center">
+              Already a member?{' '}
+              <a href="/login" className="text-white underline underline-offset-4 decoration-zinc-700 hover:decoration-white transition-all duration-300 ml-1">
+                Log in
+              </a>
+            </p>
           </form>
         </div>
       </div>
     </div>
   );
 };
+
+/* ── Compact field (tighter than Login's full-size AuthField) ── */
+const CompactField = ({ id, name, type, label, icon, value, onChange, required }) => (
+  <div className="relative group">
+    <div className="flex items-center gap-1.5 mb-1.5">
+      <span className="text-zinc-600 group-focus-within:text-zinc-300 transition-colors duration-300">{icon}</span>
+      <label
+        htmlFor={id}
+        className="text-[10px] text-zinc-500 font-bold tracking-[0.2em] uppercase transition-colors duration-300 group-focus-within:text-white cursor-text"
+      >
+        {label}
+      </label>
+    </div>
+    <div className="relative">
+      <input
+        type={type}
+        id={id}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required={required}
+        placeholder={label}
+        className="peer w-full bg-transparent border-b border-zinc-700 focus:border-white py-2 text-[13px] text-white placeholder-transparent outline-none transition-all duration-400 tracking-wide font-medium"
+        style={{ fontFamily: DM }}
+      />
+      <span className="absolute bottom-0 left-0 h-px w-0 bg-white transition-all duration-500 peer-focus:w-full" />
+    </div>
+  </div>
+);
 
 export default Register;
