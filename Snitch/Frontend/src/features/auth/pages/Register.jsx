@@ -17,6 +17,7 @@ const Register = () => {
     password: '',
     isSeller: false,
   });
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -24,20 +25,24 @@ const Register = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+    if (error) setError('');
   };
 
   const handleSubmit = async(e) => {
     e.preventDefault();
-    await handleRegister({
-      email:formData.email,
-      contact:formData.contactNumber,
-      password:formData.password,
-      fullname:formData.fullName,
-      isSeller:formData.isSeller
-    })
-    navigate("/")
-
-
+    try {
+      await handleRegister({
+        email:formData.email,
+        contact:formData.contactNumber,
+        password:formData.password,
+        fullname:formData.fullName,
+        isSeller:formData.isSeller
+      });
+      navigate("/");
+    } catch (err) {
+      const errorMessage = err?.response?.data?.message || "Registration failed. Please try again.";
+      setError(errorMessage);
+    }
   };
 
   return (
@@ -79,6 +84,11 @@ const Register = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 xl:space-y-6">
+            {error && (
+              <div className="bg-transparent border-l-2 border-red-500 text-red-400 px-3 py-2 text-xs sm:text-sm font-medium tracking-wide">
+                {error}
+              </div>
+            )}
             {/* Full Name */}
             <div className="relative group">
               <input

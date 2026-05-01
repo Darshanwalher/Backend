@@ -12,6 +12,7 @@ const Login = () => {
     email: '',
     password: '',
   });
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,15 +20,21 @@ const Login = () => {
       ...prev,
       [name]: value,
     }));
+    if (error) setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await handleLogin({
-      email: formData.email,
-      password: formData.password,
-    });
-    navigate("/");
+    try {
+      await handleLogin({
+        email: formData.email,
+        password: formData.password,
+      });
+      navigate("/");
+    } catch (err) {
+      const errorMessage = err?.response?.data?.message || "Invalid email or password";
+      setError(errorMessage);
+    }
   };
 
   return (
@@ -69,6 +76,11 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 xl:space-y-6">
+            {error && (
+              <div className="bg-transparent border-l-2 border-red-500 text-red-400 px-3 py-2 text-xs sm:text-sm font-medium tracking-wide">
+                {error}
+              </div>
+            )}
             {/* Email */}
             <div className="relative group">
               <input
