@@ -150,10 +150,10 @@ const ProductCard = ({ product, index }) => {
 
         {/* Quick-add hover CTA */}
         <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-10 p-4">
-          <button className="w-full flex items-center justify-between bg-white text-black text-[10px] font-black tracking-[0.2em] uppercase py-3 px-4 hover:bg-zinc-100 transition-colors duration-200 cursor-pointer group/btn">
+          {/* <button className="w-full flex items-center justify-between bg-white text-black text-[10px] font-black tracking-[0.2em] uppercase py-3 px-4 hover:bg-zinc-100 transition-colors duration-200 cursor-pointer group/btn">
             <span>Add to Cart</span>
             <ShoppingBag className="w-3.5 h-3.5 group-hover/btn:scale-110 transition-transform duration-200" strokeWidth={2.5} />
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -427,7 +427,7 @@ export const Home = () => {
             <EmptyState />
           ) : (
             filtered.map((product, i) => (
-              <div key={product._id} className="bg-[#060606]">
+              <div onClick = {()=>navigate(`/product/${product._id}`)} key={product._id} className="bg-[#060606]">
                 <ProductCard product={product} index={i} />
               </div>
             ))
