@@ -109,7 +109,7 @@ export const addProductVariant = async(req,res)=>{
     product.variants.push({
        images,
        price:{
-        amount:price,
+        amount:price || product.price.amount,
         currency:req.body.priceCurrency || product.price.currency
        },
        stock,
