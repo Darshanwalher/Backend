@@ -98,15 +98,27 @@ const ProductDetail = () => {
     const [imgIdx, setImgIdx] = useState(0);
     const [errorSet, setErrorSet] = useState(new Set());
     const [wishlisted, setWishlisted] = useState(false);
-    const [selectedSize, setSelectedSize] = useState(null);
+    const [selectedAttributes, setSelectedAttributes] = useState({});
+    const [currentVariant, setCurrentVariant] = useState(null);
 
-    const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
+    const normalizeAttributes = (attrs) => {
+        const normalized = {};
+        if (!attrs) return normalized;
+        Object.entries(attrs).forEach(([k, v]) => {
+            normalized[k.toLowerCase().trim()] = v;
+        });
+        return normalized;
+    };
 
     useEffect(() => {
         const fetchProduct = async () => {
             setLoading(true);
             const data = await handleGetProductById(productId);
             setProduct(data);
+            if (data?.variants?.length > 0) {
+                setSelectedAttributes(normalizeAttributes(data.variants[0].attributes));
+                setCurrentVariant(data.variants[0]);
+            }
             setLoading(false);
         };
         fetchProduct();
@@ -115,7 +127,58 @@ const ProductDetail = () => {
     if (loading) return <Skeleton />;
     if (!product) return <NotFound onBack={() => navigate(-1)} />;
 
-    const allImages = product.images || [];
+    const attributesMap = {};
+    if (product?.variants) {
+        product.variants.forEach(variant => {
+            Object.entries(normalizeAttributes(variant.attributes)).forEach(([key, value]) => {
+                if (!attributesMap[key]) attributesMap[key] = new Set();
+                attributesMap[key].add(value);
+            });
+        });
+    }
+
+    const handleAttributeSelect = (attrKey, attrValue) => {
+        if (selectedAttributes[attrKey] === attrValue) return;
+        
+        let newAttributes = { ...selectedAttributes, [attrKey]: attrValue };
+        
+        if (product?.variants) {
+            const reversedVariants = [...product.variants].reverse();
+            
+            let matched = reversedVariants.find(v => {
+                const vAttrs = normalizeAttributes(v.attributes);
+                return Object.entries(newAttributes).every(([k, val]) => vAttrs[k] === val) &&
+                       Object.keys(vAttrs).length === Object.keys(newAttributes).length;
+            });
+            
+            if (!matched) {
+                const partialMatch = reversedVariants.find(v => {
+                    const vAttrs = normalizeAttributes(v.attributes);
+                    return vAttrs[attrKey] === attrValue;
+                });
+                if (partialMatch) {
+                    newAttributes = { ...normalizeAttributes(partialMatch.attributes) };
+                    matched = partialMatch;
+                }
+            }
+            
+            setSelectedAttributes(newAttributes);
+            setCurrentVariant(matched || null);
+        } else {
+            setSelectedAttributes(newAttributes);
+        }
+        
+        setImgIdx(0);
+        setErrorSet(new Set());
+    };
+
+    const allImages = (currentVariant?.images && currentVariant.images.length > 0) 
+        ? currentVariant.images 
+        : (product.images || []);
+    
+    const displayPrice = currentVariant?.price?.amount 
+        ? currentVariant.price 
+        : product.price;
     const validImages = allImages.filter((_, i) => !errorSet.has(i));
     const hasImages = validImages.length > 0;
     const safeIdx = Math.min(imgIdx, Math.max(0, validImages.length - 1));
@@ -226,7 +289,7 @@ const ProductDetail = () => {
                                     {/* Currency badge */}
                                     <div className="absolute top-4 left-4 z-10">
                                         <span className="bg-black/70 backdrop-blur-sm border border-white/10 text-[9px] font-black text-zinc-400 tracking-[0.22em] uppercase px-2.5 py-1">
-                                            {product.price?.currency || "USD"}
+                                            {displayPrice?.currency || "USD"}
                                         </span>
                                     </div>
                                 </>
@@ -305,10 +368,10 @@ const ProductDetail = () => {
                                 className="text-[2rem] font-black text-white leading-none"
                                 style={{ fontFamily: DM }}
                             >
-                                {formatPrice(product.price?.amount, product.price?.currency)}
+                                {formatPrice(displayPrice?.amount, displayPrice?.currency)}
                             </span>
                             <span className="text-[11px] text-zinc-600 font-semibold tracking-[0.18em] uppercase">
-                                {product.price?.currency || "USD"}
+                                {displayPrice?.currency || "USD"}
                             </span>
                         </div>
 
@@ -323,32 +386,39 @@ const ProductDetail = () => {
                             </div>
                         )}
 
-                        {/* Size selector */}
-                        <div>
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="text-[10px] font-black text-zinc-500 tracking-[0.28em] uppercase">
-                                    Select Size
-                                </span>
-                                <button className="text-[10px] font-bold text-zinc-600 hover:text-white tracking-[0.18em] uppercase transition-colors duration-200 cursor-pointer">
-                                    Size Guide
-                                </button>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                                {SIZES.map((size) => (
-                                    <button
-                                        key={size}
-                                        id={`size-${size}`}
-                                        onClick={() => setSelectedSize(size)}
-                                        className={`w-12 h-12 flex items-center justify-center text-[11px] font-black tracking-[0.15em] uppercase border transition-all duration-200 cursor-pointer ${selectedSize === size
-                                                ? "border-white bg-white text-black"
-                                                : "border-white/[0.1] text-zinc-500 hover:border-white/30 hover:text-white"
-                                            }`}
-                                    >
-                                        {size}
-                                    </button>
+                        {/* Variant Attributes Selector */}
+                        {Object.keys(attributesMap).length > 0 && (
+                            <div className="flex flex-col gap-4">
+                                {Object.entries(attributesMap).map(([attrKey, attrValues]) => (
+                                    <div key={attrKey}>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <span className="text-[10px] font-black text-zinc-500 tracking-[0.28em] uppercase">
+                                                Select {attrKey}
+                                            </span>
+                                            {attrKey.toLowerCase() === 'size' && (
+                                                <button className="text-[10px] font-bold text-zinc-600 hover:text-white tracking-[0.18em] uppercase transition-colors duration-200 cursor-pointer">
+                                                    Size Guide
+                                                </button>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {Array.from(attrValues).map((val) => (
+                                                <button
+                                                    key={val}
+                                                    onClick={() => handleAttributeSelect(attrKey, val)}
+                                                    className={`h-12 px-5 flex items-center justify-center text-[11px] font-black tracking-[0.15em] uppercase border transition-all duration-200 cursor-pointer ${selectedAttributes[attrKey] === val
+                                                            ? "border-white bg-white text-black"
+                                                            : "border-white/[0.1] text-zinc-500 hover:border-white/30 hover:text-white"
+                                                        }`}
+                                                >
+                                                    {val}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
-                        </div>
+                        )}
 
                         <div className="h-px bg-white/[0.06] shrink-0" />
 
