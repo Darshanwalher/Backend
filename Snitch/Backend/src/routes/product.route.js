@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import { authtenticateSeller } from '../middleware/auth.middleware.js';
-import { createProduct,getAllProducts,getProductDetails,getSellerProducts } from '../controllers/product.controller.js';
+import { addProductVariant, createProduct,getAllProducts,getProductDetails,getSellerProducts } from '../controllers/product.controller.js';
 import { createProductValidator } from '../validator/product.validator.js';
 
 import multer from 'multer';
@@ -35,7 +35,18 @@ ProductRouter.get("/seller",authtenticateSeller,getSellerProducts)
  */
 ProductRouter.get("/",getAllProducts)
 
-
+/** 
+ * @route GET /api/products/detail/:id
+ * @description Get details of a specific product
+ * @access Public
+ */
 ProductRouter.get("/detail/:id",getProductDetails)
+
+/** 
+ * @route POST /api/products/product/:productId/variants
+ * @description Add a new variant to an existing product
+ * @access Private (Seller only)
+ */
+ProductRouter.post("/:productId/variants", authtenticateSeller,upload.array("images",7),addProductVariant)
 
 export default ProductRouter;

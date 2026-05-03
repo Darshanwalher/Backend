@@ -131,7 +131,7 @@ const ProductDetail = () => {
 
     return (
         <div
-            className="min-h-screen w-full bg-[#060606] text-white selection:bg-white selection:text-black"
+            className="min-h-screen lg:h-screen w-full bg-[#060606] text-white selection:bg-white selection:text-black lg:overflow-hidden flex flex-col"
             style={{ fontFamily: DM }}
         >
             {/* ══ NAVBAR ══ */}
@@ -168,28 +168,16 @@ const ProductDetail = () => {
                 </div>
             </header>
 
-            {/* ══ BREADCRUMB ══ */}
-            <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-16 pt-24 pb-0">
-                <nav className="flex items-center gap-2 text-[11px] font-semibold tracking-[0.18em] uppercase">
-                    <button
-                        onClick={() => navigate("/")}
-                        className="text-zinc-600 hover:text-white transition-colors duration-200 cursor-pointer"
-                    >
-                        Shop
-                    </button>
-                    <span className="text-zinc-700">/</span>
-                    <span className="text-zinc-400">{product.title}</span>
-                </nav>
-            </div>
 
             {/* ══ MAIN CONTENT ══ */}
-            <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-16 pt-6 sm:pt-8 pb-20">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 lg:gap-20 items-start">
+            <main className="lg:flex-1 lg:overflow-hidden pt-16">
+              <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-16 lg:h-full">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-12 lg:h-full pt-2">
 
                     {/* ──── LEFT: Image Gallery ──── */}
-                    <div className="lg:sticky lg:top-24 space-y-3">
+                    <div className="flex flex-col gap-2 lg:overflow-hidden lg:h-full py-2">
                         {/* Primary image */}
-                        <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900/60 group select-none">
+                        <div className="relative aspect-[3/4] lg:aspect-auto lg:flex-1 w-full overflow-hidden bg-zinc-900/60 group select-none lg:min-h-0">
                             {hasImages ? (
                                 <>
                                     <img
@@ -254,12 +242,12 @@ const ProductDetail = () => {
 
                         {/* Thumbnails */}
                         {validImages.length > 1 && (
-                            <div className="flex gap-2 overflow-x-auto scrollbar-none">
+                            <div className="flex gap-2 overflow-x-auto scrollbar-none shrink-0">
                                 {validImages.map((img, i) => (
                                     <button
                                         key={img._id || i}
                                         onClick={() => setImgIdx(i)}
-                                        className={`shrink-0 w-16 h-20 overflow-hidden border transition-all duration-200 cursor-pointer ${i === safeIdx
+                                        className={`shrink-0 w-12 h-16 overflow-hidden border transition-all duration-200 cursor-pointer ${i === safeIdx
                                                 ? "border-white"
                                                 : "border-white/[0.08] opacity-50 hover:opacity-80 hover:border-white/30"
                                             }`}
@@ -277,7 +265,7 @@ const ProductDetail = () => {
                     </div>
 
                     {/* ──── RIGHT: Product Info ──── */}
-                    <div className="flex flex-col gap-7">
+                    <div className="flex flex-col gap-5 lg:overflow-y-auto lg:h-full py-2 pb-6 lg:pb-2 pr-1">
 
                         {/* Tag + Wishlist */}
                         <div className="flex items-center justify-between">
@@ -324,7 +312,7 @@ const ProductDetail = () => {
                             </span>
                         </div>
 
-                        <div className="h-px bg-white/[0.06]" />
+                        <div className="h-px bg-white/[0.06] shrink-0" />
 
                         {/* Description */}
                         {product.description && (
@@ -362,7 +350,7 @@ const ProductDetail = () => {
                             </div>
                         </div>
 
-                        <div className="h-px bg-white/[0.06]" />
+                        <div className="h-px bg-white/[0.06] shrink-0" />
 
                         {/* ── CTA Buttons ── */}
                         <div className="grid grid-cols-2 gap-3">
@@ -400,7 +388,7 @@ const ProductDetail = () => {
               Share this product
             </button> */}
 
-                        <div className="h-px bg-white/[0.06]" />
+                        <div className="h-px bg-white/[0.06] shrink-0" />
 
                         {/* Perks */}
                         <div className="grid grid-cols-3 gap-2 sm:gap-4">
@@ -471,10 +459,11 @@ const ProductDetail = () => {
                         </div>
                     </div>
                 </div>
+              </div>
             </main>
 
             {/* ══ FOOTER ══ */}
-            <footer className="border-t border-white/[0.05]">
+            <footer className="border-t border-white/[0.05] shrink-0">
                 <div className="max-w-screen-xl mx-auto px-6 lg:px-16 h-12 flex items-center justify-between">
                     <span className="text-[11px] text-zinc-700 font-bold tracking-[0.22em] uppercase">
                         Snitch © 2025

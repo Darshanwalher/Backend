@@ -29,7 +29,7 @@ const formatDate = (iso) => {
 /* ═══════════════════════════════════════════════════════
    ProductCard
 ═══════════════════════════════════════════════════════ */
-const ProductCard = ({ product, index }) => {
+const ProductCard = ({ product, index, onImageClick }) => {
   const [imgIdx, setImgIdx] = useState(0);
   const [errorSet, setErrorSet] = useState(new Set());
   const images = (product.images || []).filter((_, i) => !errorSet.has(i));
@@ -59,7 +59,10 @@ const ProductCard = ({ product, index }) => {
       style={{ animationDelay: `${index * 60}ms` }}
     >
       {/* Image area */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-zinc-900/60">
+      <div 
+        className="relative aspect-[4/5] overflow-hidden bg-zinc-900/60 cursor-pointer"
+        onClick={onImageClick}
+      >
         {hasImages ? (
           <>
             <img
@@ -452,7 +455,11 @@ function Dashboard() {
           ) : (
             products.map((product, i) => (
               <div key={product._id} className="bg-[#060606]">
-                <ProductCard product={product} index={i} />
+                <ProductCard 
+                  product={product} 
+                  index={i} 
+                  onImageClick={() => navigate(`/seller/product/${product._id}`)}
+                />
               </div>
             ))
           )}
