@@ -21,7 +21,7 @@ const formatPrice = (amount, currency) => {
 
 const Cart = () => {
     const cartItems = useSelector(state => state.cart.items) || [];
-    const { handleGetCart } = useCart();
+    const { handleGetCart,handleIncrementItem } = useCart();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -138,7 +138,9 @@ const Cart = () => {
                                                         <Minus className="w-3.5 h-3.5" />
                                                     </button>
                                                     <span className="px-3 py-2 text-[12px] font-bold w-10 text-center">{item.quantity}</span>
-                                                    <button className="px-3 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
+                                                    <button
+                                                     onClick={()=>{handleIncrementItem({productId:item.product._id, variantId:item.variant})}}
+                                                     className="px-3 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
                                                         <Plus className="w-3.5 h-3.5" />
                                                     </button>
                                                 </div>

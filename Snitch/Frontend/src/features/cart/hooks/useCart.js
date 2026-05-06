@@ -1,6 +1,6 @@
 import { useDispatch,useSelector } from "react-redux";
-import { addItem, getCart } from "../service/cart.api.js";
-import { addItem as addItemToCart, setItems} from "../state/cart.slice.js";
+import { addItem, getCart, incrementCartItemApi } from "../service/cart.api.js";
+import { addItem as addItemToCart, increamentCartItem, setItems} from "../state/cart.slice.js";
 
 
 export const useCart = ()=>{
@@ -18,10 +18,24 @@ export const useCart = ()=>{
         
     }
 
+    async function handleIncrementItem({productId,variantId}){
+        // Optimistic UI Update: Update Redux immediately so the UI feels instant!
+        dispatch(increamentCartItem({productId, variantId}));
+        
+        try {
+            // Then fire the API call in the background
+            await incrementCartItemApi({productId,variantId});
+        } catch (error) {
+            console.error("Failed to update cart on server", error);
+            // If it fails, you would ideally revert the change here
+        }
+    }
+
 
     return{
         handleAddItem,
-        handleGetCart
+        handleGetCart,
+        handleIncrementItem,
     }
 
 }
