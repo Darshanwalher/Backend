@@ -151,3 +151,100 @@ export const incrementCartItemQuantity = async(req,res)=>{
     });
 
 }
+
+export const decrementCartItemQuantity = async(req,res)=>{
+    const { productId, variantId } = req.params;
+
+    const product = await productModel.findOne({
+        _id: productId,
+        "variants._id": variantId
+    });
+
+    if (!product) {
+        return res.status(404).json({
+            message: "Product not found.",
+            success: false
+        });
+    }
+
+    const cart = await cartModel.findOne({ user: req.user._id });
+
+    if (!cart) {
+        return res.status(404).json({
+            message: "Cart not found.",
+            success: false
+        });
+    }
+
+    const stock = await stockOfVariant(productId, variantId);
+
+    const itemQuantityInCart = cart.items.find(item => item.product.toString() === productId && item.variant?.toString() === variantId)?.quantity || 0;
+
+    if (itemQuantityInCart - 1 < 1) {
+        return res.status(400).json({
+            message: `Cannot decrease quantity below 1. Current quantity: ${itemQuantityInCart}.`,
+            success: false
+        });
+    }
+
+    await cartModel.findOneAndUpdate({
+        user: req.user._id,
+        "items.product": productId,
+        "items.variant": variantId
+    }, {
+        $inc: {
+            "items.$.quantity": -1
+        }
+    }, {
+        new: true
+    });
+
+    return res.status(200).json({
+        message: "Cart item quantity decremented successfully.",
+        success: true
+    });
+
+}
+
+export const removeItemFromCart = async(req,res)=>{
+    const { productId, variantId } = req.params;
+
+    const product = await productModel.findOne({
+        _id: productId,
+        "variants._id": variantId
+    });
+
+    if (!product) {
+        return res.status(404).json({
+            message: "Product not found.",
+            success: false
+        });
+    }
+
+    const cart = await cartModel.findOne({ user: req.user._id });
+
+    if (!cart) {
+        return res.status(404).json({
+            message: "Cart not found.",
+            success: false
+        });
+    }
+
+    await cartModel.findOneAndUpdate({
+        user: req.user._id
+    }, {
+        $pull: {
+            items: {
+                product: productId,
+                variant: variantId
+            }
+        }
+    }, {
+        new: true
+    });
+
+    return res.status(200).json({
+        message: "Item removed from cart successfully.",
+        success: true
+    });
+}

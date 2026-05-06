@@ -1,7 +1,7 @@
 import {Router} from "express";
 import {authtenticateUser} from "../middleware/auth.middleware.js";
 import { validateAddToCart,validateIncrementCartItemQuantity } from "../validator/cart.validator.js";
-import { addToCart,getCart, incrementCartItemQuantity } from "../controllers/cart.controller.js";
+import { addToCart,decrementCartItemQuantity,getCart, incrementCartItemQuantity, removeItemFromCart } from "../controllers/cart.controller.js";
 
 const cartRouter = Router();
 
@@ -35,5 +35,22 @@ cartRouter.get("/",authtenticateUser,getCart)
  */
 cartRouter.patch("/quantity/increment/:productId/:variantId",authtenticateUser,validateIncrementCartItemQuantity,incrementCartItemQuantity);
 
+
+/** * @route PATCH /api/cart/quantity/decrement/:productId/:variantId
+ * @desc Decrement item quantity in cart by one
+ * @access Private
+ * @argument productId - ID of the product to update
+ * @argument variantId - ID of the variant to update
+ */
+cartRouter.patch("/quantity/decrement/:productId/:variantId",authtenticateUser,validateIncrementCartItemQuantity,decrementCartItemQuantity);
+
+/**
+ * @route DELETE /api/cart/item/:productId/:variantId
+ * @desc Remove item from cart
+ * @access Private
+ * @argument productId - ID of the product to remove
+ * @argument variantId - ID of the variant to remove
+ */
+cartRouter.delete("/item/:productId/:variantId",authtenticateUser,validateIncrementCartItemQuantity,removeItemFromCart);
 
 export default cartRouter;
