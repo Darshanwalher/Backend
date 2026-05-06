@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCart } from '../hooks/useCart';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
@@ -21,8 +21,14 @@ const formatPrice = (amount, currency) => {
 
 const Cart = () => {
     const cartItems = useSelector(state => state.cart.items) || [];
-    const { handleGetCart,handleIncrementItem } = useCart();
+    const { handleGetCart,handleIncrementItem,handleDecrementItem,handleRemoveItem } = useCart();
     const navigate = useNavigate();
+    const [notification, setNotification] = useState(null);
+
+    const showNotification = (msg) => {
+        setNotification(msg);
+        setTimeout(() => setNotification(null), 3000);
+    };
 
     useEffect(() => {
         handleGetCart();
@@ -108,7 +114,10 @@ const Cart = () => {
                                                 <h2 className="text-[16px] font-bold text-white leading-snug tracking-tight">
                                                     {item.product?.title}
                                                 </h2>
-                                                <button className="text-zinc-500 hover:text-white transition-colors cursor-pointer p-1">
+                                                <button 
+                                                    onClick={() => handleRemoveItem({ productId: item.product._id, variantId: item.variant })}
+                                                    className="text-zinc-500 hover:text-white transition-colors cursor-pointer p-1"
+                                                >
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -134,7 +143,15 @@ const Cart = () => {
 
                                             <div className="flex items-center justify-between pt-1">
                                                 <div className="flex items-center border border-white/[0.06] bg-white/[0.02]">
-                                                    <button className="px-3 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
+                                                    <button 
+                                                    onClick={()=>{
+                                                        if (item.quantity <= 1) {
+                                                            showNotification(`Cannot decrease quantity below 1.`);
+                                                            return;
+                                                        }
+                                                        handleDecrementItem({productId:item.product._id, variantId:item.variant});
+                                                    }}
+                                                    className="px-3 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
                                                         <Minus className="w-3.5 h-3.5" />
                                                     </button>
                                                     <span className="px-3 py-2 text-[12px] font-bold w-10 text-center">{item.quantity}</span>
@@ -199,7 +216,13 @@ const Cart = () => {
                 )}
             </div>
 
-            
+            {/* Premium Custom Alert / Toast */}
+            {notification && (
+                <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#0a0a0a] border border-white/[0.08] text-white px-6 py-4 shadow-[0_0_40px_rgba(0,0,0,0.8)] transition-all duration-300">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
+                    <span className="text-[11px] font-bold tracking-[0.1em] uppercase">{notification}</span>
+                </div>
+            )}
         </div>
     );
 };
