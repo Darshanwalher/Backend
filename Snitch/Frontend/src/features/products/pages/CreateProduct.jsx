@@ -6,10 +6,11 @@ import {
   X,
   Check,
   Loader2,
+  Home,
 } from "lucide-react";
 import { useProduct } from "../hooks/useProduct";
 import { useNavigate } from "react-router";
-
+import Nav from "../../Shared/Components/Nav";
 const MAX_IMAGES = 7;
 const DESC_MAX = 600;
 
@@ -121,40 +122,36 @@ const CreateProduct = () => {
       <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
 
       {/* ══════════ HEADER ══════════ */}
-      <header className="fixed top-0 left-0 right-0 z-30 border-b border-white/[0.05] bg-[#060606]/95 backdrop-blur-md">
-        <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 h-16 flex items-center justify-between">
-
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-zinc-400 text-[11px] font-semibold tracking-[0.18em] uppercase hover:text-white transition-all duration-400 cursor-pointer group"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform duration-300" strokeWidth={2} />
-            Back
-          </button>
-
-          {/* Wordmark */}
-          <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none select-none">
-            <span
-              className="text-white text-2xl leading-none tracking-[0.3em] uppercase"
-              style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.3em" }}
-            >
-              Snitch
-            </span>
-            <span className="text-[9px] text-zinc-500 tracking-[0.28em] uppercase mt-0.5 font-semibold">
-              Seller Studio
-            </span>
+      <Nav 
+        title="Seller Studio"
+        homeRoute="/seller/dashboard"
+        rightContent={
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[11px] text-zinc-400 font-semibold tracking-[0.15em] uppercase hidden sm:block">
+                Draft
+              </span>
+            </div>
+            <nav className="flex items-center gap-6 border-l border-white/[0.05] pl-6">
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 cursor-pointer text-zinc-600 hover:text-white flex items-center gap-2"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" /> Back
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/seller/dashboard")}
+                className="text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 cursor-pointer text-zinc-600 hover:text-white flex items-center gap-2"
+              >
+                <Home className="w-3.5 h-3.5" /> Home
+              </button>
+            </nav>
           </div>
-
-          {/* Draft pill */}
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[11px] text-zinc-400 font-semibold tracking-[0.15em] uppercase hidden sm:block">
-              Draft
-            </span>
-          </div>
-        </div>
-      </header>
+        }
+      />
 
       {/* ══════════ HERO ══════════ */}
       <div className="pt-16 border-b border-white/[0.05]">

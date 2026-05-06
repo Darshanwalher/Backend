@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import Nav from "../../Shared/Components/Nav";
 
 /* ══════════════════════════════════════════════════════
    Constants & Helpers
@@ -278,23 +279,9 @@ export const Home = () => {
       style={{ fontFamily: DM }}
     >
       {/* ══ NAVBAR ══ */}
-      <header className="fixed top-0 left-0 right-0 z-40 border-b border-white/[0.05] bg-[#060606]/95 backdrop-blur-md">
-        <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 h-16 flex items-center justify-between gap-6">
-
-          {/* Wordmark */}
-          <a href="/" className="flex flex-col items-start pointer-events-auto select-none no-underline">
-            <span
-              className="text-white text-2xl leading-none tracking-[0.3em] uppercase"
-              style={{ fontFamily: BEBAS, letterSpacing: "0.3em" }}
-            >
-              Snitch
-            </span>
-            <span className="text-[9px] text-zinc-500 tracking-[0.28em] uppercase mt-0.5 font-semibold">
-              New Season
-            </span>
-          </a>
-
-          {/* Right — user info or login */}
+      <Nav
+        title="New Season"
+        rightContent={
           <div className="flex items-center gap-3">
             {user ? (
               /* Logged-in: show avatar initial + name */
@@ -321,8 +308,8 @@ export const Home = () => {
               </button>
             )}
           </div>
-        </div>
-      </header>
+        }
+      />
 
       {/* ══ HERO ══ */}
       <section className="pt-16">

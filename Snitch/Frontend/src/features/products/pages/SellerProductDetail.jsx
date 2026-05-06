@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useProduct } from '../hooks/useProduct';
 import { useParams, useNavigate } from 'react-router';
 import { ArrowLeft, Plus, Image as ImageIcon, Box, Trash2, Edit3, Save, X, ImageOff, UploadCloud, Tag, Check, ChevronLeft, ChevronRight } from 'lucide-react';
-
+import Nav from '../../Shared/Components/Nav';
 const CURRENCY_OPTIONS = [
   { code: "USD", symbol: "$",  name: "US Dollar",      flag: "🇺🇸" },
   { code: "INR", symbol: "₹",  name: "Indian Rupee",   flag: "🇮🇳" },
@@ -194,23 +194,7 @@ const SellerProductDetail = () => {
     return (
         <div className="min-h-screen w-full bg-[#060606] text-white selection:bg-white selection:text-black pb-20" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             {/* Header */}
-            <header className="fixed top-0 left-0 right-0 z-30 border-b border-white/[0.05] bg-[#060606]/95 backdrop-blur-md">
-                <div className="max-w-screen-xl mx-auto px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-6">
-                        <button 
-                            onClick={() => navigate('/seller/dashboard')}
-                            className="w-8 h-8 flex items-center justify-center bg-white/[0.05] hover:bg-white/10 transition-colors rounded-sm"
-                        >
-                            <ArrowLeft className="w-4 h-4 text-zinc-400" />
-                        </button>
-                        <div className="flex flex-col">
-                            <span className="text-[14px] leading-none tracking-[0.2em] uppercase" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                                Product Details
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <Nav title="Product Details" homeRoute="/seller/dashboard" />
 
             <main className="max-w-screen-xl mx-auto px-6 pt-24 space-y-12">
                 

@@ -8,6 +8,7 @@ import Protected from "../features/auth/components/Protected.jsx";
 import { Home } from "../features/products/pages/Home.jsx";
 import ProductDetail from "../features/products/pages/ProductDetail.jsx";
 import SellerProductDetail from "../features/products/pages/SellerProductDetail.jsx";
+import Cart from "../features/cart/pages/Cart.jsx";
 
 export const router = createBrowserRouter([
     {
@@ -26,6 +27,12 @@ export const router = createBrowserRouter([
     {
         path:"/product/:productId",
         element:<ProductDetail/>,
+    },
+    {
+        path:"/cart",
+        element:<Protected>
+            <Cart/>
+        </Protected>
     },
     {
         path:"/seller",

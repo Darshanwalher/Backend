@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { useProduct } from "../hooks/useProduct";
+import { useProduct } from "../hooks/useProduct.js";
+import { useCart } from "../../cart/hooks/useCart.js";
 import {
     ArrowLeft,
     ShoppingBag,
@@ -14,6 +15,7 @@ import {
     RefreshCw,
     Shield,
 } from "lucide-react";
+import Nav from "../../Shared/Components/Nav";
 
 /* ─────────────────── Constants ─────────────────── */
 const DM = "'DM Sans', sans-serif";
@@ -92,6 +94,7 @@ const ProductDetail = () => {
     const { productId } = useParams();
     const navigate = useNavigate();
     const { handleGetProductById } = useProduct();
+    const {handleAddItem} = useCart();
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -100,6 +103,7 @@ const ProductDetail = () => {
     const [wishlisted, setWishlisted] = useState(false);
     const [selectedAttributes, setSelectedAttributes] = useState({});
     const [currentVariant, setCurrentVariant] = useState(null);
+    const [showToast, setShowToast] = useState(false);
 
     const normalizeAttributes = (attrs) => {
         const normalized = {};
@@ -197,41 +201,7 @@ const ProductDetail = () => {
             className="min-h-screen lg:h-screen w-full bg-[#060606] text-white selection:bg-white selection:text-black lg:overflow-hidden flex flex-col"
             style={{ fontFamily: DM }}
         >
-            {/* ══ NAVBAR ══ */}
-            <header className="fixed top-0 left-0 right-0 z-40 border-b border-white/[0.05] bg-[#060606]/95 backdrop-blur-md">
-                <div className="max-w-screen-xl mx-auto px-6 lg:px-16 h-16 flex items-center justify-between gap-6">
-                    {/* Wordmark */}
-                    <a
-                        href="/"
-                        className="flex flex-col items-start pointer-events-auto select-none no-underline"
-                    >
-                        <span
-                            className="text-white text-2xl leading-none tracking-[0.3em] uppercase"
-                            style={{ fontFamily: BEBAS, letterSpacing: "0.3em" }}
-                        >
-                            Snitch
-                        </span>
-                        <span className="text-[9px] text-zinc-500 tracking-[0.28em] uppercase mt-0.5 font-semibold">
-                            New Season
-                        </span>
-                    </a>
-
-                    {/* Back */}
-                    <button
-                        id="back-btn"
-                        onClick={() => navigate(-1)}
-                        className="flex items-center gap-2 text-zinc-500 hover:text-white text-[11px] font-bold tracking-[0.18em] uppercase transition-all duration-300 cursor-pointer group"
-                    >
-                        <ArrowLeft
-                            className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform duration-300"
-                            strokeWidth={2.5}
-                        />
-                        Back
-                    </button>
-                </div>
-            </header>
-
-
+            <Nav title="New Season" />
             {/* ══ MAIN CONTENT ══ */}
             <main className="lg:flex-1 lg:overflow-hidden pt-16">
               <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-16 lg:h-full">
@@ -426,6 +396,14 @@ const ProductDetail = () => {
                         <div className="grid grid-cols-2 gap-3">
                             {/* Add to Cart */}
                             <button
+                                onClick={async () => {
+                                    await handleAddItem({
+                                        productId: product._id,
+                                        variantId: currentVariant?._id
+                                    });
+                                    setShowToast(true);
+                                    setTimeout(() => setShowToast(false), 4000);
+                                }}
                                 id="add-to-cart-btn"
                                 className="w-full flex items-center justify-center gap-2 border border-white/20 text-white text-[10px] sm:text-[11px] font-black tracking-[0.15em] sm:tracking-[0.22em] uppercase h-12 sm:h-14 px-3 sm:px-6 hover:bg-white hover:text-black transition-all duration-300 cursor-pointer group"
                             >
@@ -543,6 +521,26 @@ const ProductDetail = () => {
                     </span>
                 </div>
             </footer>
+
+            {/* ══ TOAST NOTIFICATION ══ */}
+            {showToast && (
+                <div 
+                    className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between gap-6 px-4 py-3 sm:px-6 sm:py-4 bg-[#0a0a0a] border border-white/20 shadow-2xl animate-in slide-in-from-bottom-5 fade-in duration-300 cursor-pointer group"
+                    onClick={() => navigate('/cart')}
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-white flex items-center justify-center">
+                            <ShoppingBag className="w-4 h-4 text-black" strokeWidth={2.5} />
+                        </div>
+                        <span className="text-[11px] text-white font-bold tracking-[0.2em] uppercase">
+                            Added to Bag
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-1 sm:gap-2 text-[10px] text-zinc-400 font-bold tracking-[0.2em] uppercase group-hover:text-white transition-colors whitespace-nowrap">
+                        View Cart <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

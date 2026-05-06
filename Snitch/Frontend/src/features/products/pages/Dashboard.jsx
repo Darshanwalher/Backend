@@ -3,7 +3,7 @@ import { useProduct } from "../hooks/useProduct";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { Plus, ArrowRight, Package, ImageOff, MoreHorizontal, Tag, Calendar } from "lucide-react";
-
+import Nav from "../../Shared/Components/Nav";
 /* ═══════════════════════════════════════════════════════
    Helpers
 ═══════════════════════════════════════════════════════ */
@@ -278,46 +278,32 @@ function Dashboard() {
       className="min-h-screen w-full bg-[#060606] text-white selection:bg-white selection:text-black"
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
-      {/* ══════════ HEADER ══════════ */}
-      <header className="fixed top-0 left-0 right-0 z-30 border-b border-white/[0.05] bg-[#060606]/95 backdrop-blur-md">
-        <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 h-16 flex items-center justify-between">
-          {/* Wordmark */}
-          <div className="flex flex-col items-start pointer-events-none select-none">
-            <span
-              className="text-white text-2xl leading-none tracking-[0.3em] uppercase"
-              style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.3em" }}
+      <Nav 
+        title="Seller Studio" homeRoute="/seller/dashboard"
+        rightContent={
+          <div className="flex items-center gap-8">
+            <nav className="hidden sm:flex items-center gap-8">
+              {["Dashboard", "Orders"].map((item, i) => (
+                <button
+                  key={item}
+                  className={`text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 cursor-pointer ${
+                    i === 0 ? "text-white" : "text-zinc-600 hover:text-zinc-300"
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
+            </nav>
+            <button
+              onClick={() => navigate("/seller/create-product")}
+              className="flex items-center gap-2 bg-white text-black text-[11px] font-black tracking-[0.18em] uppercase px-4 py-2.5 hover:bg-zinc-100 active:scale-[0.98] transition-all duration-300 cursor-pointer group"
             >
-              Snitch
-            </span>
-            <span className="text-[9px] text-zinc-500 tracking-[0.28em] uppercase mt-0.5 font-semibold">
-              Seller Studio
-            </span>
+              <Plus className="w-3.5 h-3.5 group-hover:rotate-90 transition-transform duration-300" strokeWidth={2.5} />
+              <span className="hidden sm:inline">New Product</span>
+            </button>
           </div>
-
-          {/* Nav */}
-          <nav className="hidden sm:flex items-center gap-8">
-            {["Dashboard", "Analytics", "Orders"].map((item, i) => (
-              <button
-                key={item}
-                className={`text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 cursor-pointer ${
-                  i === 0 ? "text-white" : "text-zinc-600 hover:text-zinc-300"
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </nav>
-
-          {/* Add product CTA */}
-          <button
-            onClick={() => navigate("/seller/create-product")}
-            className="flex items-center gap-2 bg-white text-black text-[11px] font-black tracking-[0.18em] uppercase px-4 py-2.5 hover:bg-zinc-100 active:scale-[0.98] transition-all duration-300 cursor-pointer group"
-          >
-            <Plus className="w-3.5 h-3.5 group-hover:rotate-90 transition-transform duration-300" strokeWidth={2.5} />
-            <span className="hidden sm:inline">New Product</span>
-          </button>
-        </div>
-      </header>
+        }
+      />
 
       {/* ══════════ HERO / STATS ══════════ */}
       <div className="pt-16 border-b border-white/[0.05]">
