@@ -46,6 +46,7 @@ export const useCart = ()=>{
             dispatch(increamentCartItem({productId, variantId}));
             if (error.response?.data?.message) {
                 alert(error.response.data.message);
+                
             } else {
                 alert("Failed to decrease quantity");
             }

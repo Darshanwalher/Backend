@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
-import { addProductVariant, createProduct, getAllProducts, getProductById, getSellerProducts } from "../service/product.api.js";
-import { setSellerProducts,setProducts } from "../state/product.slice.js";
+import { addProductVariant, createProduct, deleteProduct, getAllProducts, getProductById, getSellerProducts,deleteProductVariant, updateProductVariant } from "../service/product.api.js";
+import { setSellerProducts,setProducts,setDeleteProduct,setDeleteProductVariant, setUpdateProductVariant } from "../state/product.slice.js";
 
 export const useProduct = ()=>{
 
@@ -34,11 +34,33 @@ export const useProduct = ()=>{
         return data
     }
 
+    async function handleDeleteProduct(productId){
+        const data = await deleteProduct(productId);
+        dispatch(setDeleteProduct(productId));
+        return data.product;
+    }
+
+    async function handleDeleteProductVariant(productId,variantId){
+        const data = await deleteProductVariant(productId,variantId);
+        dispatch(setDeleteProductVariant(productId,variantId));
+        return data.product;
+    }
+
+    async function handleUpdateProductVariant(productId,variantId){
+        const data = await updateProductVariant(productId,variantId);
+        dispatch(setUpdateProductVariant(productId,variantId));
+        return data.product;
+    }
+
     return {
         handleCreateProduct,
         handleGetSellerProducts,
         handleGetAllProducts,
         handleGetProductById,
-        handleAddProductVariant
+        handleAddProductVariant,
+        handleDeleteProduct,
+        handleDeleteProductVariant,
+        handleUpdateProductVariant
     }
 }
+

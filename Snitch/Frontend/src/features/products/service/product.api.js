@@ -46,3 +46,18 @@ export const addProductVariant = async(productId,newProductVariant)=>{
     
 }
 
+export const deleteProduct = async(productId)=>{
+    const response = await productApiInstance.delete(`/delete/${productId}`)
+    return response.data;
+}
+
+export const deleteProductVariant = async(productId,variantId)=>{
+    const response = await productApiInstance.delete(`/delete/variant/${productId}/${variantId}`)
+    return response.data;
+}
+
+export const updateProductVariant = async(productId,variantId)=>{
+    const response = await productApiInstance.put(`/update/variant/${productId}/${variantId}`)
+    return response.data;
+}
+

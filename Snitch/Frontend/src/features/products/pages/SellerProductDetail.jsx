@@ -4,47 +4,47 @@ import { useParams, useNavigate } from 'react-router';
 import { ArrowLeft, Plus, Image as ImageIcon, Box, Trash2, Edit3, Save, X, ImageOff, UploadCloud, Tag, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import Nav from '../../Shared/Components/Nav';
 const CURRENCY_OPTIONS = [
-  { code: "USD", symbol: "$",  name: "US Dollar",      flag: "🇺🇸" },
-  { code: "INR", symbol: "₹",  name: "Indian Rupee",   flag: "🇮🇳" },
-  { code: "EUR", symbol: "€",  name: "Euro",           flag: "🇪🇺" },
-  { code: "GBP", symbol: "£",  name: "British Pound",  flag: "🇬🇧" },
+    { code: "USD", symbol: "$", name: "US Dollar", flag: "🇺🇸" },
+    { code: "INR", symbol: "₹", name: "Indian Rupee", flag: "🇮🇳" },
+    { code: "EUR", symbol: "€", name: "Euro", flag: "🇪🇺" },
+    { code: "GBP", symbol: "£", name: "British Pound", flag: "🇬🇧" },
 ];
 
 /* ═══════════════════════════════════════════════════════
    Helpers
 ═══════════════════════════════════════════════════════ */
 const formatPrice = (amount, currency = "INR") => {
-  try {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-    }).format(amount);
-  } catch {
-    return `${currency} ${amount}`;
-  }
+    try {
+        return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: currency,
+            minimumFractionDigits: 0,
+        }).format(amount);
+    } catch {
+        return `${currency} ${amount}`;
+    }
 };
 
 const formatDate = (iso) => {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+    if (!iso) return "—";
+    const d = new Date(iso);
+    return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 };
 
 /* ═══════════════════════════════════════════════════════
    SellerProductDetail
 ═══════════════════════════════════════════════════════ */
 const SellerProductDetail = () => {
-    const { handleGetProductById,handleAddProductVariant } = useProduct();
+    const { handleGetProductById, handleAddProductVariant, handleDeleteProduct, handleDeleteProductVariant } = useProduct();
     const { productId } = useParams();
     const navigate = useNavigate();
-    
+
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
-    
+
     // Local state for variants to manage UI independently of the backend API
     const [variants, setVariants] = useState([]);
-    
+
     // Form state for creating a new variant
     const [showAddForm, setShowAddForm] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
@@ -61,6 +61,8 @@ const SellerProductDetail = () => {
     // Edit stock state
     const [editingStockIdx, setEditingStockIdx] = useState(null);
     const [editStockValue, setEditStockValue] = useState("");
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [variantToDelete, setVariantToDelete] = useState(null);
 
     async function fetchProductDetails() {
         try {
@@ -81,9 +83,9 @@ const SellerProductDetail = () => {
     }, [productId]);
 
     // Handle adding a variant
-    const handleAddVariant = async(e) => {
+    const handleAddVariant = async (e) => {
         e.preventDefault();
-        
+
         const validAttributes = newVariant.attributes.filter(attr => attr.key.trim() && attr.value.trim());
         if (validAttributes.length === 0) {
             alert("At least one valid attribute is required.");
@@ -112,8 +114,8 @@ const SellerProductDetail = () => {
             attributes: attributesObj
         };
 
-       await handleAddProductVariant(productId,finalPayload);
-        
+        await handleAddProductVariant(productId, finalPayload);
+
         setVariants([...variants, variantObj]);
         setShowAddForm(false);
         setNewVariant({ images: [], stock: 0, price: { amount: "", currency: "INR" }, attributes: [{ key: "", value: "" }] });
@@ -121,15 +123,15 @@ const SellerProductDetail = () => {
 
     const processFiles = (files) => {
         if (!files || files.length === 0) return;
-        
+
         const remainingSlots = 7 - newVariant.images.length;
         const filesToAdd = files.slice(0, remainingSlots);
-        
+
         const newImages = filesToAdd.map(file => ({
             file,
             previewUrl: URL.createObjectURL(file)
         }));
-        
+
         setNewVariant(prev => ({
             ...prev,
             images: [...prev.images, ...newImages]
@@ -197,16 +199,16 @@ const SellerProductDetail = () => {
             <Nav title="Product Details" homeRoute="/seller/dashboard" />
 
             <main className="max-w-screen-xl mx-auto px-6 pt-24 space-y-12">
-                
+
                 {/* ═══════════════════════════════════════════════════════
                    Product Summary
                 ═══════════════════════════════════════════════════════ */}
                 <section className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-0 bg-[#0a0a0a] border border-white/[0.08] overflow-hidden group hover:border-white/[0.15] transition-colors duration-500">
                     <div className="aspect-[4/5] bg-[#0f0f0f] relative flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/[0.08]">
                         {product.images && product.images.length > 0 ? (
-                            <img 
-                                src={product.images[0].url} 
-                                alt={product.title} 
+                            <img
+                                src={product.images[0].url}
+                                alt={product.title}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                             />
                         ) : (
@@ -217,8 +219,19 @@ const SellerProductDetail = () => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col p-6 lg:p-12">
-                        <div>
+                    <div className="flex flex-col p-6 lg:p-12 relative">
+                        {/* Delete Button */}
+                        <div className="absolute top-6 right-6 lg:top-12 lg:right-12">
+                            <button
+                                onClick={() => setShowDeleteConfirm(true)}
+                                className="w-10 h-10 flex items-center justify-center border border-white/[0.08] text-zinc-600 hover:text-red-500 hover:border-red-500/30 hover:bg-red-500/10 transition-all duration-300 cursor-pointer"
+                                aria-label="Delete Product"
+                                title="Delete Product"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <div className="pr-12 lg:pr-16">
                             <h1
                                 className="text-[clamp(2rem,4vw,3.5rem)] font-black text-white tracking-wider leading-[1.1] uppercase"
                                 style={{ fontFamily: "'Bebas Neue', sans-serif" }}
@@ -258,13 +271,12 @@ const SellerProductDetail = () => {
                             </h2>
                             <p className="text-[12px] text-zinc-500 tracking-[0.1em] mt-2 uppercase font-semibold">Manage stock, specific pricing, and styles</p>
                         </div>
-                        <button 
+                        <button
                             onClick={() => setShowAddForm(!showAddForm)}
-                            className={`w-full sm:w-auto flex items-center justify-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase px-6 py-3.5 transition-all duration-300 cursor-pointer active:scale-[0.98] ${
-                                showAddForm 
-                                    ? "bg-transparent border border-white/20 text-white hover:bg-white/5" 
+                            className={`w-full sm:w-auto flex items-center justify-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase px-6 py-3.5 transition-all duration-300 cursor-pointer active:scale-[0.98] ${showAddForm
+                                    ? "bg-transparent border border-white/20 text-white hover:bg-white/5"
                                     : "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:bg-zinc-200"
-                            }`}
+                                }`}
                         >
                             {showAddForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                             {showAddForm ? "Cancel" : "Add Variant"}
@@ -276,14 +288,14 @@ const SellerProductDetail = () => {
                         <form onSubmit={handleAddVariant} className="bg-[#0a0a0a] border border-white/[0.08] p-5 sm:p-8 md:p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 animate-in slide-in-from-top-8 fade-in duration-500 relative overflow-hidden">
                             {/* Decorative background glow */}
                             <div className="absolute top-0 left-1/4 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                            
+
                             <div className="space-y-2 lg:col-span-3 border-b border-white/[0.05] pb-4">
                                 <h3 className="text-[14px] font-bold tracking-[0.25em] uppercase text-white flex items-center gap-3">
                                     <span className="w-2 h-2 bg-white rounded-full inline-block animate-pulse" />
                                     Configure New Variant
                                 </h3>
                             </div>
-                            
+
                             {/* Dynamic Images */}
                             <div className="space-y-3 lg:col-span-3">
                                 <div className="flex items-center justify-between">
@@ -297,11 +309,11 @@ const SellerProductDetail = () => {
                                         <div key={idx} className="relative aspect-[4/5] bg-zinc-900 border border-white/[0.1] rounded-md overflow-hidden group shadow-lg">
                                             <img src={img.previewUrl} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                            <button 
+                                            <button
                                                 type="button"
                                                 onClick={() => {
                                                     const newImgs = newVariant.images.filter((_, i) => i !== idx);
-                                                    setNewVariant({...newVariant, images: newImgs});
+                                                    setNewVariant({ ...newVariant, images: newImgs });
                                                 }}
                                                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white text-black p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 cursor-pointer shadow-[0_0_15px_rgba(255,255,255,0.4)]"
                                             >
@@ -310,15 +322,14 @@ const SellerProductDetail = () => {
                                         </div>
                                     ))}
                                     {newVariant.images.length < 7 && (
-                                        <label 
+                                        <label
                                             onDragOver={handleDragOver}
                                             onDragLeave={handleDragLeave}
                                             onDrop={handleDrop}
-                                            className={`relative aspect-[4/5] flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-md transition-all duration-300 cursor-pointer group overflow-hidden ${
-                                                isDragging 
-                                                    ? "border-white bg-white/[0.05] scale-105" 
+                                            className={`relative aspect-[4/5] flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-md transition-all duration-300 cursor-pointer group overflow-hidden ${isDragging
+                                                    ? "border-white bg-white/[0.05] scale-105"
                                                     : "bg-[#0a0a0a] border-white/[0.1] hover:border-white/[0.4] hover:bg-white/[0.02]"
-                                            }`}
+                                                }`}
                                         >
                                             <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                             <div className="w-12 h-12 rounded-full bg-[#141414] border border-white/[0.05] group-hover:border-white/[0.2] flex items-center justify-center transition-all duration-500 group-hover:scale-110 shadow-lg relative z-10">
@@ -327,8 +338,8 @@ const SellerProductDetail = () => {
                                             <span className={`text-[10px] font-black tracking-[0.2em] uppercase transition-colors relative z-10 ${isDragging ? "text-white" : "text-zinc-500 group-hover:text-white"}`}>
                                                 {isDragging ? "Drop Here" : "Upload Image"}
                                             </span>
-                                            <input 
-                                                type="file" 
+                                            <input
+                                                type="file"
                                                 accept="image/*"
                                                 multiple
                                                 onChange={handleImageUpload}
@@ -338,7 +349,7 @@ const SellerProductDetail = () => {
                                     )}
                                 </div>
                             </div>
-                            
+
                             {/* Stock */}
                             <div className="space-y-3">
                                 <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] flex items-center gap-2">
@@ -346,12 +357,12 @@ const SellerProductDetail = () => {
                                     Available Stock
                                 </label>
                                 <div className="relative group">
-                                    <input 
-                                        type="number" 
+                                    <input
+                                        type="number"
                                         min="0"
                                         required
                                         value={newVariant.stock}
-                                        onChange={(e) => setNewVariant({...newVariant, stock: e.target.value})}
+                                        onChange={(e) => setNewVariant({ ...newVariant, stock: e.target.value })}
                                         className="w-full bg-[#0a0a0a] border border-white/[0.1] rounded-md text-white text-[16px] font-bold px-5 py-4 outline-none focus:border-white/40 focus:ring-1 focus:ring-white/40 transition-all duration-300 shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     />
                                     <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] group-focus-within:text-white transition-colors">Units</span>
@@ -366,19 +377,19 @@ const SellerProductDetail = () => {
                                 </label>
                                 <div className="flex flex-col sm:flex-row gap-3 lg:w-2/3">
                                     <div className="relative flex-1 group">
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             min="0"
                                             placeholder={product?.price?.amount}
                                             value={newVariant.price.amount}
-                                            onChange={(e) => setNewVariant({...newVariant, price: { ...newVariant.price, amount: e.target.value }})}
+                                            onChange={(e) => setNewVariant({ ...newVariant, price: { ...newVariant.price, amount: e.target.value } })}
                                             className="w-full bg-[#0a0a0a] border border-white/[0.1] rounded-md text-white text-[16px] font-bold pl-5 pr-12 py-4 outline-none focus:border-white/40 focus:ring-1 focus:ring-white/40 transition-all duration-300 placeholder:text-zinc-700 shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                     </div>
                                     <div className="w-full sm:w-[180px] h-[56px] sm:h-auto">
-                                        <CurrencyPicker 
+                                        <CurrencyPicker
                                             value={newVariant.price.currency}
-                                            onChange={(code) => setNewVariant({...newVariant, price: { ...newVariant.price, currency: code }})}
+                                            onChange={(code) => setNewVariant({ ...newVariant, price: { ...newVariant.price, currency: code } })}
                                         />
                                     </div>
                                 </div>
@@ -388,9 +399,9 @@ const SellerProductDetail = () => {
                             <div className="space-y-4 lg:col-span-3 border-t border-white/[0.05] pt-6 mt-2">
                                 <div className="flex items-center justify-between mb-2">
                                     <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em]">Variant Attributes <span className="text-red-400/80 ml-1">*Required</span></label>
-                                    <button 
-                                        type="button" 
-                                        onClick={() => setNewVariant({...newVariant, attributes: [...newVariant.attributes, { key: "", value: "" }]})}
+                                    <button
+                                        type="button"
+                                        onClick={() => setNewVariant({ ...newVariant, attributes: [...newVariant.attributes, { key: "", value: "" }] })}
                                         className="text-[10px] text-white hover:text-zinc-300 font-bold uppercase tracking-[0.2em] cursor-pointer border border-white/20 px-4 py-2 hover:bg-white/10 transition-colors"
                                     >
                                         + Add Attribute
@@ -399,37 +410,37 @@ const SellerProductDetail = () => {
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                     {newVariant.attributes.map((attr, idx) => (
                                         <div key={idx} className="flex gap-2">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 placeholder="Key (e.g. Size)"
                                                 value={attr.key}
                                                 required
                                                 onChange={(e) => {
                                                     const newAttrs = [...newVariant.attributes];
                                                     newAttrs[idx].key = e.target.value;
-                                                    setNewVariant({...newVariant, attributes: newAttrs});
+                                                    setNewVariant({ ...newVariant, attributes: newAttrs });
                                                 }}
                                                 className="w-1/3 bg-[#0f0f0f] border border-white/[0.1] text-white text-[13px] px-4 py-3.5 outline-none focus:border-white/50 transition-colors placeholder:text-zinc-700 font-medium"
                                             />
                                             <div className="relative flex-1">
-                                                <input 
-                                                    type="text" 
+                                                <input
+                                                    type="text"
                                                     placeholder="Value (e.g. XL)"
                                                     value={attr.value}
                                                     required
                                                     onChange={(e) => {
                                                         const newAttrs = [...newVariant.attributes];
                                                         newAttrs[idx].value = e.target.value;
-                                                        setNewVariant({...newVariant, attributes: newAttrs});
+                                                        setNewVariant({ ...newVariant, attributes: newAttrs });
                                                     }}
                                                     className="w-full bg-[#0f0f0f] border border-white/[0.1] text-white text-[13px] pl-4 pr-12 py-3.5 outline-none focus:border-white/50 transition-colors placeholder:text-zinc-700"
                                                 />
                                                 {newVariant.attributes.length > 1 && (
-                                                    <button 
+                                                    <button
                                                         type="button"
                                                         onClick={() => {
                                                             const newAttrs = newVariant.attributes.filter((_, i) => i !== idx);
-                                                            setNewVariant({...newVariant, attributes: newAttrs});
+                                                            setNewVariant({ ...newVariant, attributes: newAttrs });
                                                         }}
                                                         className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
                                                     >
@@ -462,7 +473,7 @@ const SellerProductDetail = () => {
                         <div className="grid grid-cols-1 gap-6">
                             {variants.map((variant, idx) => (
                                 <div key={variant._id || idx} className="flex flex-col md:flex-row gap-6 p-5 sm:p-6 bg-[#0a0a0a] border border-white/[0.05] hover:border-white/[0.2] transition-all duration-500 group shadow-lg">
-                                    
+
                                     {/* Image & Attributes */}
                                     <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start flex-1 min-w-0">
                                         {/* Variant Images */}
@@ -489,7 +500,7 @@ const SellerProductDetail = () => {
 
                                     {/* Stats & Actions */}
                                     <div className="flex flex-col sm:flex-row md:flex-row gap-4 sm:gap-6 md:gap-8 pt-4 md:pt-0 border-t md:border-t-0 border-white/[0.05] md:items-center">
-                                        
+
                                         {/* Price */}
                                         <div className="flex flex-row md:flex-col justify-between md:justify-start items-center md:items-start gap-1 md:pl-6 md:border-l border-white/[0.05] min-w-[120px]">
                                             <span className="text-[10px] text-zinc-600 font-bold tracking-[0.2em] uppercase">Price</span>
@@ -503,8 +514,8 @@ const SellerProductDetail = () => {
                                             <span className="text-[10px] text-zinc-600 font-bold tracking-[0.2em] uppercase">Stock</span>
                                             {editingStockIdx === idx ? (
                                                 <div className="flex items-center gap-2">
-                                                    <input 
-                                                        type="number" 
+                                                    <input
+                                                        type="number"
                                                         min="0"
                                                         value={editStockValue}
                                                         onChange={(e) => setEditStockValue(e.target.value)}
@@ -523,7 +534,7 @@ const SellerProductDetail = () => {
                                                     <span className={`text-[20px] font-black tracking-tight ${variant.stock > 0 ? "text-green-400" : "text-red-400"}`}>
                                                         {variant.stock} <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] ml-1.5 hidden sm:inline-block">units</span>
                                                     </span>
-                                                    <button 
+                                                    <button
                                                         onClick={() => { setEditingStockIdx(idx); setEditStockValue(variant.stock); }}
                                                         className="p-2 text-zinc-500 hover:text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer md:opacity-0 group-hover:opacity-100"
                                                     >
@@ -533,7 +544,17 @@ const SellerProductDetail = () => {
                                             )}
                                         </div>
 
-                                        {/* Actions Removed */}
+                                        {/* Actions */}
+                                        <div className="flex flex-row md:flex-col justify-end md:justify-start items-center md:items-start gap-2 md:pl-6 md:border-l border-white/[0.05]">
+                                            <button
+                                                onClick={() => setVariantToDelete({ id: variant._id, index: idx })}
+                                                className="w-10 h-10 flex items-center justify-center border border-white/[0.08] text-zinc-600 hover:text-red-500 hover:border-red-500/30 hover:bg-red-500/10 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(0,0,0,0.5)] md:opacity-0 group-hover:opacity-100"
+                                                aria-label="Delete Variant"
+                                                title="Delete Variant"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -541,6 +562,85 @@ const SellerProductDetail = () => {
                     )}
                 </section>
             </main>
+
+            {/* ══ DELETE CONFIRMATION MODAL ══ */}
+            {showDeleteConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-[#0a0a0a] border border-white/10 p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col gap-6">
+                        <div className="flex flex-col gap-4">
+                            <h3 className="text-[clamp(1.5rem,3vw,2rem)] text-white uppercase leading-[1.1] tracking-widest mb-1" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                                Delete Product
+                            </h3>
+                            <p className="text-[13px] text-zinc-400 font-normal leading-[1.6]">
+                                Are you sure you want to delete this product? This action cannot be undone and will permanently remove all variants and data.
+                            </p>
+                        </div>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowDeleteConfirm(false)}
+                                className="flex-1 border border-white/20 text-white text-[10px] sm:text-[11px] font-black tracking-[0.15em] sm:tracking-[0.2em] uppercase h-12 hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        await handleDeleteProduct(product._id);
+                                        setShowDeleteConfirm(false);
+                                        navigate('/seller/dashboard');
+                                    } catch (error) {
+                                        console.error("Failed to delete product:", error);
+                                    }
+                                }}
+                                className="flex-1 bg-red-600/90 text-white text-[10px] sm:text-[11px] font-black tracking-[0.15em] sm:tracking-[0.2em] uppercase h-12 hover:bg-red-600 transition-all duration-300 cursor-pointer"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ══ DELETE VARIANT CONFIRMATION MODAL ══ */}
+            {variantToDelete && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-[#0a0a0a] border border-white/10 p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col gap-6">
+                        <div className="flex flex-col gap-4">
+                            <h3 className="text-[clamp(1.5rem,3vw,2rem)] text-white uppercase leading-[1.1] tracking-widest mb-1" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                                Delete Variant
+                            </h3>
+                            <p className="text-[13px] text-zinc-400 font-normal leading-[1.6]">
+                                Are you sure you want to delete this variant? This action cannot be undone.
+                            </p>
+                        </div>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setVariantToDelete(null)}
+                                className="flex-1 border border-white/20 text-white text-[10px] sm:text-[11px] font-black tracking-[0.15em] sm:tracking-[0.2em] uppercase h-12 hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        if (variantToDelete.id) {
+                                            await handleDeleteProductVariant(product._id, variantToDelete.id);
+                                        }
+                                        const updatedVariants = variants.filter((_, i) => i !== variantToDelete.index);
+                                        setVariants(updatedVariants);
+                                        setVariantToDelete(null);
+                                    } catch (error) {
+                                        console.error("Failed to delete variant:", error);
+                                    }
+                                }}
+                                className="flex-1 bg-red-600/90 text-white text-[10px] sm:text-[11px] font-black tracking-[0.15em] sm:tracking-[0.2em] uppercase h-12 hover:bg-red-600 transition-all duration-300 cursor-pointer"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -566,7 +666,7 @@ const VariantImagesScroller = ({ images }) => {
         <div className="relative flex shrink-0 group/scroller w-full min-w-0">
             {/* Left Button */}
             {hasMultipleImages && (
-                <button 
+                <button
                     onClick={() => scroll('left')}
                     className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-black/80 backdrop-blur-sm border border-white/20 rounded-full text-white opacity-0 group-hover/scroller:opacity-100 transition-all hover:bg-white hover:text-black hover:scale-110 shadow-lg cursor-pointer hidden md:flex"
                 >
@@ -575,7 +675,7 @@ const VariantImagesScroller = ({ images }) => {
             )}
 
             {/* Scroll Container */}
-            <div 
+            <div
                 ref={scrollContainerRef}
                 className="flex gap-2 overflow-x-auto shrink-0 max-w-full pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory"
             >
@@ -594,7 +694,7 @@ const VariantImagesScroller = ({ images }) => {
 
             {/* Right Button */}
             {hasMultipleImages && (
-                <button 
+                <button
                     onClick={() => scroll('right')}
                     className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center bg-black/80 backdrop-blur-sm border border-white/20 rounded-full text-white opacity-0 group-hover/scroller:opacity-100 transition-all hover:bg-white hover:text-black hover:scale-110 shadow-lg cursor-pointer hidden md:flex"
                 >
@@ -609,79 +709,78 @@ const VariantImagesScroller = ({ images }) => {
    Custom Currency Picker
 ═══════════════════════════════════════════════════════ */
 const CurrencyPicker = ({ value, onChange }) => {
-  const [open, setOpen] = useState(false);
-  const ref             = useRef(null);
-  const selected        = CURRENCY_OPTIONS.find((c) => c.code === value);
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
+    const selected = CURRENCY_OPTIONS.find((c) => c.code === value);
 
-  // close on outside click
-  useEffect(() => {
-    const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+    // close on outside click
+    useEffect(() => {
+        const handler = (e) => {
+            if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, []);
 
-  return (
-    <div ref={ref} className="relative h-full">
-      {/* Trigger */}
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="w-full h-full flex items-center justify-between bg-[#0a0a0a] border border-white/[0.1] rounded-md px-4 py-4 hover:border-white/[0.4] focus:border-white/40 focus:ring-1 focus:ring-white/40 transition-all duration-300 outline-none group cursor-pointer shadow-inner"
-      >
-        <div className="flex items-center gap-2">
-          <span className="text-[16px]">{selected?.flag}</span>
-          <div className="text-left leading-none">
-            <span className="text-[14px] font-black text-white tracking-[0.1em] uppercase block">
-              {selected?.code}
-            </span>
-          </div>
-        </div>
-        <svg
-          className={`w-3.5 h-3.5 text-zinc-500 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
-        >
-          <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
-
-      {/* Dropdown panel */}
-      {open && (
-        <div className="absolute top-full right-0 mt-1 w-[200px] bg-[#111111] border border-white/[0.1] rounded-md z-50 overflow-hidden shadow-2xl shadow-black/80">
-          {CURRENCY_OPTIONS.map((c) => {
-            const isActive = c.code === value;
-            return (
-              <button
-                key={c.code}
+    return (
+        <div ref={ref} className="relative h-full">
+            {/* Trigger */}
+            <button
                 type="button"
-                onClick={() => { onChange(c.code); setOpen(false); }}
-                className={`w-full flex items-center justify-between px-4 py-3 transition-all duration-200 cursor-pointer ${
-                  isActive
-                    ? "bg-white/[0.06] text-white"
-                    : "text-zinc-400 hover:bg-white/[0.03] hover:text-white"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-[16px]">{c.flag}</span>
-                  <div className="text-left">
-                    <span className="text-[13px] font-bold block tracking-[0.05em]">
-                      {c.code}
-                    </span>
-                    <span className="text-[10px] text-zinc-500 font-semibold block tracking-[0.05em]">
-                      {c.name}
-                    </span>
-                  </div>
-                </div>
+                onClick={() => setOpen((o) => !o)}
+                className="w-full h-full flex items-center justify-between bg-[#0a0a0a] border border-white/[0.1] rounded-md px-4 py-4 hover:border-white/[0.4] focus:border-white/40 focus:ring-1 focus:ring-white/40 transition-all duration-300 outline-none group cursor-pointer shadow-inner"
+            >
                 <div className="flex items-center gap-2">
-                  <span className="text-[12px] font-black text-zinc-500">{c.symbol}</span>
-                  {isActive && <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />}
+                    <span className="text-[16px]">{selected?.flag}</span>
+                    <div className="text-left leading-none">
+                        <span className="text-[14px] font-black text-white tracking-[0.1em] uppercase block">
+                            {selected?.code}
+                        </span>
+                    </div>
                 </div>
-              </button>
-            );
-          })}
+                <svg
+                    className={`w-3.5 h-3.5 text-zinc-500 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
+                >
+                    <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+            </button>
+
+            {/* Dropdown panel */}
+            {open && (
+                <div className="absolute top-full right-0 mt-1 w-[200px] bg-[#111111] border border-white/[0.1] rounded-md z-50 overflow-hidden shadow-2xl shadow-black/80">
+                    {CURRENCY_OPTIONS.map((c) => {
+                        const isActive = c.code === value;
+                        return (
+                            <button
+                                key={c.code}
+                                type="button"
+                                onClick={() => { onChange(c.code); setOpen(false); }}
+                                className={`w-full flex items-center justify-between px-4 py-3 transition-all duration-200 cursor-pointer ${isActive
+                                        ? "bg-white/[0.06] text-white"
+                                        : "text-zinc-400 hover:bg-white/[0.03] hover:text-white"
+                                    }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <span className="text-[16px]">{c.flag}</span>
+                                    <div className="text-left">
+                                        <span className="text-[13px] font-bold block tracking-[0.05em]">
+                                            {c.code}
+                                        </span>
+                                        <span className="text-[10px] text-zinc-500 font-semibold block tracking-[0.05em]">
+                                            {c.name}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[12px] font-black text-zinc-500">{c.symbol}</span>
+                                    {isActive && <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />}
+                                </div>
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 };

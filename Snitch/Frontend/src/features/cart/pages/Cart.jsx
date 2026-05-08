@@ -93,6 +93,10 @@ const Cart = () => {
                                 const matchedVariant = item.product?.variants?.find(v => v._id === item.variant);
                                 const imageUrl = matchedVariant?.images?.[0]?.url || item.product?.images?.[0]?.url;
                                 const attributes = matchedVariant?.attributes || {};
+                                const stock = matchedVariant?.stock || item.product?.stock;
+                                const variantPrice = matchedVariant?.price?.amount || item.product?.price?.amount;
+                                const displayPriceAmount = item.price?.amount;
+                                const currency = item.price?.currency || 'INR';
 
                                 return (
                                     <div 
@@ -116,9 +120,9 @@ const Cart = () => {
                                                 </h2>
                                                 <button 
                                                     onClick={() => handleRemoveItem({ productId: item.product._id, variantId: item.variant })}
-                                                    className="text-zinc-500 hover:text-white transition-colors cursor-pointer p-1"
+                                                    className="text-zinc-500 hover:text-white transition-colors cursor-pointer p-1 "
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <Trash2 className="w-4 h-4 hover:text-red-500 cursor-pointer" />
                                                 </button>
                                             </div>
 
@@ -137,6 +141,23 @@ const Cart = () => {
                                                         </div>
                                                     ))}
                                                 </div>
+                                            )}
+
+                                            {stock !== undefined && (
+                                                <div className="mt-1">
+                                                    <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${stock > 5 ? 'text-zinc-500' : stock > 0 ? 'text-orange-500' : 'text-red-500'}`}>
+                                                        {stock > 0 ? `${stock} IN STOCK` : 'OUT OF STOCK'}
+                                                    </span>
+                                                </div>
+                                            )}
+
+                                            {displayPriceAmount !== variantPrice && (
+                                                <>
+                                                    {displayPriceAmount > variantPrice
+                                                        ? <p className="text-[10px] uppercase tracking-[0.15em] mt-2 text-green-500 font-bold" > you will get this at {formatPrice(variantPrice, currency)} save {formatPrice(Math.abs(variantPrice - displayPriceAmount), currency)}.  </p>
+                                                        : <p className="text-[10px] uppercase tracking-[0.15em] mt-2 text-red-500 font-bold" > Warning this product will cost you {formatPrice(Math.abs(variantPrice - displayPriceAmount), currency)} more.  </p>
+                                                    }
+                                                </>
                                             )}
 
                                             <div className="h-px bg-white/[0.05] mt-auto" />
