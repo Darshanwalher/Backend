@@ -1,6 +1,7 @@
 import productModel from "../models/product.model.js";
 import { uploadFile } from "../services/storage.service.js";
 
+
 export const createProduct = async(req,res)=>{
     const {title,description,priceAmount,priceCurrency} = req.body;
     const seller = req.user;
@@ -126,3 +127,133 @@ export const addProductVariant = async(req,res)=>{
        
     
 }
+
+
+export const deleteProduct = async(req,res)=>{
+    const {id} = req.params;
+
+    const product = await productModel.findByIdAndDelete(id);
+
+    if(!product){
+        return res.status(404).json({
+            message:"Product not found.",
+            success:false
+        })
+    }
+
+    return res.status(200).json({
+        message:"Product deleted successfully.",
+        success:true
+    })
+}
+
+export const deleteProductVariant = async(req,res)=>{
+    const {productId,variantId} = req.params;
+
+    const product = await productModel.findOne({
+        _id:productId,
+        seller:req.user._id
+    });
+
+    if(!product){
+        return res.status(404).json({
+            message:"Product not found.",
+            success:false
+        })
+    }
+
+    const variant = product.variants.id(variantId);
+
+    if(!variant){
+        return res.status(404).json({
+            message:"Product variant not found.",
+            success:false
+        })
+    }
+
+    product.variants.pull(variantId);
+    await product.save();
+
+    return res.status(200).json({
+        message:"Product variant deleted successfully.",
+        success:true
+    });
+
+}
+
+
+export const updateProductVariant = async (req, res) => {
+    const { productId, variantId } = req.params;
+
+    const product = await productModel.findOne({
+        _id: productId,
+        seller: req.user._id
+    });
+
+    if (!product) {
+        return res.status(404).json({
+            message: "Product not found.",
+            success: false
+        });
+    }
+
+    const variant = product.variants.id(variantId);
+
+    if (!variant) {
+        return res.status(404).json({
+            message: "Product variant not found.",
+            success: false
+        });
+    }
+
+    // Upload Images
+    const files = req.files;
+    const images = [];
+
+    if (files?.length) {
+        const uploadedImages = await Promise.all(
+            files.map(async (file) => {
+                return await uploadFile({
+                    buffer: file.buffer,
+                    fileName: file.originalname
+                });
+            })
+        );
+
+        images.push(...uploadedImages);
+    }
+
+    // Request Data
+    const priceAmount = req.body.priceAmount;
+    const priceCurrency = req.body.priceCurrency;
+    const stock = req.body.stock;
+
+    const attributes = req.body.attributes
+        ? JSON.parse(req.body.attributes)
+        : null;
+
+    // Update only if data exists
+
+    if (images.length > 0) {
+        variant.images = images;
+    }
+
+    variant.price = {
+        amount: priceAmount ?? variant.price.amount,
+        currency: priceCurrency ?? variant.price.currency
+    };
+
+    variant.stock = stock ?? variant.stock;
+
+    if (attributes) {
+        variant.attributes = attributes;
+    }
+
+    await product.save();
+
+    return res.status(200).json({
+        message: "Product variant updated successfully.",
+        success: true,
+        product
+    });
+};
