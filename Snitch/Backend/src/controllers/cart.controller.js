@@ -1,6 +1,8 @@
 import cartModel from "../models/cart.model.js";
 import productModel from "../models/product.model.js";
 import { stockOfVariant } from "../dao/product.dao.js";
+import mongoose from "mongoose";
+
 
 export const addToCart = async(req, res) => {
 
@@ -206,45 +208,84 @@ export const decrementCartItemQuantity = async(req,res)=>{
 
 }
 
-export const removeItemFromCart = async(req,res)=>{
-    const { productId, variantId } = req.params;
 
-    const product = await productModel.findOne({
-        _id: productId,
-        "variants._id": variantId
-    });
+export const removeItemFromCart = async (req, res) => {
+    try {
 
-    if (!product) {
-        return res.status(404).json({
-            message: "Product not found.",
-            success: false
+        const { productId, variantId } = req.params;
+
+        // Check if product and variant exist
+        const product = await productModel.findOne({
+            _id: productId,
+            "variants._id": variantId
         });
-    }
 
-    const cart = await cartModel.findOne({ user: req.user._id });
-
-    if (!cart) {
-        return res.status(404).json({
-            message: "Cart not found.",
-            success: false
-        });
-    }
-
-    await cartModel.findOneAndUpdate({
-        user: req.user._id
-    }, {
-        $pull: {
-            items: {
-                product: productId,
-                variant: variantId
-            }
+        if (!product) {
+            return res.status(404).json({
+                message: "Product or variant not found.",
+                success: false
+            });
         }
-    }, {
-        new: true
-    });
 
-    return res.status(200).json({
-        message: "Item removed from cart successfully.",
-        success: true
-    });
-}
+        // Find user's cart
+        const cart = await cartModel.findOne({
+            user: req.user._id
+        });
+
+        if (!cart) {
+            return res.status(404).json({
+                message: "Cart not found.",
+                success: false
+            });
+        }
+
+        // Check if item exists in cart
+        const itemExists = cart.items.some(
+            item =>
+                item.product.toString() === productId &&
+                item.variant?.toString() === variantId
+        );
+
+        if (!itemExists) {
+            return res.status(404).json({
+                message: "Item not found in cart.",
+                success: false
+            });
+        }
+
+        // Remove item from cart
+        const updatedCart = await cartModel.findOneAndUpdate(
+            {
+                user: req.user._id
+            },
+            {
+                $pull: {
+                    items: {
+                        product: new mongoose.Types.ObjectId(productId),
+                        variant: new mongoose.Types.ObjectId(variantId)
+                    }
+                }
+            },
+            {
+                new: true
+            }
+        );
+
+        return res.status(200).json({
+            message: "Item removed from cart successfully.",
+            success: true,
+            cart: updatedCart
+        });
+
+    } catch (error) {
+
+        console.error("Remove Cart Item Error:", error);
+
+        return res.status(500).json({
+            message: "Internal server error.",
+            success: false
+        });
+
+    }
+};
+
