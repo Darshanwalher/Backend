@@ -18,16 +18,29 @@ export const useCart = ()=>{
         
     }
 
-    async function handleIncrementItem({productId,variantId}){
-        // Optimistic UI Update: Update Redux immediately so the UI feels instant!
-        dispatch(increamentCartItem({productId, variantId}));
-        
+    async function handleIncrementItem({ productId, variantId }) {
+
+        // Optimistic UI update
+        dispatch(increamentCartItem({ productId, variantId }));
+
         try {
-            // Then fire the API call in the background
-            await incrementCartItemApi({productId,variantId});
+
+            // API request
+            await incrementCartItemApi({ productId, variantId });
+
         } catch (error) {
+
             console.error("Failed to update cart on server", error);
-            // If it fails, you would ideally revert the change here
+
+            // Revert optimistic update
+            dispatch(decrementCartItem({ productId, variantId }));
+
+            // Show error message
+            if (error.response?.data?.message) {
+                throw new Error(error.response.data.message);
+            } else {
+                throw new Error("Failed to increase quantity");
+            }
         }
     }
 
@@ -45,10 +58,9 @@ export const useCart = ()=>{
             // If it fails, revert the change here
             dispatch(increamentCartItem({productId, variantId}));
             if (error.response?.data?.message) {
-                alert(error.response.data.message);
-                
+                throw new Error(error.response.data.message);
             } else {
-                alert("Failed to decrease quantity");
+                throw new Error("Failed to decrease quantity");
             }
         }
     }

@@ -81,7 +81,9 @@ const Cart = () => {
                                 Browse our collection to add items to your cart.
                             </p>
                         </div>
-                        <button className="flex items-center gap-2 bg-white text-black text-[11px] font-black tracking-[0.18em] uppercase px-6 py-3 hover:bg-zinc-100 active:scale-[0.98] transition-all duration-300 cursor-pointer">
+                        <button 
+                        onClick={()=>{navigate('/')}}
+                        className="flex items-center gap-2 bg-white text-black text-[11px] font-black tracking-[0.18em] uppercase px-6 py-3 hover:bg-zinc-100 active:scale-[0.98] transition-all duration-300 cursor-pointer">
                             Continue Shopping
                         </button>
                     </div>
@@ -152,12 +154,15 @@ const Cart = () => {
                                             )}
 
                                             {displayPriceAmount !== variantPrice && (
-                                                <>
-                                                    {displayPriceAmount > variantPrice
-                                                        ? <p className="text-[10px] uppercase tracking-[0.15em] mt-2 text-green-500 font-bold" > you will get this at {formatPrice(variantPrice, currency)} save {formatPrice(Math.abs(variantPrice - displayPriceAmount), currency)}.  </p>
-                                                        : <p className="text-[10px] uppercase tracking-[0.15em] mt-2 text-red-500 font-bold" > Warning this product will cost you {formatPrice(Math.abs(variantPrice - displayPriceAmount), currency)} more.  </p>
-                                                    }
-                                                </>
+                                                <div className="mt-3 flex items-start gap-2.5 bg-white/[0.02] border border-white/[0.05] p-3">
+                                                    <div className={`w-1.5 h-1.5 mt-1 rounded-full shrink-0 ${displayPriceAmount > variantPrice ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.4)]' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.4)]'}`} />
+                                                    <p className="text-[10px] uppercase tracking-[0.15em] font-bold leading-relaxed text-zinc-400">
+                                                        {displayPriceAmount > variantPrice
+                                                            ? <>Price Dropped. Get this at <span className="text-white">{formatPrice(variantPrice, currency)}</span> (Save <span className="text-green-500">{formatPrice(Math.abs(variantPrice - displayPriceAmount), currency)}</span>)</>
+                                                            : <>Price Updated. This costs <span className="text-red-500">{formatPrice(Math.abs(variantPrice - displayPriceAmount), currency)}</span> more</>
+                                                        }
+                                                    </p>
+                                                </div>
                                             )}
 
                                             <div className="h-px bg-white/[0.05] mt-auto" />
@@ -170,14 +175,20 @@ const Cart = () => {
                                                             showNotification(`Cannot decrease quantity below 1.`);
                                                             return;
                                                         }
-                                                        handleDecrementItem({productId:item.product._id, variantId:item.variant});
+                                                        handleDecrementItem({productId:item.product._id, variantId:item.variant}).catch(err => showNotification(err.message));
                                                     }}
                                                     className="px-3 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
                                                         <Minus className="w-3.5 h-3.5" />
                                                     </button>
                                                     <span className="px-3 py-2 text-[12px] font-bold w-10 text-center">{item.quantity}</span>
                                                     <button
-                                                     onClick={()=>{handleIncrementItem({productId:item.product._id, variantId:item.variant})}}
+                                                     onClick={()=>{
+                                                        if (item.quantity >= stock) {
+                                                            showNotification(`Only ${stock} items available in stock.`);
+                                                            return;
+                                                        }
+                                                        handleIncrementItem({productId:item.product._id, variantId:item.variant}).catch(err => showNotification(err.message));
+                                                     }}
                                                      className="px-3 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
                                                         <Plus className="w-3.5 h-3.5" />
                                                     </button>
