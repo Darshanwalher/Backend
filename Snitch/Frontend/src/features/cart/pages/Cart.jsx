@@ -8,20 +8,20 @@ import Nav from '../../Shared/Components/Nav';
 const CURRENCY_SYMBOLS = { INR: "₹", USD: "$", EUR: "€", GBP: "£" };
 
 const formatPrice = (amount, currency) => {
-  try {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: currency || "INR",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  } catch {
-    return `${CURRENCY_SYMBOLS[currency] || ""}${amount}`;
-  }
+    try {
+        return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: currency || "INR",
+            minimumFractionDigits: 0,
+        }).format(amount);
+    } catch {
+        return `${CURRENCY_SYMBOLS[currency] || ""}${amount}`;
+    }
 };
 
 const Cart = () => {
-    const cartItems = useSelector(state => state.cart.items) || [];
-    const { handleGetCart,handleIncrementItem,handleDecrementItem,handleRemoveItem } = useCart();
+    const cartItems = useSelector(state => state.cart) || [];
+    const { handleGetCart, handleIncrementItem, handleDecrementItem, handleRemoveItem } = useCart();
     const navigate = useNavigate();
     const [notification, setNotification] = useState(null);
 
@@ -34,19 +34,19 @@ const Cart = () => {
         handleGetCart();
     }, []);
 
-    const calculateSubtotal = () => {
-        return cartItems.reduce((total, item) => total + (item.price.amount * item.quantity), 0);
-    };
+    console.log(cartItems);
+
+
 
     return (
-        <div 
+        <div
             className="min-h-screen w-full bg-[#060606] text-white selection:bg-white selection:text-black pt-24 pb-32"
             style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
             <Nav title="Checkout" />
 
             <div className="max-w-screen-2xl mx-auto px-6 lg:px-16">
-                
+
                 {/* ══════════ HERO ══════════ */}
                 <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-6 mt-6">
                     <div>
@@ -56,7 +56,7 @@ const Cart = () => {
                             </span>
                             <div className="h-px w-12 bg-zinc-700" />
                             <span className="text-[11px] text-zinc-600 font-semibold tracking-[0.28em] uppercase">
-                                {cartItems.length} Items
+                                {cartItems.items?.length} Items
                             </span>
                         </div>
                         <h1
@@ -71,7 +71,7 @@ const Cart = () => {
 
                 <div className="h-px w-full bg-white/[0.05] mb-8"></div>
 
-                {cartItems.length === 0 ? (
+                {(!cartItems || !cartItems.items || cartItems.items.length === 0) ? (
                     <div className="flex flex-col items-center justify-center py-28 gap-6 border border-white/[0.05] bg-white/[0.01]">
                         <div className="text-center space-y-2">
                             <p className="text-[13px] text-zinc-400 font-semibold tracking-[0.2em] uppercase">
@@ -81,9 +81,9 @@ const Cart = () => {
                                 Browse our collection to add items to your cart.
                             </p>
                         </div>
-                        <button 
-                        onClick={()=>{navigate('/')}}
-                        className="flex items-center gap-2 bg-white text-black text-[11px] font-black tracking-[0.18em] uppercase px-6 py-3 hover:bg-zinc-100 active:scale-[0.98] transition-all duration-300 cursor-pointer">
+                        <button
+                            onClick={() => { navigate('/') }}
+                            className="flex items-center gap-2 bg-white text-black text-[11px] font-black tracking-[0.18em] uppercase px-6 py-3 hover:bg-zinc-100 active:scale-[0.98] transition-all duration-300 cursor-pointer">
                             Continue Shopping
                         </button>
                     </div>
@@ -91,8 +91,8 @@ const Cart = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
                         {/* Cart Items List */}
                         <div className="lg:col-span-8 flex flex-col gap-4">
-                            {cartItems.map((item, i) => {
-                                const matchedVariant = item.product?.variants?.find(v => v._id === item.variant);
+                            {cartItems.items?.map((item, i) => {
+                                const matchedVariant = Array.isArray(item.product?.variants) ? item.product?.variants?.find(v => v._id === item.variant) : item.product?.variants;
                                 const imageUrl = matchedVariant?.images?.[0]?.url || item.product?.images?.[0]?.url;
                                 const attributes = matchedVariant?.attributes || {};
                                 const stock = matchedVariant?.stock || item.product?.stock;
@@ -101,8 +101,8 @@ const Cart = () => {
                                 const currency = item.price?.currency || 'INR';
 
                                 return (
-                                    <div 
-                                        key={item._id} 
+                                    <div
+                                        key={item._id}
                                         className="flex flex-col sm:flex-row bg-white/[0.025] border border-white/[0.06] hover:border-white/[0.14] transition-all duration-500 overflow-hidden"
                                     >
                                         <div className="w-full sm:w-40 aspect-[4/5] bg-zinc-900/60 overflow-hidden shrink-0 relative">
@@ -114,13 +114,13 @@ const Cart = () => {
                                                 </div>
                                             )}
                                         </div>
-                                        
+
                                         <div className="flex-1 flex flex-col p-5 gap-3">
                                             <div className="flex justify-between items-start gap-4">
                                                 <h2 className="text-[16px] font-bold text-white leading-snug tracking-tight">
                                                     {item.product?.title}
                                                 </h2>
-                                                <button 
+                                                <button
                                                     onClick={() => handleRemoveItem({ productId: item.product._id, variantId: item.variant })}
                                                     className="text-zinc-500 hover:text-white transition-colors cursor-pointer p-1 "
                                                 >
@@ -169,27 +169,27 @@ const Cart = () => {
 
                                             <div className="flex items-center justify-between pt-1">
                                                 <div className="flex items-center border border-white/[0.06] bg-white/[0.02]">
-                                                    <button 
-                                                    onClick={()=>{
-                                                        if (item.quantity <= 1) {
-                                                            showNotification(`Cannot decrease quantity below 1.`);
-                                                            return;
-                                                        }
-                                                        handleDecrementItem({productId:item.product._id, variantId:item.variant}).catch(err => showNotification(err.message));
-                                                    }}
-                                                    className="px-3 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
+                                                    <button
+                                                        onClick={() => {
+                                                            if (item.quantity <= 1) {
+                                                                showNotification(`Cannot decrease quantity below 1.`);
+                                                                return;
+                                                            }
+                                                            handleDecrementItem({ productId: item.product._id, variantId: item.variant }).catch(err => showNotification(err.message));
+                                                        }}
+                                                        className="px-3 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
                                                         <Minus className="w-3.5 h-3.5" />
                                                     </button>
                                                     <span className="px-3 py-2 text-[12px] font-bold w-10 text-center">{item.quantity}</span>
                                                     <button
-                                                     onClick={()=>{
-                                                        if (item.quantity >= stock) {
-                                                            showNotification(`Only ${stock} items available in stock.`);
-                                                            return;
-                                                        }
-                                                        handleIncrementItem({productId:item.product._id, variantId:item.variant}).catch(err => showNotification(err.message));
-                                                     }}
-                                                     className="px-3 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
+                                                        onClick={() => {
+                                                            if (item.quantity >= stock) {
+                                                                showNotification(`Only ${stock} items available in stock.`);
+                                                                return;
+                                                            }
+                                                            handleIncrementItem({ productId: item.product._id, variantId: item.variant }).catch(err => showNotification(err.message));
+                                                        }}
+                                                        className="px-3 py-2 text-zinc-400 hover:text-white transition-colors cursor-pointer">
                                                         <Plus className="w-3.5 h-3.5" />
                                                     </button>
                                                 </div>
@@ -197,7 +197,7 @@ const Cart = () => {
                                                 <div className="flex flex-col items-end">
                                                     <span className="text-[10px] text-zinc-600 font-bold tracking-[0.2em] uppercase">Total</span>
                                                     <span className="text-[16px] font-black text-white tracking-tight leading-tight">
-                                                        {formatPrice(item.price?.amount * item.quantity, item.price?.currency)}
+                                                        {formatPrice(variantPrice * item.quantity, currency)}
                                                     </span>
                                                 </div>
                                             </div>
@@ -210,18 +210,18 @@ const Cart = () => {
                         {/* Order Summary */}
                         <div className="lg:col-span-4">
                             <div className="bg-white/[0.025] border border-white/[0.06] p-6 lg:p-8 sticky top-24">
-                                <h3 
+                                <h3
                                     className="text-2xl text-white uppercase tracking-wider mb-6"
                                     style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.08em" }}
                                 >
                                     Summary
                                 </h3>
-                                
+
                                 <div className="space-y-4 mb-6">
                                     <div className="flex justify-between items-center">
                                         <span className="text-[11px] text-zinc-400 font-bold tracking-[0.2em] uppercase">Subtotal</span>
                                         <span className="text-[14px] font-bold text-white tracking-tight">
-                                            {formatPrice(calculateSubtotal(), cartItems[0]?.price?.currency || 'INR')}
+                                            {formatPrice(cartItems.totalPrice || 0, cartItems.currency || 'INR')}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center">
@@ -235,7 +235,7 @@ const Cart = () => {
                                 <div className="flex justify-between items-end mb-8">
                                     <span className="text-[12px] text-white font-bold tracking-[0.2em] uppercase">Total</span>
                                     <span className="text-[24px] font-black text-white tracking-tight leading-none">
-                                        {formatPrice(calculateSubtotal(), cartItems[0]?.price?.currency || 'INR')}
+                                        {formatPrice(cartItems.totalPrice || 0, cartItems.currency || 'INR')}
                                     </span>
                                 </div>
 

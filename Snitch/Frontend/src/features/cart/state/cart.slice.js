@@ -3,11 +3,15 @@ import { createSlice } from "@reduxjs/toolkit";
 const cartSlice = createSlice({
     name:"cart",
     initialState:{
+        totalPrice:null,
+        currency:null,
         items:[],
     },
     reducers:{
         setItems:(state,action)=>{
-            state.items = action.payload;
+            state.totalPrice = action.payload.totalPrice;
+            state.currency = action.payload.currency;
+            state.items = action.payload.items;
         },
         addItem:(state,action)=>{
             state.items.push(action.payload)
@@ -17,6 +21,9 @@ const cartSlice = createSlice({
 
             state.items = state.items.map(item=>{
                 if(item.product._id === productId && item.variant === variantId){
+                    const matchedVariant = Array.isArray(item.product?.variants) ? item.product?.variants?.find(v => v._id === item.variant) : item.product?.variants;
+                    const variantPrice = matchedVariant?.price?.amount || item.price.amount;
+                    state.totalPrice += variantPrice;
                     return {
                         ...item,
                         quantity:item.quantity+1
@@ -30,6 +37,9 @@ const cartSlice = createSlice({
 
             state.items = state.items.map(item=>{
                 if(item.product._id === productId && item.variant === variantId){
+                    const matchedVariant = Array.isArray(item.product?.variants) ? item.product?.variants?.find(v => v._id === item.variant) : item.product?.variants;
+                    const variantPrice = matchedVariant?.price?.amount || item.price.amount;
+                    state.totalPrice -= variantPrice;
                     return {
                         ...item,
                         quantity:item.quantity-1
@@ -40,7 +50,14 @@ const cartSlice = createSlice({
         },
         removeItem: (state, action) => {
 
-    const { productId, variantId } = action.payload;
+            const { productId, variantId } = action.payload;
+
+            const itemToRemove = state.items.find(item => item.product._id === productId && item.variant?.toString() === variantId);
+            if (itemToRemove) {
+                const matchedVariant = Array.isArray(itemToRemove.product?.variants) ? itemToRemove.product?.variants?.find(v => v._id === itemToRemove.variant) : itemToRemove.product?.variants;
+                const variantPrice = matchedVariant?.price?.amount || itemToRemove.price.amount;
+                state.totalPrice -= (variantPrice * itemToRemove.quantity);
+            }
 
             state.items = state.items.filter(
                 item =>
@@ -50,6 +67,8 @@ const cartSlice = createSlice({
                     )
             );
         },
+
+
     }
 });
 
