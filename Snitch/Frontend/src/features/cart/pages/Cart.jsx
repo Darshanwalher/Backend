@@ -4,6 +4,8 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { Minus, Plus, Trash2, ArrowLeft, Home } from 'lucide-react';
 import Nav from '../../Shared/Components/Nav';
+import { useRazorpay } from "react-razorpay";
+
 
 const CURRENCY_SYMBOLS = { INR: "₹", USD: "$", EUR: "€", GBP: "£" };
 
@@ -21,9 +23,11 @@ const formatPrice = (amount, currency) => {
 
 const Cart = () => {
     const cartItems = useSelector(state => state.cart) || [];
-    const { handleGetCart, handleIncrementItem, handleDecrementItem, handleRemoveItem } = useCart();
+    const { error, isLoading, Razorpay } = useRazorpay();
+    const { handleGetCart, handleIncrementItem, handleDecrementItem, handleRemoveItem,handleCreateOrder,handleVerifyOrder } = useCart();
     const navigate = useNavigate();
     const [notification, setNotification] = useState(null);
+    const user = useSelector(state => state.user);
 
     const showNotification = (msg) => {
         setNotification(msg);
@@ -34,7 +38,36 @@ const Cart = () => {
         handleGetCart();
     }, []);
 
-    console.log(cartItems);
+
+    async function handleCheckOut(){
+        const order = await handleCreateOrder();
+        console.log(order);
+        const options = {
+        key: "rzp_test_SoMktJCBBYNrVf",
+        amount: order.order.amount, // Amount in paise
+        currency:order.order.currency,
+        name: "Snitch",
+        description: "Snitch Checkout",
+        order_id: order.order.id, // Generate order_id on server
+        handler: async (response) => {
+            const isValidPayment = await handleVerifyOrder(response)
+            if(isValidPayment){
+               navigate(`/order-success?order_id=${response?.razorpay_order_id}`)
+            }
+        },
+        prefill: {
+            name: user?.fullname,
+            email: user?.email,
+            contact: user?.contact,
+        },
+        theme: {
+            color: "#F37254",
+        },
+    };
+
+        const razorpayInstance = new Razorpay(options);
+        razorpayInstance.open();
+    }
 
 
 
@@ -239,7 +272,7 @@ const Cart = () => {
                                     </span>
                                 </div>
 
-                                <button className="w-full flex items-center justify-center gap-2 bg-white text-black text-[12px] font-black tracking-[0.18em] uppercase px-6 py-4 hover:bg-zinc-100 active:scale-[0.98] transition-all duration-300 cursor-pointer">
+                                <button onClick={handleCheckOut} className="w-full flex items-center justify-center gap-2 bg-white text-black text-[12px] font-black tracking-[0.18em] uppercase px-6 py-4 hover:bg-zinc-100 active:scale-[0.98] transition-all duration-300 cursor-pointer">
                                     Proceed to Checkout
                                 </button>
                             </div>
