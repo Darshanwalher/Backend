@@ -1,34 +1,56 @@
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    requireTLS: true,
+
     auth: {
-        type: 'OAuth2',
+        type: "OAuth2",
         user: process.env.GOOGLE_USER,
+        clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-        clientId: process.env.GOOGLE_CLIENT_ID
     },
-    connectionTimeout: 10000,  // 10 seconds to connect
-    greetingTimeout: 10000,    // 10 seconds for greeting
-    socketTimeout: 15000,      // 15 seconds for socket inactivity
-})
+
+    tls: {
+        rejectUnauthorized: false,
+        family: 4
+    },
+
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+});
 
 transporter.verify()
-    .then(() => { console.log("Email transporter is ready to send emails"); })
-    .catch((err) => { console.error("Email transporter verification failed:", err); });
-
+    .then(() => {
+        console.log("✅ Email transporter is ready to send emails");
+    })
+    .catch((err) => {
+        console.error("❌ Email transporter verification failed:", err);
+    });
 
 export async function sendEmail({ to, subject, html, text }) {
+    try {
+        const mailOptions = {
+            from: process.env.GOOGLE_USER,
+            to,
+            subject,
+            html,
+            text
+        };
 
-    const mailOptions = {
-        from: process.env.GOOGLE_USER,
-        to,
-        subject,
-        html,
-        text
-    };
+        const details = await transporter.sendMail(mailOptions);
 
-    const details = await transporter.sendMail(mailOptions);
-    console.log("Email sent:", details);
+        console.log("✅ Email sent successfully");
+        console.log("Message ID:", details.messageId);
+
+        return details;
+
+    } catch (error) {
+        console.error("❌ Failed to send email:", error);
+        throw error;
+    }
 }
