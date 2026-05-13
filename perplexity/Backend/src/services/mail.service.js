@@ -8,7 +8,10 @@ const transporter = nodemailer.createTransport({
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
         clientId: process.env.GOOGLE_CLIENT_ID
-    }
+    },
+    connectionTimeout: 10000,  // 10 seconds to connect
+    greetingTimeout: 10000,    // 10 seconds for greeting
+    socketTimeout: 15000,      // 15 seconds for socket inactivity
 })
 
 transporter.verify()

@@ -33,70 +33,75 @@ export async function register(req, res) {
         email: user.email,
     }, process.env.JWT_SECRET)
 
-    await sendEmail({
-        to: email,
-        subject: "Welcome to Perplexity!",
-        html: `
-        <div style="font-family: Arial, sans-serif; background-color: #191A19; padding: 40px 0; color: #E8E8E3;">
-        
-        <div style="max-width: 500px; margin: auto; background-color: #202222; border: 1px solid #333; border-radius: 12px; padding: 30px; text-align: center;">
+    try {
+        await sendEmail({
+            to: email,
+            subject: "Welcome to Perplexity!",
+            html: `
+            <div style="font-family: Arial, sans-serif; background-color: #191A19; padding: 40px 0; color: #E8E8E3;">
             
-            <!-- Logo / Brand -->
-            <h2 style="color: #ffffff; margin-bottom: 10px;">
-            <span style="color:#20B8CD;">●</span> Perplexity
-            </h2>
+            <div style="max-width: 500px; margin: auto; background-color: #202222; border: 1px solid #333; border-radius: 12px; padding: 30px; text-align: center;">
+                
+                <!-- Logo / Brand -->
+                <h2 style="color: #ffffff; margin-bottom: 10px;">
+                <span style="color:#20B8CD;">●</span> Perplexity
+                </h2>
 
-            <!-- Heading -->
-            <h3 style="color: #ffffff; margin-bottom: 20px;">
-            Verify Your Email
-            </h3>
+                <!-- Heading -->
+                <h3 style="color: #ffffff; margin-bottom: 20px;">
+                Verify Your Email
+                </h3>
 
-            <!-- Message -->
-            <p style="color: #B0B0B0; font-size: 14px; line-height: 1.6;">
-            Hi <strong>${username}</strong>,
-            </p>
+                <!-- Message -->
+                <p style="color: #B0B0B0; font-size: 14px; line-height: 1.6;">
+                Hi <strong>${username}</strong>,
+                </p>
 
-            <p style="color: #B0B0B0; font-size: 14px; line-height: 1.6;">
-            Welcome to <strong>Perplexity</strong> 🚀 <br/>
-            We're excited to have you on board.
-            </p>
+                <p style="color: #B0B0B0; font-size: 14px; line-height: 1.6;">
+                Welcome to <strong>Perplexity</strong> 🚀 <br/>
+                We're excited to have you on board.
+                </p>
 
-            <p style="color: #B0B0B0; font-size: 14px; margin-bottom: 25px;">
-            Please confirm your email address by clicking the button below:
-            </p>
+                <p style="color: #B0B0B0; font-size: 14px; margin-bottom: 25px;">
+                Please confirm your email address by clicking the button below:
+                </p>
 
-            <!-- CTA Button -->
-            <a href="https://perolexity.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"
-            style="
-                display: inline-block;
-                padding: 12px 24px;
-                background-color: #20B8CD;
-                color: #000;
-                text-decoration: none;
-                border-radius: 6px;
-                font-weight: bold;
-                font-size: 14px;
-            ">
-            Verify Email
-            </a>
+                <!-- CTA Button -->
+                <a href="https://perolexity.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"
+                style="
+                    display: inline-block;
+                    padding: 12px 24px;
+                    background-color: #20B8CD;
+                    color: #000;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-weight: bold;
+                    font-size: 14px;
+                ">
+                Verify Email
+                </a>
 
-            <!-- Divider -->
-            <div style="margin: 25px 0; border-top: 1px solid #333;"></div>
+                <!-- Divider -->
+                <div style="margin: 25px 0; border-top: 1px solid #333;"></div>
 
-            <!-- Footer -->
-            <p style="color: #777; font-size: 12px; line-height: 1.5;">
-            If you did not create this account, you can safely ignore this email.
-            </p>
+                <!-- Footer -->
+                <p style="color: #777; font-size: 12px; line-height: 1.5;">
+                If you did not create this account, you can safely ignore this email.
+                </p>
 
-            <p style="color: #777; font-size: 12px;">
-            © ${new Date().getFullYear()} Perplexity. All rights reserved.
-            </p>
+                <p style="color: #777; font-size: 12px;">
+                © ${new Date().getFullYear()} Perplexity. All rights reserved.
+                </p>
 
-        </div>
+            </div>
 
-        </div>
+            </div>
 `
-    })
+        });
+    } catch (emailErr) {
+        console.error("Failed to send verification email:", emailErr.message);
+        // Registration still succeeds even if email fails
+    }
 
     res.status(201).json({
         message: "Registration successful. Please verify your email.",
