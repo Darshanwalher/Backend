@@ -243,7 +243,7 @@ export async function verifyEmail(req, res) {
             </p>
 
             <!-- Button -->
-            <a href="http://localhost:5173/login"
+            <a href="https://perolexity.onrender.com/login"
             style="
                 display: inline-block;
                 padding: 12px 24px;
