@@ -66,7 +66,7 @@ export async function register(req, res) {
             </p>
 
             <!-- CTA Button -->
-            <a href="http://localhost:3000/api/auth/verify-email?token=${emailVerificationToken}"
+            <a href="https://perolexity.onrender.com/api/auth/verify-email?token=${emailVerificationToken}"
             style="
                 display: inline-block;
                 padding: 12px 24px;
