@@ -1,6 +1,7 @@
 import {setUser,setLoading,setError} from "../state/auth.slice.js";
 import { register,login, getMe } from "../service/auth.api.js";
 import { useDispatch,useSelector } from "react-redux";
+import { useEffect } from "react";
 
 export const useAuth = ()=>{
 
@@ -28,11 +29,13 @@ export const useAuth = ()=>{
         const data = await getMe();
         dispatch(setUser(data.user));
        }catch(error){
+        dispatch(setUser(null));
         console.log(error);
        }finally{
         dispatch(setLoading(false));
        }
     }
+
 
 
     return {

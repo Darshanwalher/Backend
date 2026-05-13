@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router";
-import App from "./App.jsx";
 import Register from "../features/auth/pages/Register";
 import Login from "../features/auth/pages/Login.jsx";
 import CreateProduct from "../features/products/pages/CreateProduct.jsx";
@@ -13,55 +12,64 @@ import OrderSuccess from "../features/cart/pages/OrderSuccess.jsx";
 
 export const router = createBrowserRouter([
     {
-        path:"/",
-        element:<Home />,
-        
+        path: "/",
+        element: <Home />,
     },
     {
-        path:"/register",
-        element:<Register/>,
+        path: "/register",
+        element: <Register />,
     },
     {
-        path:"/login",
-        element:<Login/>,
+        path: "/login",
+        element: <Login />,
     },
     {
-        path:"/product/:productId",
-        element:<ProductDetail/>,
+        path: "/product/:productId",
+        element: <ProductDetail />,
     },
     {
-        path:"/cart",
-        element:<Protected>
-            <Cart/>
-        </Protected>
+        path: "/cart",
+        element: (
+            <Protected>
+                <Cart />
+            </Protected>
+        ),
     },
     {
-        path:"/order-success",
-        element:<Protected>
-            <OrderSuccess/>
-        </Protected>
+        path: "/order-success",
+        element: (
+            <Protected>
+                <OrderSuccess />
+            </Protected>
+        ),
     },
     {
-        path:"/seller",
-        children:[
+        path: "/seller",
+        children: [
             {
-                path:"/seller/create-product",
-                element:<Protected role="seller">
-                    <CreateProduct/>
-                </Protected>
+                path: "create-product",
+                element: (
+                    <Protected role="seller">
+                        <CreateProduct />
+                    </Protected>
+                ),
             },
             {
-                path:"/seller/dashboard",
-                element:<Protected role="seller">
-                    <Dashboard/>
-                </Protected>,
+                path: "dashboard",
+                element: (
+                    <Protected role="seller">
+                        <Dashboard />
+                    </Protected>
+                ),
             },
             {
-                path:"/seller/product/:productId",
-                element:<Protected role="seller">
-                    <SellerProductDetail/>
-                </Protected>,
-            }
-        ]
-    }
-])  
+                path: "product/:productId",
+                element: (
+                    <Protected role="seller">
+                        <SellerProductDetail />
+                    </Protected>
+                ),
+            },
+        ],
+    },
+]);

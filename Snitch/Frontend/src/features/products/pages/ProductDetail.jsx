@@ -108,9 +108,15 @@ const ProductDetail = () => {
     const normalizeAttributes = (attrs) => {
         const normalized = {};
         if (!attrs) return normalized;
-        Object.entries(attrs).forEach(([k, v]) => {
-            normalized[k.toLowerCase().trim()] = v;
-        });
+        let obj = attrs;
+        if (typeof attrs === 'string') {
+            try { obj = JSON.parse(attrs); } catch { return normalized; }
+        }
+        if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+            Object.entries(obj).forEach(([k, v]) => {
+                normalized[k.toLowerCase().trim()] = String(v);
+            });
+        }
         return normalized;
     };
 

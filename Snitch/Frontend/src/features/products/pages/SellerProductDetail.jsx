@@ -48,14 +48,17 @@ const SellerProductDetail = () => {
     // Form state for creating a new variant
     const [showAddForm, setShowAddForm] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+    // Variant form: color + sizes flow
+    const [variantColor, setVariantColor] = useState('');
+    const [variantSizes, setVariantSizes] = useState([]);
+    const [customSize, setCustomSize] = useState('');
+    const SIZE_PRESETS = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '28', '30', '32', '34', '36', '38'];
+
+    // Form state for creating a new variant
     const [newVariant, setNewVariant] = useState({
-        images: [], // array of { file, previewUrl }
+        images: [],
         stock: 0,
-        price: {
-            amount: "",
-            currency: "INR"
-        },
-        attributes: [{ key: "", value: "" }]
+        price: { amount: '', currency: 'INR' }
     });
 
     // Edit stock state
@@ -82,44 +85,66 @@ const SellerProductDetail = () => {
         fetchProductDetails();
     }, [productId]);
 
-    // Handle adding a variant
+    // Handle adding a variant — color + sizes flow.
+    // Creates one variant per selected size (all sharing the same color, images, stock, price).
     const handleAddVariant = async (e) => {
         e.preventDefault();
 
-        const validAttributes = newVariant.attributes.filter(attr => attr.key.trim() && attr.value.trim());
-        if (validAttributes.length === 0) {
-            alert("At least one valid attribute is required.");
+        if (!variantColor.trim()) {
+            alert('Please enter a color.');
+            return;
+        }
+        if (variantSizes.length === 0) {
+            alert('Please select at least one size.');
             return;
         }
 
-        const attributesObj = {};
-        validAttributes.forEach(attr => {
-            attributesObj[attr.key.trim()] = attr.value.trim();
-        });
+        const basePrice = {
+            amount: newVariant.price.amount ? Number(newVariant.price.amount) : (product?.price?.amount || 0),
+            currency: newVariant.price.currency || 'INR'
+        };
+        const baseStock = Number(newVariant.stock) || 0;
+        const baseImages = newVariant.images;
 
-        const validImages = newVariant.images.map(img => ({ url: img.previewUrl }));
-
-        const variantObj = {
-            _id: Math.random().toString(36).substr(2, 9), // Mock ID
-            images: validImages,
-            stock: Number(newVariant.stock) || 0,
-            attributes: attributesObj,
-            price: {
-                amount: newVariant.price.amount ? Number(newVariant.price.amount) : (product?.price?.amount || 0),
-                currency: newVariant.price.currency || "INR"
+        const createdVariants = [];
+        for (const size of variantSizes) {
+            const attributesObj = { color: variantColor.trim(), size };
+            const payload = { images: baseImages, stock: baseStock, attributes: attributesObj, price: basePrice };
+            try {
+                await handleAddProductVariant(productId, payload);
+                const uiImages = baseImages.map(img => ({ url: img.previewUrl }));
+                createdVariants.push({
+                    _id: Math.random().toString(36).substr(2, 9),
+                    images: uiImages, stock: baseStock,
+                    attributes: attributesObj, price: basePrice
+                });
+            } catch (err) {
+                console.error(`Failed to add variant color=${variantColor} size=${size}:`, err);
             }
-        };
-        const finalPayload = {
-            ...newVariant,
-            attributes: attributesObj
-        };
+        }
 
-        await handleAddProductVariant(productId, finalPayload);
-
-        setVariants([...variants, variantObj]);
+        if (createdVariants.length > 0) setVariants(prev => [...prev, ...createdVariants]);
         setShowAddForm(false);
-        setNewVariant({ images: [], stock: 0, price: { amount: "", currency: "INR" }, attributes: [{ key: "", value: "" }] });
+        setVariantColor('');
+        setVariantSizes([]);
+        setCustomSize('');
+        setNewVariant({ images: [], stock: 0, price: { amount: '', currency: 'INR' } });
     };
+
+    const toggleSize = (size) => {
+        setVariantSizes(prev =>
+            prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]
+        );
+    };
+
+    const addCustomSize = () => {
+        const s = customSize.trim();
+        if (s && !variantSizes.includes(s)) {
+            setVariantSizes(prev => [...prev, s]);
+        }
+        setCustomSize('');
+    };
+
 
     const processFiles = (files) => {
         if (!files || files.length === 0) return;
@@ -274,8 +299,8 @@ const SellerProductDetail = () => {
                         <button
                             onClick={() => setShowAddForm(!showAddForm)}
                             className={`w-full sm:w-auto flex items-center justify-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase px-6 py-3.5 transition-all duration-300 cursor-pointer active:scale-[0.98] ${showAddForm
-                                    ? "bg-transparent border border-white/20 text-white hover:bg-white/5"
-                                    : "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:bg-zinc-200"
+                                ? "bg-transparent border border-white/20 text-white hover:bg-white/5"
+                                : "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:bg-zinc-200"
                                 }`}
                         >
                             {showAddForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -327,8 +352,8 @@ const SellerProductDetail = () => {
                                             onDragLeave={handleDragLeave}
                                             onDrop={handleDrop}
                                             className={`relative aspect-[4/5] flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-md transition-all duration-300 cursor-pointer group overflow-hidden ${isDragging
-                                                    ? "border-white bg-white/[0.05] scale-105"
-                                                    : "bg-[#0a0a0a] border-white/[0.1] hover:border-white/[0.4] hover:bg-white/[0.02]"
+                                                ? "border-white bg-white/[0.05] scale-105"
+                                                : "bg-[#0a0a0a] border-white/[0.1] hover:border-white/[0.4] hover:bg-white/[0.02]"
                                                 }`}
                                         >
                                             <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -395,71 +420,94 @@ const SellerProductDetail = () => {
                                 </div>
                             </div>
 
-                            {/* Dynamic Attributes */}
-                            <div className="space-y-4 lg:col-span-3 border-t border-white/[0.05] pt-6 mt-2">
-                                <div className="flex items-center justify-between mb-2">
-                                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em]">Variant Attributes <span className="text-red-400/80 ml-1">*Required</span></label>
-                                    <button
-                                        type="button"
-                                        onClick={() => setNewVariant({ ...newVariant, attributes: [...newVariant.attributes, { key: "", value: "" }] })}
-                                        className="text-[10px] text-white hover:text-zinc-300 font-bold uppercase tracking-[0.2em] cursor-pointer border border-white/20 px-4 py-2 hover:bg-white/10 transition-colors"
-                                    >
-                                        + Add Attribute
-                                    </button>
+                            {/* ── Step 1: Color ── */}
+                            <div className="space-y-3 lg:col-span-3 border-t border-white/[0.05] pt-6 mt-2">
+                                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em]">
+                                    Step 1 — Color <span className="text-red-400/80 ml-1">*Required</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Red, Navy Blue, Charcoal..."
+                                    value={variantColor}
+                                    onChange={(e) => setVariantColor(e.target.value)}
+                                    className="w-full sm:w-80 bg-[#0f0f0f] border border-white/[0.1] text-white text-[14px] px-5 py-3.5 outline-none focus:border-white/50 transition-colors placeholder:text-zinc-700"
+                                />
+                            </div>
+
+                            {/* ── Step 2: Sizes ── */}
+                            <div className="space-y-4 lg:col-span-3">
+                                <div>
+                                    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em]">
+                                        Step 2 — Sizes available in this color <span className="text-red-400/80 ml-1">*Required</span>
+                                    </label>
+                                    <p className="text-[10px] text-zinc-600 mt-1">Click to select. Each size becomes a separate variant.</p>
                                 </div>
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                    {newVariant.attributes.map((attr, idx) => (
-                                        <div key={idx} className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                placeholder="Key (e.g. Size)"
-                                                value={attr.key}
-                                                required
-                                                onChange={(e) => {
-                                                    const newAttrs = [...newVariant.attributes];
-                                                    newAttrs[idx].key = e.target.value;
-                                                    setNewVariant({ ...newVariant, attributes: newAttrs });
-                                                }}
-                                                className="w-1/3 bg-[#0f0f0f] border border-white/[0.1] text-white text-[13px] px-4 py-3.5 outline-none focus:border-white/50 transition-colors placeholder:text-zinc-700 font-medium"
-                                            />
-                                            <div className="relative flex-1">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Value (e.g. XL)"
-                                                    value={attr.value}
-                                                    required
-                                                    onChange={(e) => {
-                                                        const newAttrs = [...newVariant.attributes];
-                                                        newAttrs[idx].value = e.target.value;
-                                                        setNewVariant({ ...newVariant, attributes: newAttrs });
-                                                    }}
-                                                    className="w-full bg-[#0f0f0f] border border-white/[0.1] text-white text-[13px] pl-4 pr-12 py-3.5 outline-none focus:border-white/50 transition-colors placeholder:text-zinc-700"
-                                                />
-                                                {newVariant.attributes.length > 1 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            const newAttrs = newVariant.attributes.filter((_, i) => i !== idx);
-                                                            setNewVariant({ ...newVariant, attributes: newAttrs });
-                                                        }}
-                                                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
-                                                    >
-                                                        <X className="w-4 h-4" />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
+
+                                {/* Preset size chips */}
+                                <div className="flex flex-wrap gap-2">
+                                    {SIZE_PRESETS.map(size => (
+                                        <button
+                                            key={size}
+                                            type="button"
+                                            onClick={() => toggleSize(size)}
+                                            className={`h-10 px-4 text-[11px] font-black tracking-[0.15em] uppercase border transition-all duration-200 cursor-pointer ${
+                                                variantSizes.includes(size)
+                                                    ? 'border-white bg-white text-black'
+                                                    : 'border-white/[0.15] text-zinc-500 hover:border-white/40 hover:text-white'
+                                            }`}
+                                        >
+                                            {size}
+                                        </button>
                                     ))}
                                 </div>
+
+                                {/* Custom size input */}
+                                <div className="flex gap-2 items-center">
+                                    <input
+                                        type="text"
+                                        placeholder="Custom size (e.g. 40, XXXL)..."
+                                        value={customSize}
+                                        onChange={(e) => setCustomSize(e.target.value)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomSize(); } }}
+                                        className="w-56 bg-[#0f0f0f] border border-white/[0.1] text-white text-[12px] px-4 py-2.5 outline-none focus:border-white/50 transition-colors placeholder:text-zinc-700"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={addCustomSize}
+                                        className="px-4 py-2.5 text-[11px] font-bold uppercase tracking-widest border border-white/20 text-zinc-400 hover:text-white hover:border-white/50 transition-colors cursor-pointer"
+                                    >
+                                        + Add
+                                    </button>
+                                </div>
+
+                                {/* Selected sizes preview */}
+                                {variantSizes.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 pt-2">
+                                        <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest self-center">Will create:</span>
+                                        {variantSizes.map(size => (
+                                            <div key={size} className="flex items-center gap-1 bg-white/[0.06] border border-white/10 px-3 py-1 text-[11px] font-bold text-white uppercase tracking-wider">
+                                                <span className="text-zinc-500">{variantColor || '?'}</span>
+                                                <span className="text-zinc-600 mx-1">/</span>
+                                                <span>{size}</span>
+                                                <button type="button" onClick={() => toggleSize(size)} className="ml-1.5 text-zinc-600 hover:text-red-400 transition-colors cursor-pointer">×</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="lg:col-span-3 flex justify-stretch sm:justify-end pt-6 border-t border-white/[0.05]">
                                 <button type="submit" className="w-full sm:w-auto bg-white text-black text-[12px] font-black tracking-[0.2em] uppercase px-10 py-4 hover:bg-zinc-200 transition-colors cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)] active:scale-[0.98]">
-                                    Save New Variant
+                                    {variantSizes.length > 1
+                                        ? `Create ${variantSizes.length} Variants`
+                                        : 'Save Variant'}
                                 </button>
                             </div>
+
                         </form>
                     )}
+
+
 
                     {/* Variants List */}
                     {variants.length === 0 ? (
@@ -484,16 +532,26 @@ const SellerProductDetail = () => {
                                         {/* Variant Attributes */}
                                         <div className="flex flex-col gap-3 flex-1 w-full min-w-0 mt-2 sm:mt-0">
                                             <div className="flex flex-wrap gap-2.5">
-                                                {variant.attributes && Object.entries(variant.attributes).length > 0 ? (
-                                                    Object.entries(variant.attributes).map(([key, val]) => (
-                                                        <div key={key} className="flex items-center bg-[#141414] border border-white/[0.08] text-[11px] font-bold uppercase tracking-widest rounded-sm overflow-hidden">
-                                                            <span className="px-3 py-1.5 text-zinc-500 bg-black/40">{key}</span>
-                                                            <span className="px-3 py-1.5 text-white">{val}</span>
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <span className="text-[11px] text-zinc-500 italic">No attributes defined</span>
-                                                )}
+                                                {(() => {
+                                                    let attrs = variant.attributes;
+                                                    if (typeof attrs === 'string') {
+                                                        try { attrs = JSON.parse(attrs); } catch { attrs = {}; }
+                                                    }
+                                                    const entries = (attrs && typeof attrs === 'object' && !Array.isArray(attrs))
+                                                        ? Object.entries(attrs)
+                                                        : [];
+                                                    return entries.length > 0 ? (
+                                                        entries.map(([key, val]) => (
+                                                            <div key={key} className="flex items-center bg-[#141414] border border-white/[0.08] text-[11px] font-bold uppercase tracking-widest rounded-sm overflow-hidden">
+                                                                <span className="px-3 py-1.5 text-zinc-500 bg-black/40">{key}</span>
+                                                                <span className="px-3 py-1.5 text-white">{String(val)}</span>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-[11px] text-zinc-500 italic">No attributes defined</span>
+                                                    );
+                                                })()}
+
                                             </div>
                                         </div>
                                     </div>
@@ -757,8 +815,8 @@ const CurrencyPicker = ({ value, onChange }) => {
                                 type="button"
                                 onClick={() => { onChange(c.code); setOpen(false); }}
                                 className={`w-full flex items-center justify-between px-4 py-3 transition-all duration-200 cursor-pointer ${isActive
-                                        ? "bg-white/[0.06] text-white"
-                                        : "text-zinc-400 hover:bg-white/[0.03] hover:text-white"
+                                    ? "bg-white/[0.06] text-white"
+                                    : "text-zinc-400 hover:bg-white/[0.03] hover:text-white"
                                     }`}
                             >
                                 <div className="flex items-center gap-3">

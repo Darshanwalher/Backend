@@ -264,6 +264,8 @@ function Dashboard() {
     fetch();
   }, []);
 
+
+
   const products = Array.isArray(sellerProducts) ? sellerProducts : [];
 
   // Group totals by currency — never mix currencies into one number
