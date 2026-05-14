@@ -1,35 +1,36 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
+dotenv.config();
+
+// Create the transporter using SendGrid's specialized SMTP relay
 const transporter = nodemailer.createTransport({
-    service: "gmail",
-
-    family: 4,
-
+    host: "smtp.sendgrid.net",
+    port: 2525, // Port 2525 is open on Render's free tier
     auth: {
-        type: "OAuth2",
-        user: process.env.GOOGLE_USER,
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+        user: "apikey", // ⚠️ This MUST literally be the exact string "apikey"
+        pass: process.env.SENDGRID_API_KEY // Your SG.xx API key from your environment
     },
-
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
+    // Adding secure options to prevent handshake dropping
+    tls: {
+        rejectUnauthorized: false 
+    }
 });
 
+// Verify the connection configuration on startup
 transporter.verify()
     .then(() => {
-        console.log("✅ Email transporter is ready to send emails");
+        console.log("✅ Nodemailer is successfully connected via SendGrid!");
     })
     .catch((err) => {
-        console.error("❌ Email transporter verification failed:", err);
+        console.error("❌ SendGrid Nodemailer connection failed:", err.message);
     });
 
 export async function sendEmail({ to, subject, html, text }) {
     try {
         const mailOptions = {
-            from: process.env.GOOGLE_USER,
+            // ⚠️ This email MUST match the sender email you verified in your SendGrid account!
+            from: `"Perplexity" <darshanwalher21@gmail.com>`, 
             to,
             subject,
             html,
@@ -38,13 +39,11 @@ export async function sendEmail({ to, subject, html, text }) {
 
         const details = await transporter.sendMail(mailOptions);
 
-        console.log("✅ Email sent successfully");
-        console.log("Message ID:", details.messageId);
-
+        console.log("✅ Email dispatched successfully via SendGrid");
         return details;
 
     } catch (error) {
-        console.error("❌ Failed to send email:", error);
+        console.error("❌ Failed to dispatch email:", error);
         throw error;
     }
 }
