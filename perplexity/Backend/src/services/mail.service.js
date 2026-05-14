@@ -6,6 +6,9 @@ const transporter = nodemailer.createTransport({
     secure: false,
     requireTLS: true,
 
+    // FORCE IPv4
+    family: 4,
+
     auth: {
         type: "OAuth2",
         user: process.env.GOOGLE_USER,
@@ -16,7 +19,6 @@ const transporter = nodemailer.createTransport({
 
     tls: {
         rejectUnauthorized: false,
-        family: 4
     },
 
     connectionTimeout: 10000,
