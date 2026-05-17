@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
-import { addProductVariant, createProduct, deleteProduct, getAllProducts, getProductById, getSellerProducts,deleteProductVariant, updateProductVariant } from "../service/product.api.js";
-import { setSellerProducts,setProducts,setDeleteProduct,setDeleteProductVariant, setUpdateProductVariant } from "../state/product.slice.js";
+import { addProductVariant, createProduct, deleteProduct, getAllProducts, getProductById, getSellerProducts,deleteProductVariant, updateProductVariant, updateProduct } from "../service/product.api.js";
+import { setSellerProducts,setProducts,setDeleteProduct,setDeleteProductVariant, setUpdateProductVariant, setUpdateProduct } from "../state/product.slice.js";
 
 export const useProduct = ()=>{
 
@@ -46,9 +46,16 @@ export const useProduct = ()=>{
         return data.product;
     }
 
-    async function handleUpdateProductVariant(productId,variantId){
-        const data = await updateProductVariant(productId,variantId);
-        dispatch(setUpdateProductVariant(productId,variantId));
+    async function handleUpdateProductVariant(productId, variantId, updatedVariant){
+        const data = await updateProductVariant(productId, variantId, updatedVariant);
+        // Assuming setUpdateProductVariant updates the redux state with the updated product
+        dispatch(setUpdateProductVariant(data.product)); 
+        return data.product;
+    }
+
+    async function handleUpdateProduct(productId, updatedProduct){
+        const data = await updateProduct(productId, updatedProduct);
+        dispatch(setUpdateProduct(data.product));
         return data.product;
     }
 
@@ -60,7 +67,8 @@ export const useProduct = ()=>{
         handleAddProductVariant,
         handleDeleteProduct,
         handleDeleteProductVariant,
-        handleUpdateProductVariant
+        handleUpdateProductVariant,
+        handleUpdateProduct
     }
 }
 

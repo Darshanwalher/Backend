@@ -33,3 +33,8 @@ export const getMe = async()=>{
     const response = await authApiInstance.get("/me");
     return response.data;
 }
+
+export const logout = async()=>{
+    const response = await authApiInstance.get("/logout");
+    return response.data;
+}

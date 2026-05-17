@@ -40,6 +40,12 @@ const Cart = () => {
 
 
     async function handleCheckOut(){
+
+        if(!user){
+            showNotification("Please login to proceed to checkout.");
+            navigate('/login');
+            return;
+        }
         const order = await handleCreateOrder();
         console.log(order);
         const options = {
@@ -272,7 +278,8 @@ const Cart = () => {
                                     </span>
                                 </div>
 
-                                <button onClick={handleCheckOut} className="w-full flex items-center justify-center gap-2 bg-white text-black text-[12px] font-black tracking-[0.18em] uppercase px-6 py-4 hover:bg-zinc-100 active:scale-[0.98] transition-all duration-300 cursor-pointer">
+                                <button onClick={handleCheckOut} 
+                                className="w-full flex items-center justify-center gap-2 bg-white text-black text-[12px] font-black tracking-[0.18em] uppercase px-6 py-4 hover:bg-zinc-100 active:scale-[0.98] transition-all duration-300 cursor-pointer">
                                     Proceed to Checkout
                                 </button>
                             </div>

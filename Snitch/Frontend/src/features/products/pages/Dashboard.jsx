@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useProduct } from "../hooks/useProduct";
+import { useAuth } from "../../auth/hook/useAuth.js";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { Plus, ArrowRight, Package, ImageOff, MoreHorizontal, Tag, Calendar } from "lucide-react";
+import { Plus, ArrowRight, Package, ImageOff, MoreHorizontal, Tag, Calendar, LogOut } from "lucide-react";
 import Nav from "../../Shared/Components/Nav";
 /* ═══════════════════════════════════════════════════════
    Helpers
@@ -252,9 +253,24 @@ const SkeletonCard = () => (
 ═══════════════════════════════════════════════════════ */
 function Dashboard() {
   const { handleGetSellerProducts } = useProduct();
+  const { handleLogout } = useAuth();
   const sellerProducts = useSelector((state) => state.product.sellerProducts);
+  const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = React.useRef(null);
+
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const fetch = async () => {
@@ -283,7 +299,7 @@ function Dashboard() {
       <Nav 
         title="Seller Studio" homeRoute="/seller/dashboard"
         rightContent={
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6">
             <nav className="hidden sm:flex items-center gap-8">
               {["Dashboard", "Orders"].map((item, i) => (
                 <button
@@ -303,6 +319,47 @@ function Dashboard() {
               <Plus className="w-3.5 h-3.5 group-hover:rotate-90 transition-transform duration-300" strokeWidth={2.5} />
               <span className="hidden sm:inline">New Product</span>
             </button>
+
+            {/* Avatar dropdown */}
+            {user && (
+              <div ref={profileRef} className="relative">
+                <button
+                  id="profile-avatar-btn"
+                  onClick={() => setProfileOpen((o) => !o)}
+                  className="w-8 h-8 flex items-center justify-center bg-white text-black text-[11px] font-black tracking-widest uppercase shrink-0 cursor-pointer hover:bg-zinc-200 transition-colors duration-200"
+                  aria-label="Profile menu"
+                  aria-expanded={profileOpen}
+                >
+                  {(user.fullname || "U").charAt(0).toUpperCase()}
+                </button>
+
+                {profileOpen && (
+                  <div className="absolute top-[calc(100%+10px)] right-0 z-50 min-w-[180px] bg-[#0a0a0a] border border-white/[0.08] shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150">
+                    <div className="px-4 py-3 border-b border-white/[0.06]">
+                      <p className="text-[10px] text-zinc-600 font-bold tracking-[0.2em] uppercase mb-0.5">
+                        Signed in as
+                      </p>
+                      <p className="text-[12px] text-white font-bold tracking-[0.1em] uppercase truncate">
+                        {user.fullname}
+                      </p>
+                    </div>
+                    <div className="py-1">
+                      <button
+                        id="logout-menu-btn"
+                        onClick={async () => {
+                          setProfileOpen(false);
+                          await handleLogout();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[11px] font-black tracking-[0.18em] uppercase text-zinc-500 hover:text-red-400 hover:bg-red-500/[0.06] transition-all duration-200 cursor-pointer group"
+                      >
+                        <LogOut className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform duration-200" strokeWidth={2.5} />
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         }
       />

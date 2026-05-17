@@ -16,6 +16,7 @@ import {
     Shield,
 } from "lucide-react";
 import Nav from "../../Shared/Components/Nav";
+import { useSelector } from "react-redux";
 
 /* ─────────────────── Constants ─────────────────── */
 const DM = "'DM Sans', sans-serif";
@@ -95,6 +96,9 @@ const ProductDetail = () => {
     const navigate = useNavigate();
     const { handleGetProductById } = useProduct();
     const { handleAddItem } = useCart();
+    const user = useSelector(state=>state.auth.user)
+    console.log(user);
+    
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -104,6 +108,7 @@ const ProductDetail = () => {
     const [selectedAttributes, setSelectedAttributes] = useState({});
     const [currentVariant, setCurrentVariant] = useState(null);
     const [showToast, setShowToast] = useState(false);
+    const [showLoginToast, setShowLoginToast] = useState(false);
 
     const normalizeAttributes = (attrs) => {
         const normalized = {};
@@ -403,6 +408,14 @@ const ProductDetail = () => {
                                 {/* Add to Cart */}
                                 <button
                                     onClick={async () => {
+                                        if (!user) {
+                                            setShowLoginToast(true);
+                                            setTimeout(() => {
+                                                setShowLoginToast(false);
+                                                navigate('/login');
+                                            }, 2500);
+                                            return;
+                                        }
                                         await handleAddItem({
                                             productId: product._id,
                                             variantId: currentVariant?._id
@@ -423,6 +436,17 @@ const ProductDetail = () => {
                                 {/* Buy Now */}
                                 <button
                                     id="buy-now-btn"
+                                    onClick={() => {
+                                        if (!user) {
+                                            setShowLoginToast(true);
+                                            setTimeout(() => {
+                                                setShowLoginToast(false);
+                                                navigate('/login');
+                                            }, 2500);
+                                            return;
+                                        }
+                                        // TODO: handle buy now flow
+                                    }}
                                     className="w-full flex items-center justify-center gap-2 bg-white text-black text-[10px] sm:text-[11px] font-black tracking-[0.15em] sm:tracking-[0.22em] uppercase h-12 sm:h-14 px-3 sm:px-6 hover:bg-zinc-200 transition-all duration-300 cursor-pointer group"
                                 >
                                     <Zap
@@ -528,7 +552,7 @@ const ProductDetail = () => {
                 </div>
             </footer>
 
-            {/* ══ TOAST NOTIFICATION ══ */}
+            {/* ══ TOAST NOTIFICATION — Added to Bag ══ */}
             {showToast && (
                 <div
                     className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between gap-6 px-4 py-3 sm:px-6 sm:py-4 bg-[#0a0a0a] border border-white/20 shadow-2xl animate-in slide-in-from-bottom-5 fade-in duration-300 cursor-pointer group"
@@ -544,6 +568,32 @@ const ProductDetail = () => {
                     </div>
                     <div className="flex items-center gap-1 sm:gap-2 text-[10px] text-zinc-400 font-bold tracking-[0.2em] uppercase group-hover:text-white transition-colors whitespace-nowrap">
                         View Cart <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+                </div>
+            )}
+
+            {/* ══ TOAST NOTIFICATION — Login Required ══ */}
+            {showLoginToast && (
+                <div
+                    className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between gap-6 px-4 py-3 sm:px-6 sm:py-4 bg-[#0a0a0a] border border-white/10 shadow-2xl animate-in slide-in-from-bottom-5 fade-in duration-300 cursor-pointer group"
+                    style={{ minWidth: 'min(90vw, 360px)' }}
+                    onClick={() => { setShowLoginToast(false); navigate('/login'); }}
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 border border-white/20 flex items-center justify-center shrink-0">
+                            <span className="text-white text-[13px] font-black leading-none">!</span>
+                        </div>
+                        <div className="flex flex-col gap-0.5">
+                            <span className="text-[11px] text-white font-black tracking-[0.2em] uppercase">
+                                Please Login First
+                            </span>
+                            <span className="text-[10px] text-zinc-500 font-semibold tracking-[0.1em] uppercase">
+                                Redirecting to login…
+                            </span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-1 sm:gap-2 text-[10px] text-zinc-400 font-bold tracking-[0.2em] uppercase group-hover:text-white transition-colors whitespace-nowrap">
+                        Login <ChevronRight className="w-3.5 h-3.5" />
                     </div>
                 </div>
             )}

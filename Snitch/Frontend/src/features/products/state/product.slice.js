@@ -37,6 +37,20 @@ const productSlice = createSlice({
                 }
                 return p
             })
+        },
+        setUpdateProduct:(state,action)=>{
+            state.products = state.products.map((p)=>{
+                if(p.id === action.payload.id){
+                    return action.payload;
+                }
+                return p
+            })
+            state.sellerProducts = state.sellerProducts.map((p)=>{
+                if(p.id === action.payload.id){
+                    return action.payload;
+                }
+                return p
+            })  
         }
 
     }
@@ -44,5 +58,5 @@ const productSlice = createSlice({
 
 })
 
-export const {setSellerProducts,setProducts,setDeleteProduct,setDeleteProductVariant,setUpdateProductVariant} = productSlice.actions;
+export const {setSellerProducts,setProducts,setDeleteProduct,setDeleteProductVariant,setUpdateProductVariant,setUpdateProduct} = productSlice.actions;
 export default productSlice.reducer;

@@ -35,7 +35,7 @@ const formatDate = (iso) => {
    SellerProductDetail
 ═══════════════════════════════════════════════════════ */
 const SellerProductDetail = () => {
-    const { handleGetProductById, handleAddProductVariant, handleDeleteProduct, handleDeleteProductVariant } = useProduct();
+    const { handleGetProductById, handleAddProductVariant, handleDeleteProduct, handleDeleteProductVariant,handleUpdateProductVariant,handleUpdateProduct } = useProduct();
     const { productId } = useParams();
     const navigate = useNavigate();
 
@@ -61,11 +61,17 @@ const SellerProductDetail = () => {
         price: { amount: '', currency: 'INR' }
     });
 
-    // Edit stock state
-    const [editingStockIdx, setEditingStockIdx] = useState(null);
-    const [editStockValue, setEditStockValue] = useState("");
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [variantToDelete, setVariantToDelete] = useState(null);
+
+    // Edit Product State
+    const [showEditProductModal, setShowEditProductModal] = useState(false);
+    const [editProductData, setEditProductData] = useState({
+        title: '',
+        description: '',
+        priceAmount: '',
+        priceCurrency: 'INR'
+    });
 
     async function fetchProductDetails() {
         try {
@@ -85,9 +91,12 @@ const SellerProductDetail = () => {
         fetchProductDetails();
     }, [productId]);
 
+    // State for editing variant
+    const [editingVariantId, setEditingVariantId] = useState(null);
+
     // Handle adding a variant — color + sizes flow.
     // Creates one variant per selected size (all sharing the same color, images, stock, price).
-    const handleAddVariant = async (e) => {
+    const handleSaveVariant = async (e) => {
         e.preventDefault();
 
         if (!variantColor.trim()) {
@@ -106,41 +115,103 @@ const SellerProductDetail = () => {
         const baseStock = Number(newVariant.stock) || 0;
         const baseImages = newVariant.images;
 
-        const createdVariants = [];
-        for (const size of variantSizes) {
+        if (editingVariantId) {
+            // Edit Flow
+            const size = variantSizes[0];
             const attributesObj = { color: variantColor.trim(), size };
             const payload = { images: baseImages, stock: baseStock, attributes: attributesObj, price: basePrice };
+            
             try {
-                await handleAddProductVariant(productId, payload);
-                const uiImages = baseImages.map(img => ({ url: img.previewUrl }));
-                createdVariants.push({
-                    _id: Math.random().toString(36).substr(2, 9),
-                    images: uiImages, stock: baseStock,
-                    attributes: attributesObj, price: basePrice
-                });
+                const updatedProduct = await handleUpdateProductVariant(productId, editingVariantId, payload);
+                if (updatedProduct && updatedProduct.variants) {
+                    setVariants(updatedProduct.variants);
+                } else {
+                    setVariants(prev => prev.map(v => v._id === editingVariantId ? {
+                        ...v,
+                        images: baseImages.map(img => ({ url: img.url || img.previewUrl })),
+                        stock: baseStock,
+                        attributes: attributesObj,
+                        price: basePrice
+                    } : v));
+                }
             } catch (err) {
-                console.error(`Failed to add variant color=${variantColor} size=${size}:`, err);
+                console.error("Failed to update variant", err);
+                alert("Failed to update variant");
+                return;
             }
+        } else {
+            // Create Flow
+            const createdVariants = [];
+            for (const size of variantSizes) {
+                const attributesObj = { color: variantColor.trim(), size };
+                const payload = { images: baseImages, stock: baseStock, attributes: attributesObj, price: basePrice };
+                try {
+                    await handleAddProductVariant(productId, payload);
+                    const uiImages = baseImages.map(img => ({ url: img.previewUrl }));
+                    createdVariants.push({
+                        _id: Math.random().toString(36).substr(2, 9),
+                        images: uiImages, stock: baseStock,
+                        attributes: attributesObj, price: basePrice
+                    });
+                } catch (err) {
+                    console.error(`Failed to add variant color=${variantColor} size=${size}:`, err);
+                }
+            }
+            if (createdVariants.length > 0) setVariants(prev => [...prev, ...createdVariants]);
         }
 
-        if (createdVariants.length > 0) setVariants(prev => [...prev, ...createdVariants]);
         setShowAddForm(false);
+        setEditingVariantId(null);
         setVariantColor('');
         setVariantSizes([]);
         setCustomSize('');
         setNewVariant({ images: [], stock: 0, price: { amount: '', currency: 'INR' } });
     };
 
+    const handleEditVariant = (variant) => {
+        let color = '';
+        let size = '';
+        if (typeof variant.attributes === 'string') {
+            try {
+                const parsed = JSON.parse(variant.attributes);
+                color = parsed.color || '';
+                size = parsed.size || '';
+            } catch (e) {}
+        } else if (variant.attributes) {
+            color = variant.attributes.color || '';
+            size = variant.attributes.size || '';
+        }
+        
+        setVariantColor(color);
+        setVariantSizes(size ? [String(size)] : []);
+        setNewVariant({
+            images: (variant.images || []).map(img => ({ previewUrl: img.url, url: img.url })),
+            stock: variant.stock || 0,
+            price: { amount: variant.price?.amount || '', currency: variant.price?.currency || 'INR' }
+        });
+        setEditingVariantId(variant._id);
+        setShowAddForm(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     const toggleSize = (size) => {
-        setVariantSizes(prev =>
-            prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]
-        );
+        if (editingVariantId) {
+            setVariantSizes([size]);
+        } else {
+            setVariantSizes(prev =>
+                prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]
+            );
+        }
     };
 
     const addCustomSize = () => {
         const s = customSize.trim();
         if (s && !variantSizes.includes(s)) {
-            setVariantSizes(prev => [...prev, s]);
+            if (editingVariantId) {
+                setVariantSizes([s]);
+            } else {
+                setVariantSizes(prev => [...prev, s]);
+            }
         }
         setCustomSize('');
     };
@@ -185,18 +256,33 @@ const SellerProductDetail = () => {
         }
     };
 
-    // Handle saving edited stock
-    const handleSaveStock = (index) => {
-        const updatedVariants = [...variants];
-        updatedVariants[index].stock = Number(editStockValue) || 0;
-        setVariants(updatedVariants);
-        setEditingStockIdx(null);
-    };
-
     // Handle deleting a variant
     const handleDeleteVariant = (index) => {
         const updatedVariants = variants.filter((_, i) => i !== index);
         setVariants(updatedVariants);
+    };
+
+    const handleEditProductClick = () => {
+        setEditProductData({
+            title: product.title || '',
+            description: product.description || '',
+            priceAmount: product.price?.amount || '',
+            priceCurrency: product.price?.currency || 'INR'
+        });
+        setShowEditProductModal(true);
+    };
+
+    const handleSaveProductEdit = async (e) => {
+        e.preventDefault();
+        try {
+            const updated = await handleUpdateProduct(productId, editProductData);
+            if (updated) {
+                setProduct(updated);
+                setShowEditProductModal(false);
+            }
+        } catch (error) {
+            console.error("Failed to update product:", error);
+        }
     };
 
     if (loading) {
@@ -245,8 +331,16 @@ const SellerProductDetail = () => {
                     </div>
 
                     <div className="flex flex-col p-6 lg:p-12 relative">
-                        {/* Delete Button */}
-                        <div className="absolute top-6 right-6 lg:top-12 lg:right-12">
+                        {/* Actions */}
+                        <div className="absolute top-6 right-6 lg:top-12 lg:right-12 flex items-center gap-3">
+                            <button
+                                onClick={handleEditProductClick}
+                                className="w-10 h-10 flex items-center justify-center border border-white/[0.08] text-zinc-600 hover:text-white hover:border-white/30 hover:bg-white/10 transition-all duration-300 cursor-pointer"
+                                aria-label="Edit Product"
+                                title="Edit Product"
+                            >
+                                <Edit3 className="w-4 h-4" />
+                            </button>
                             <button
                                 onClick={() => setShowDeleteConfirm(true)}
                                 className="w-10 h-10 flex items-center justify-center border border-white/[0.08] text-zinc-600 hover:text-red-500 hover:border-red-500/30 hover:bg-red-500/10 transition-all duration-300 cursor-pointer"
@@ -256,9 +350,9 @@ const SellerProductDetail = () => {
                                 <Trash2 className="w-4 h-4" />
                             </button>
                         </div>
-                        <div className="pr-12 lg:pr-16">
+                        <div className="pr-24 sm:pr-28 lg:pr-32">
                             <h1
-                                className="text-[clamp(2rem,4vw,3.5rem)] font-black text-white tracking-wider leading-[1.1] uppercase"
+                                className="text-[clamp(1.5rem,4vw,3.5rem)] font-black text-white tracking-wider leading-[1.1] uppercase"
                                 style={{ fontFamily: "'Bebas Neue', sans-serif" }}
                             >
                                 {product.title}
@@ -297,7 +391,17 @@ const SellerProductDetail = () => {
                             <p className="text-[12px] text-zinc-500 tracking-[0.1em] mt-2 uppercase font-semibold">Manage stock, specific pricing, and styles</p>
                         </div>
                         <button
-                            onClick={() => setShowAddForm(!showAddForm)}
+                            onClick={() => {
+                                if (showAddForm) {
+                                    setShowAddForm(false);
+                                    setEditingVariantId(null);
+                                    setVariantColor('');
+                                    setVariantSizes([]);
+                                    setNewVariant({ images: [], stock: 0, price: { amount: '', currency: 'INR' } });
+                                } else {
+                                    setShowAddForm(true);
+                                }
+                            }}
                             className={`w-full sm:w-auto flex items-center justify-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase px-6 py-3.5 transition-all duration-300 cursor-pointer active:scale-[0.98] ${showAddForm
                                 ? "bg-transparent border border-white/20 text-white hover:bg-white/5"
                                 : "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:bg-zinc-200"
@@ -308,16 +412,16 @@ const SellerProductDetail = () => {
                         </button>
                     </div>
 
-                    {/* Add Variant Form */}
+                    {/* Add/Edit Variant Form */}
                     {showAddForm && (
-                        <form onSubmit={handleAddVariant} className="bg-[#0a0a0a] border border-white/[0.08] p-5 sm:p-8 md:p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 animate-in slide-in-from-top-8 fade-in duration-500 relative overflow-hidden">
+                        <form onSubmit={handleSaveVariant} className="bg-[#0a0a0a] border border-white/[0.08] p-5 sm:p-8 md:p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 animate-in slide-in-from-top-8 fade-in duration-500 relative overflow-hidden">
                             {/* Decorative background glow */}
                             <div className="absolute top-0 left-1/4 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
                             <div className="space-y-2 lg:col-span-3 border-b border-white/[0.05] pb-4">
                                 <h3 className="text-[14px] font-bold tracking-[0.25em] uppercase text-white flex items-center gap-3">
                                     <span className="w-2 h-2 bg-white rounded-full inline-block animate-pulse" />
-                                    Configure New Variant
+                                    {editingVariantId ? "Edit Variant" : "Configure New Variant"}
                                 </h3>
                             </div>
 
@@ -440,7 +544,9 @@ const SellerProductDetail = () => {
                                     <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em]">
                                         Step 2 — Sizes available in this color <span className="text-red-400/80 ml-1">*Required</span>
                                     </label>
-                                    <p className="text-[10px] text-zinc-600 mt-1">Click to select. Each size becomes a separate variant.</p>
+                                    <p className="text-[10px] text-zinc-600 mt-1">
+                                        {editingVariantId ? "Select size." : "Click to select. Each size becomes a separate variant."}
+                                    </p>
                                 </div>
 
                                 {/* Preset size chips */}
@@ -498,9 +604,11 @@ const SellerProductDetail = () => {
 
                             <div className="lg:col-span-3 flex justify-stretch sm:justify-end pt-6 border-t border-white/[0.05]">
                                 <button type="submit" className="w-full sm:w-auto bg-white text-black text-[12px] font-black tracking-[0.2em] uppercase px-10 py-4 hover:bg-zinc-200 transition-colors cursor-pointer shadow-[0_0_20px_rgba(255,255,255,0.1)] active:scale-[0.98]">
-                                    {variantSizes.length > 1
-                                        ? `Create ${variantSizes.length} Variants`
-                                        : 'Save Variant'}
+                                    {editingVariantId
+                                        ? 'Update Variant'
+                                        : (variantSizes.length > 1
+                                            ? `Create ${variantSizes.length} Variants`
+                                            : 'Save Variant')}
                                 </button>
                             </div>
 
@@ -557,10 +665,10 @@ const SellerProductDetail = () => {
                                     </div>
 
                                     {/* Stats & Actions */}
-                                    <div className="flex flex-col sm:flex-row md:flex-row gap-4 sm:gap-6 md:gap-8 pt-4 md:pt-0 border-t md:border-t-0 border-white/[0.05] md:items-center">
+                                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 pt-4 sm:pt-0 border-t sm:border-t-0 border-white/[0.05] sm:items-center">
 
                                         {/* Price */}
-                                        <div className="flex flex-row md:flex-col justify-between md:justify-start items-center md:items-start gap-1 md:pl-6 md:border-l border-white/[0.05] min-w-[120px]">
+                                        <div className="flex flex-row sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-1 sm:pl-6 sm:border-l border-white/[0.05] min-w-[120px]">
                                             <span className="text-[10px] text-zinc-600 font-bold tracking-[0.2em] uppercase">Price</span>
                                             <span className="text-[18px] font-black text-white">
                                                 {formatPrice(variant.price?.amount, variant.price?.currency)}
@@ -568,45 +676,28 @@ const SellerProductDetail = () => {
                                         </div>
 
                                         {/* Stock Management */}
-                                        <div className="flex flex-row md:flex-col justify-between md:justify-start items-center md:items-start gap-2 md:pl-6 md:border-l border-white/[0.05] min-w-[150px]">
+                                        <div className="flex flex-row sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-2 sm:pl-6 sm:border-l border-white/[0.05] min-w-[150px]">
                                             <span className="text-[10px] text-zinc-600 font-bold tracking-[0.2em] uppercase">Stock</span>
-                                            {editingStockIdx === idx ? (
-                                                <div className="flex items-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        value={editStockValue}
-                                                        onChange={(e) => setEditStockValue(e.target.value)}
-                                                        className="w-20 sm:w-24 bg-[#0f0f0f] border border-white/[0.2] text-white text-[14px] font-bold px-3 py-2 outline-none focus:border-white/50 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                                        autoFocus
-                                                    />
-                                                    <button onClick={() => handleSaveStock(idx)} className="p-2 sm:p-2.5 bg-white text-black hover:bg-zinc-200 cursor-pointer shadow-[0_0_10px_rgba(255,255,255,0.2)]">
-                                                        <Save className="w-4 h-4" />
-                                                    </button>
-                                                    <button onClick={() => setEditingStockIdx(null)} className="p-2 sm:p-2.5 border border-white/20 text-white hover:bg-white/10 cursor-pointer">
-                                                        <X className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center gap-4">
-                                                    <span className={`text-[20px] font-black tracking-tight ${variant.stock > 0 ? "text-green-400" : "text-red-400"}`}>
-                                                        {variant.stock} <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] ml-1.5 hidden sm:inline-block">units</span>
-                                                    </span>
-                                                    <button
-                                                        onClick={() => { setEditingStockIdx(idx); setEditStockValue(variant.stock); }}
-                                                        className="p-2 text-zinc-500 hover:text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer md:opacity-0 group-hover:opacity-100"
-                                                    >
-                                                        <Edit3 className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            )}
+                                            <div className="flex items-center gap-4">
+                                                <span className={`text-[20px] font-black tracking-tight ${variant.stock > 0 ? "text-green-400" : "text-red-400"}`}>
+                                                    {variant.stock} <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] ml-1.5 hidden sm:inline-block">units</span>
+                                                </span>
+                                            </div>
                                         </div>
 
                                         {/* Actions */}
-                                        <div className="flex flex-row md:flex-col justify-end md:justify-start items-center md:items-start gap-2 md:pl-6 md:border-l border-white/[0.05]">
+                                        <div className="flex flex-row sm:flex-col justify-end sm:justify-start items-center sm:items-start gap-2 sm:pl-6 sm:border-l border-white/[0.05]">
+                                            <button
+                                                onClick={() => handleEditVariant(variant)}
+                                                className="w-10 h-10 flex items-center justify-center border border-white/[0.08] text-zinc-600 hover:text-white hover:border-white/30 hover:bg-white/10 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(0,0,0,0.5)] sm:opacity-0 group-hover:opacity-100"
+                                                aria-label="Edit Variant"
+                                                title="Edit Variant"
+                                            >
+                                                <Edit3 className="w-4 h-4" />
+                                            </button>
                                             <button
                                                 onClick={() => setVariantToDelete({ id: variant._id, index: idx })}
-                                                className="w-10 h-10 flex items-center justify-center border border-white/[0.08] text-zinc-600 hover:text-red-500 hover:border-red-500/30 hover:bg-red-500/10 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(0,0,0,0.5)] md:opacity-0 group-hover:opacity-100"
+                                                className="w-10 h-10 flex items-center justify-center border border-white/[0.08] text-zinc-600 hover:text-red-500 hover:border-red-500/30 hover:bg-red-500/10 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(0,0,0,0.5)] sm:opacity-0 group-hover:opacity-100"
                                                 aria-label="Delete Variant"
                                                 title="Delete Variant"
                                             >
@@ -620,6 +711,85 @@ const SellerProductDetail = () => {
                     )}
                 </section>
             </main>
+
+            {/* ══ EDIT PRODUCT MODAL ══ */}
+            {showEditProductModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-[#0a0a0a] border border-white/10 p-6 sm:p-8 max-w-2xl w-full shadow-2xl flex flex-col gap-6 max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-center border-b border-white/[0.05] pb-4">
+                            <h3 className="text-[clamp(1.5rem,3vw,2rem)] text-white uppercase leading-[1.1] tracking-widest" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                                Edit Product
+                            </h3>
+                            <button onClick={() => setShowEditProductModal(false)} className="text-zinc-500 hover:text-white transition-colors cursor-pointer">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleSaveProductEdit} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Title</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={editProductData.title}
+                                    onChange={(e) => setEditProductData({...editProductData, title: e.target.value})}
+                                    className="w-full bg-[#0f0f0f] border border-white/[0.1] text-white text-[14px] px-4 py-3 outline-none focus:border-white/50 transition-colors"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Description</label>
+                                <textarea
+                                    required
+                                    rows={4}
+                                    value={editProductData.description}
+                                    onChange={(e) => setEditProductData({...editProductData, description: e.target.value})}
+                                    className="w-full bg-[#0f0f0f] border border-white/[0.1] text-white text-[14px] px-4 py-3 outline-none focus:border-white/50 transition-colors resize-none"
+                                />
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Price Amount</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        min="0"
+                                        step="0.01"
+                                        value={editProductData.priceAmount}
+                                        onChange={(e) => setEditProductData({...editProductData, priceAmount: e.target.value})}
+                                        className="w-full bg-[#0f0f0f] border border-white/[0.1] text-white text-[14px] px-4 py-3 outline-none focus:border-white/50 transition-colors"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Currency</label>
+                                    <select
+                                        value={editProductData.priceCurrency}
+                                        onChange={(e) => setEditProductData({...editProductData, priceCurrency: e.target.value})}
+                                        className="w-full bg-[#0f0f0f] border border-white/[0.1] text-white text-[14px] px-4 py-3 outline-none focus:border-white/50 transition-colors appearance-none cursor-pointer"
+                                    >
+                                        {CURRENCY_OPTIONS.map(opt => (
+                                            <option key={opt.code} value={opt.code}>{opt.flag} {opt.code}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex gap-3 pt-4 border-t border-white/[0.05]">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowEditProductModal(false)}
+                                    className="flex-1 py-3 border border-white/20 text-white text-[12px] font-bold tracking-widest uppercase hover:bg-white hover:text-black transition-colors cursor-pointer"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="flex-1 py-3 bg-white text-black text-[12px] font-bold tracking-widest uppercase hover:bg-zinc-200 transition-colors cursor-pointer"
+                                >
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* ══ DELETE CONFIRMATION MODAL ══ */}
             {showDeleteConfirm && (
@@ -636,7 +806,7 @@ const SellerProductDetail = () => {
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowDeleteConfirm(false)}
-                                className="flex-1 border border-white/20 text-white text-[10px] sm:text-[11px] font-black tracking-[0.15em] sm:tracking-[0.2em] uppercase h-12 hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
+                                className="flex-1 py-3 border border-white/20 text-white text-[12px] font-bold tracking-widest uppercase hover:bg-white hover:text-black transition-colors"
                             >
                                 Cancel
                             </button>

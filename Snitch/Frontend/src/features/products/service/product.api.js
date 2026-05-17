@@ -56,8 +56,30 @@ export const deleteProductVariant = async(productId,variantId)=>{
     return response.data;
 }
 
-export const updateProductVariant = async(productId,variantId)=>{
-    const response = await productApiInstance.put(`/update/variant/${productId}/${variantId}`)
+export const updateProductVariant = async(productId, variantId, updatedVariant)=>{
+    const formData = new FormData();
+
+    if (updatedVariant.images) {
+        updatedVariant.images.forEach((image)=>{
+            if (image.file) {
+                formData.append(`images`, image.file);
+            } else if (image.url) {
+                formData.append(`existingImages`, image.url);
+            }
+        });
+    }
+
+    if (updatedVariant.stock !== undefined) formData.append("stock", updatedVariant.stock);
+    if (updatedVariant.price?.amount !== undefined) formData.append("priceAmount", updatedVariant.price.amount);
+    if (updatedVariant.price?.currency !== undefined) formData.append("priceCurrency", updatedVariant.price.currency);
+    if (updatedVariant.attributes) formData.append("attributes", JSON.stringify(updatedVariant.attributes));
+
+    const response = await productApiInstance.patch(`/update/variant/${productId}/${variantId}`, formData);
+    return response.data;
+}
+
+export const updateProduct = async(productId, updatedProduct)=>{
+    const response = await productApiInstance.patch(`/update/product/${productId}`, updatedProduct);
     return response.data;
 }
 
