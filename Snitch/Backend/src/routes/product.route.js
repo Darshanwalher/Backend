@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import { authtenticateSeller } from '../middleware/auth.middleware.js';
-import { addProductVariant, createProduct,deleteProduct,deleteProductVariant,getAllProducts,getProductDetails,getSellerProducts, updateProductVariant } from '../controllers/product.controller.js';
+import { addProductVariant, createProduct,deleteProduct,deleteProductVariant,getAllProducts,getProductDetails,getSellerProducts, updateProduct, updateProductVariant } from '../controllers/product.controller.js';
 import { createProductValidator } from '../validator/product.validator.js';
 
 import multer from 'multer';
@@ -74,5 +74,11 @@ ProductRouter.delete("/delete/variant/:productId/:variantId",authtenticateSeller
 ProductRouter.patch("/update/variant/:productId/:variantId",authtenticateSeller,upload.array("images",7),updateProductVariant)
 
 
+/** 
+ * @route PATCH /api/products/update/product/:id
+ * @description Update a product by ID
+ * @access Private (Seller only)
+ */
+ProductRouter.patch("/update/product/:id",authtenticateSeller,upload.array("images",7),createProductValidator,updateProduct)
 
 export default ProductRouter;

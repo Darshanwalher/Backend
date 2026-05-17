@@ -257,3 +257,30 @@ export const updateProductVariant = async (req, res) => {
         product
     });
 };
+
+export const updateProduct = async(req,res)=>{
+    const {id} = req.params;
+    const {title,description,priceAmount,priceCurrency} = req.body;
+
+    const product = await productModel.findByIdAndUpdate(id, {
+        title,
+        description,
+        price: {
+            amount: priceAmount,
+            currency: priceCurrency
+        }
+    }, { new: true });
+
+    if (!product) {
+        return res.status(404).json({
+            message: "Product not found.",
+            success: false
+        });
+    }
+
+    return res.status(200).json({
+        message: "Product updated successfully.",
+        success: true,
+        product
+    });
+};

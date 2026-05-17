@@ -131,4 +131,28 @@ export const getMe = async (req,res)=>{
         }
     })
 }
+
+export const logout = async (req, res) => {
+    try {
+        const token = req.cookies.token;
+
+        if (!token) {
+            return res.status(400).json({
+                message: "No token found"
+            });
+        }
+
+        res.clearCookie("token");
+
+        return res.status(200).json({
+            message: "User logged out successfully"
+        });
+        
+    } catch (error) {
+        console.error("Logout Error:", error);
+        return res.status(500).json({
+            message: "An internal server error occurred during logout"
+        });
+    }
+};
     
