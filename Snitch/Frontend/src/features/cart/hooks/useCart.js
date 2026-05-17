@@ -1,21 +1,29 @@
 import { useDispatch, useSelector } from "react-redux";
 import { addItem, createCartOrder, decrementCartItemApi, getCart, incrementCartItemApi, removeItemApi, verifyCartOrder } from "../service/cart.api.js";
-import { addItem as addItemToCart, decrementCartItem, increamentCartItem, removeItem, setItems } from "../state/cart.slice.js";
+import { addItem as addItemToCart, decrementCartItem, increamentCartItem, removeItem, setItems, setLoading } from "../state/cart.slice.js";
 
 
 export const useCart = () => {
     const dispatch = useDispatch();
 
     async function handleAddItem({ productId, variantId }) {
-        const data = await addItem({ productId, variantId })
-
-        return data
+        dispatch(setLoading(true));
+        try {
+            const data = await addItem({ productId, variantId });
+            return data;
+        } finally {
+            dispatch(setLoading(false));
+        }
     }
 
     async function handleGetCart() {
-        const data = await getCart();
-        dispatch(setItems(data.cart));
-
+        dispatch(setLoading(true));
+        try {
+            const data = await getCart();
+            dispatch(setItems(data.cart));
+        } finally {
+            dispatch(setLoading(false));
+        }
     }
 
     async function handleIncrementItem({ productId, variantId }) {
@@ -80,13 +88,23 @@ export const useCart = () => {
     }
 
     async function handleCreateOrder(){
-        const data = await createCartOrder()
-        return data
+        dispatch(setLoading(true));
+        try {
+            const data = await createCartOrder();
+            return data;
+        } finally {
+            dispatch(setLoading(false));
+        }
     }
 
     async function handleVerifyOrder({razorpay_order_id, razorpay_payment_id, razorpay_signature}){
-        const data = await verifyCartOrder({razorpay_order_id, razorpay_payment_id, razorpay_signature})
-        return data.success;
+        dispatch(setLoading(true));
+        try {
+            const data = await verifyCartOrder({razorpay_order_id, razorpay_payment_id, razorpay_signature});
+            return data.success;
+        } finally {
+            dispatch(setLoading(false));
+        }
     }
 
 

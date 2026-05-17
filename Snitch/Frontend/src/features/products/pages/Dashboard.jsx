@@ -258,9 +258,12 @@ function Dashboard() {
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const isActionLoading = useSelector((state) => state.product?.loading);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = React.useRef(null);
 
+  console.log(user);
+  
   // Close dropdown when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (e) => {
@@ -296,6 +299,21 @@ function Dashboard() {
       className="min-h-screen w-full bg-[#060606] text-white selection:bg-white selection:text-black"
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
+      {/* ══ GLOBAL ACTION LOADING OVERLAY ══ */}
+      {isActionLoading && !loading && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="flex flex-col items-center gap-5 bg-[#0a0a0a] border border-white/10 px-10 py-8 shadow-2xl">
+                  <div className="relative flex items-center justify-center">
+                      <div className="w-12 h-12 border-2 border-zinc-800 border-t-white rounded-full animate-spin" />
+                      <div className="absolute inset-0 border-2 border-transparent border-b-zinc-500 rounded-full animate-spin-slow opacity-50" />
+                  </div>
+                  <p className="text-[10px] font-black tracking-[0.3em] uppercase text-white animate-pulse">
+                      Processing...
+                  </p>
+              </div>
+          </div>
+      )}
+
       <Nav 
         title="Seller Studio" homeRoute="/seller/dashboard"
         rightContent={

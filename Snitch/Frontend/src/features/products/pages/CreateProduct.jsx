@@ -9,6 +9,7 @@ import {
   Home,
 } from "lucide-react";
 import { useProduct } from "../hooks/useProduct";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import Nav from "../../Shared/Components/Nav";
 const MAX_IMAGES = 7;
@@ -39,6 +40,7 @@ const CreateProduct = () => {
   const [error, setError]           = useState("");
   const [success, setSuccess]       = useState(false);
   const [dragOver, setDragOver]     = useState(false);
+  const isActionLoading = useSelector((state) => state.product?.loading);
 
   const fileInputRef = useRef(null);
 
@@ -119,6 +121,21 @@ const CreateProduct = () => {
       className="min-h-screen w-full bg-[#060606] text-white selection:bg-white selection:text-black"
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
+      {/* ══ GLOBAL ACTION LOADING OVERLAY ══ */}
+      {isActionLoading && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="flex flex-col items-center gap-5 bg-[#0a0a0a] border border-white/10 px-10 py-8 shadow-2xl">
+                  <div className="relative flex items-center justify-center">
+                      <div className="w-12 h-12 border-2 border-zinc-800 border-t-white rounded-full animate-spin" />
+                      <div className="absolute inset-0 border-2 border-transparent border-b-zinc-500 rounded-full animate-spin-slow opacity-50" />
+                  </div>
+                  <p className="text-[10px] font-black tracking-[0.3em] uppercase text-white animate-pulse">
+                      Processing...
+                  </p>
+              </div>
+          </div>
+      )}
+
       <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
 
       {/* ══════════ HEADER ══════════ */}

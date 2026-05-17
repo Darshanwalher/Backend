@@ -8,19 +8,25 @@ export const useAuth = ()=>{
     const dispatch = useDispatch();
     
     const handleRegister = async({email,contact,password,fullname,isSeller = false})=>{
-
-        const data = await register({email,contact,password,fullname,isSeller});
-        dispatch(setUser(data.user));
-        return data.user;
-
+        dispatch(setLoading(true));
+        try {
+            const data = await register({email,contact,password,fullname,isSeller});
+            dispatch(setUser(data.user));
+            return data.user;
+        } finally {
+            dispatch(setLoading(false));
+        }
     }
 
     const handleLogin = async({email,password})=>{
-
-        const data = await login({email,password});
-        dispatch(setUser(data.user));
-        return data.user;
-
+        dispatch(setLoading(true));
+        try {
+            const data = await login({email,password});
+            dispatch(setUser(data.user));
+            return data.user;
+        } finally {
+            dispatch(setLoading(false));
+        }
     }
 
     const handleGetMe = async()=>{

@@ -1,11 +1,13 @@
 import React from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import { Check } from 'lucide-react';
+import { useSelector } from 'react-redux';
 import Nav from '../../Shared/Components/Nav';
 
 const OrderSuccess = () => {
     const location = useLocation()
     const navigate = useNavigate()
+    const isActionLoading = useSelector(state => state.product?.loading || state.cart?.loading);
     const queryParams = new URLSearchParams(location.search)
     const orderId = queryParams.get("order_id") || "PENDING"
     
@@ -23,6 +25,21 @@ const OrderSuccess = () => {
 
   return (
     <div className="min-h-screen w-full bg-[#141313] text-white selection:bg-white selection:text-black pt-24 pb-32 flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
+        {/* ══ GLOBAL ACTION LOADING OVERLAY ══ */}
+        {isActionLoading && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="flex flex-col items-center gap-5 bg-[#0a0a0a] border border-white/10 px-10 py-8 shadow-2xl">
+                    <div className="relative flex items-center justify-center">
+                        <div className="w-12 h-12 border-2 border-zinc-800 border-t-white rounded-full animate-spin" />
+                        <div className="absolute inset-0 border-2 border-transparent border-b-zinc-500 rounded-full animate-spin-slow opacity-50" />
+                    </div>
+                    <p className="text-[10px] font-black tracking-[0.3em] uppercase text-white animate-pulse">
+                        Processing...
+                    </p>
+                </div>
+            </div>
+        )}
+
         <Nav title="Order Success" />
 
         <div className="flex-1 flex flex-col items-center justify-center max-w-screen-2xl mx-auto px-6 lg:px-16 w-full mt-10">

@@ -102,6 +102,7 @@ const ProductDetail = () => {
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
+    const isActionLoading = useSelector((state) => state.product?.loading);
     const [imgIdx, setImgIdx] = useState(0);
     const [errorSet, setErrorSet] = useState(new Set());
     const [wishlisted, setWishlisted] = useState(false);
@@ -212,6 +213,21 @@ const ProductDetail = () => {
             className="min-h-screen lg:h-screen w-full bg-[#060606] text-white selection:bg-white selection:text-black lg:overflow-hidden flex flex-col"
             style={{ fontFamily: DM }}
         >
+            {/* ══ GLOBAL ACTION LOADING OVERLAY ══ */}
+            {isActionLoading && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="flex flex-col items-center gap-5 bg-[#0a0a0a] border border-white/10 px-10 py-8 shadow-2xl">
+                        <div className="relative flex items-center justify-center">
+                            <div className="w-12 h-12 border-2 border-zinc-800 border-t-white rounded-full animate-spin" />
+                            <div className="absolute inset-0 border-2 border-transparent border-b-zinc-500 rounded-full animate-spin-slow opacity-50" />
+                        </div>
+                        <p className="text-[10px] font-black tracking-[0.3em] uppercase text-white animate-pulse">
+                            Processing...
+                        </p>
+                    </div>
+                </div>
+            )}
+
             <Nav title="New Season" />
             {/* ══ MAIN CONTENT ══ */}
             <main className="lg:flex-1 lg:overflow-hidden pt-16">

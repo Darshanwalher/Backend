@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User, Phone, Mail, Lock, Store, ArrowRight } from 'lucide-react';
 import { useAuth } from "../hook/useAuth.js";
 import { useNavigate } from 'react-router';
+import { useSelector } from 'react-redux';
 import ContinueWithGoogle from '../components/ContinueWithGoogle.jsx';
 
 const BEBAS = "'Bebas Neue', sans-serif";
@@ -10,6 +11,8 @@ const DM    = "'DM Sans', sans-serif";
 const Register = () => {
   const { handleRegister } = useAuth();
   const navigate = useNavigate();
+
+  const isActionLoading = useSelector(state => state.auth?.loading);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -51,6 +54,75 @@ const Register = () => {
       className="h-screen w-full overflow-hidden flex bg-[#060606] text-white selection:bg-white selection:text-black"
       style={{ fontFamily: DM }}
     >
+      {/* ══ STUNNING AUTH PROCESSING OVERLAY ══ */}
+      {isActionLoading && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-xl animate-in fade-in duration-500">
+            <style>{`
+                @keyframes authDash {
+                    0% { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
+                    50% { stroke-dasharray: 90, 200; stroke-dashoffset: -35px; }
+                    100% { stroke-dasharray: 90, 200; stroke-dashoffset: -124px; }
+                }
+                .auth-dash { animation: authDash 2s ease-in-out infinite; }
+                
+                @keyframes expandGlow {
+                    0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.2); }
+                    100% { box-shadow: 0 0 0 20px rgba(255,255,255,0); }
+                }
+                .auth-glow { animation: expandGlow 1.5s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+                
+                @keyframes slideLine {
+                    0% { transform: translateX(-100%); }
+                    50% { transform: translateX(0); }
+                    100% { transform: translateX(100%); }
+                }
+                .auth-slide { animation: slideLine 1.5s ease-in-out infinite; }
+            `}</style>
+            
+            <div className="flex flex-col items-center">
+                {/* Geometric Animation */}
+                <div className="relative flex items-center justify-center w-32 h-32 mb-8">
+                    {/* Outer spinning ring */}
+                    <svg className="absolute inset-0 w-full h-full animate-[spin_4s_linear_infinite] opacity-30" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="48" fill="none" stroke="#fff" strokeWidth="1" strokeDasharray="4 4" />
+                    </svg>
+                    
+                    {/* SVG Stroke animation */}
+                    <svg className="absolute inset-0 w-full h-full rotate-[-90deg]" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#222" strokeWidth="2" />
+                        <circle 
+                            cx="50" cy="50" r="40" 
+                            fill="none" 
+                            stroke="#fff" 
+                            strokeWidth="2" 
+                            strokeLinecap="round" 
+                            className="auth-dash"
+                        />
+                    </svg>
+                    
+                    {/* Inner morphing squares */}
+                    <div className="absolute w-10 h-10 border border-white/40 rotate-45 animate-[spin_3s_ease-in-out_infinite_reverse]"></div>
+                    <div className="absolute w-10 h-10 border border-white/20 rotate-[20deg] animate-[spin_4s_ease-in-out_infinite]"></div>
+                    
+                    {/* Center dot with expanding glow */}
+                    <div className="absolute w-2 h-2 bg-white rounded-full auth-glow"></div>
+                </div>
+
+                {/* Typography */}
+                <div className="flex flex-col items-center gap-2 overflow-hidden">
+                    <span className="text-[12px] font-black tracking-[0.4em] uppercase text-white animate-pulse">
+                        Creating Account
+                    </span>
+                    <div className="h-[2px] w-12 bg-white/20 mt-1 mb-1 relative overflow-hidden">
+                        <div className="absolute inset-y-0 left-0 bg-white w-full auth-slide"></div>
+                    </div>
+                    <span className="text-[9px] text-zinc-500 font-bold tracking-[0.2em] uppercase">
+                        Establishing Identity
+                    </span>
+                </div>
+            </div>
+        </div>
+      )}
       {/* ── LEFT — brand panel ── */}
       <div className="hidden lg:flex lg:w-[52%] relative overflow-hidden">
         <div

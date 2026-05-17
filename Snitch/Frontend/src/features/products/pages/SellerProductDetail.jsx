@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import { useProduct } from '../hooks/useProduct';
 import { useParams, useNavigate } from 'react-router';
 import { ArrowLeft, Plus, Image as ImageIcon, Box, Trash2, Edit3, Save, X, ImageOff, UploadCloud, Tag, Check, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -40,7 +41,8 @@ const SellerProductDetail = () => {
     const navigate = useNavigate();
 
     const [product, setProduct] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const isActionLoading = useSelector((state) => state.product?.loading);
 
     // Local state for variants to manage UI independently of the backend API
     const [variants, setVariants] = useState([]);
@@ -75,7 +77,6 @@ const SellerProductDetail = () => {
 
     async function fetchProductDetails() {
         try {
-            setLoading(true);
             const data = await handleGetProductById(productId);
             const prodData = data?.product || data;
             setProduct(prodData);
@@ -83,7 +84,7 @@ const SellerProductDetail = () => {
         } catch (error) {
             console.error("Failed to fetch product details", error);
         } finally {
-            setLoading(false);
+            setIsInitialLoad(false);
         }
     }
 
@@ -285,7 +286,7 @@ const SellerProductDetail = () => {
         }
     };
 
-    if (loading) {
+    if (isInitialLoad) {
         return (
             <div className="min-h-screen bg-[#060606] flex items-center justify-center">
                 <div className="w-8 h-8 border-2 border-zinc-800 border-t-white rounded-full animate-spin" />
@@ -306,6 +307,22 @@ const SellerProductDetail = () => {
 
     return (
         <div className="min-h-screen w-full bg-[#060606] text-white selection:bg-white selection:text-black pb-20" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            
+            {/* ══ GLOBAL ACTION LOADING OVERLAY ══ */}
+            {isActionLoading && !isInitialLoad && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="flex flex-col items-center gap-5 bg-[#0a0a0a] border border-white/10 px-10 py-8 shadow-2xl">
+                        <div className="relative flex items-center justify-center">
+                            <div className="w-12 h-12 border-2 border-zinc-800 border-t-white rounded-full animate-spin" />
+                            <div className="absolute inset-0 border-2 border-transparent border-b-zinc-500 rounded-full animate-spin-slow opacity-50" />
+                        </div>
+                        <p className="text-[10px] font-black tracking-[0.3em] uppercase text-white animate-pulse">
+                            Processing...
+                        </p>
+                    </div>
+                </div>
+            )}
+
             {/* Header */}
             <Nav title="Product Details" homeRoute="/seller/dashboard" />
 

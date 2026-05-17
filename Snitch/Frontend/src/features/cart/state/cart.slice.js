@@ -6,6 +6,7 @@ const cartSlice = createSlice({
         totalPrice:null,
         currency:null,
         items:[],
+        loading:false
     },
     reducers:{
         setItems:(state,action)=>{
@@ -67,12 +68,15 @@ const cartSlice = createSlice({
                     )
             );
         },
+        setLoading:(state,action)=>{
+            state.loading = action.payload;
+        }
 
 
     }
 });
 
 
-export const {setItems,addItem,increamentCartItem,decrementCartItem,removeItem} = cartSlice.actions;
+export const {setItems,addItem,increamentCartItem,decrementCartItem,removeItem,setLoading} = cartSlice.actions;
 export default cartSlice.reducer;
 

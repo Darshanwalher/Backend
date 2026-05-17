@@ -23,11 +23,12 @@ const formatPrice = (amount, currency) => {
 
 const Cart = () => {
     const cartItems = useSelector(state => state.cart) || [];
+    const isActionLoading = useSelector(state => state.cart?.loading);
     const { error, isLoading, Razorpay } = useRazorpay();
     const { handleGetCart, handleIncrementItem, handleDecrementItem, handleRemoveItem,handleCreateOrder,handleVerifyOrder } = useCart();
     const navigate = useNavigate();
     const [notification, setNotification] = useState(null);
-    const user = useSelector(state => state.user);
+    const user = useSelector(state => state.auth.user);
 
     const showNotification = (msg) => {
         setNotification(msg);
@@ -82,6 +83,21 @@ const Cart = () => {
             className="min-h-screen w-full bg-[#060606] text-white selection:bg-white selection:text-black pt-24 pb-32"
             style={{ fontFamily: "'DM Sans', sans-serif" }}
         >
+            {/* ══ GLOBAL ACTION LOADING OVERLAY ══ */}
+            {isActionLoading && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="flex flex-col items-center gap-5 bg-[#0a0a0a] border border-white/10 px-10 py-8 shadow-2xl">
+                        <div className="relative flex items-center justify-center">
+                            <div className="w-12 h-12 border-2 border-zinc-800 border-t-white rounded-full animate-spin" />
+                            <div className="absolute inset-0 border-2 border-transparent border-b-zinc-500 rounded-full animate-spin-slow opacity-50" />
+                        </div>
+                        <p className="text-[10px] font-black tracking-[0.3em] uppercase text-white animate-pulse">
+                            Processing...
+                        </p>
+                    </div>
+                </div>
+            )}
+
             <Nav title="Checkout" />
 
             <div className="max-w-screen-2xl mx-auto px-6 lg:px-16">

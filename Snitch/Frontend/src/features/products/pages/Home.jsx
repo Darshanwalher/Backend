@@ -239,6 +239,7 @@ export const Home = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+  const isActionLoading = useSelector((state) => state.product?.loading);
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -294,6 +295,21 @@ export const Home = () => {
       className="min-h-screen w-full bg-[#060606] text-white selection:bg-white selection:text-black"
       style={{ fontFamily: DM }}
     >
+      {/* ══ GLOBAL ACTION LOADING OVERLAY ══ */}
+      {isActionLoading && !loading && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+              <div className="flex flex-col items-center gap-5 bg-[#0a0a0a] border border-white/10 px-10 py-8 shadow-2xl">
+                  <div className="relative flex items-center justify-center">
+                      <div className="w-12 h-12 border-2 border-zinc-800 border-t-white rounded-full animate-spin" />
+                      <div className="absolute inset-0 border-2 border-transparent border-b-zinc-500 rounded-full animate-spin-slow opacity-50" />
+                  </div>
+                  <p className="text-[10px] font-black tracking-[0.3em] uppercase text-white animate-pulse">
+                      Processing...
+                  </p>
+              </div>
+          </div>
+      )}
+
       {/* ══ NAVBAR ══ */}
       <Nav
         title="New Season"
