@@ -96,9 +96,9 @@ const ProductDetail = () => {
     const navigate = useNavigate();
     const { handleGetProductById } = useProduct();
     const { handleAddItem } = useCart();
-    const user = useSelector(state=>state.auth.user)
-    console.log(user);
-    
+    const user = useSelector(state => state.auth.user)
+
+
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -186,6 +186,23 @@ const ProductDetail = () => {
 
         setImgIdx(0);
         setErrorSet(new Set());
+    };
+
+    const isAttributeValueAvailable = (attrKey, attrValue) => {
+        if (!product?.variants) return true;
+        
+        return product.variants.some(v => {
+            const vAttrs = normalizeAttributes(v.attributes);
+            if (vAttrs[attrKey] !== attrValue) return false;
+            
+            for (const [key, selectedVal] of Object.entries(selectedAttributes)) {
+                if (key !== attrKey && vAttrs[key] !== selectedVal) {
+                    return false;
+                }
+            }
+            
+            return v.stock === undefined || Number(v.stock) > 0;
+        });
     };
 
     const allImages = (currentVariant?.images && currentVariant.images.length > 0)
@@ -399,18 +416,25 @@ const ProductDetail = () => {
                                                 )}
                                             </div>
                                             <div className="flex flex-wrap gap-2">
-                                                {Array.from(attrValues).map((val) => (
-                                                    <button
-                                                        key={val}
-                                                        onClick={() => handleAttributeSelect(attrKey, val)}
-                                                        className={`h-12 px-5 flex items-center justify-center text-[11px] font-black tracking-[0.15em] uppercase border transition-all duration-200 cursor-pointer ${selectedAttributes[attrKey] === val
-                                                            ? "border-white bg-white text-black"
-                                                            : "border-white/[0.1] text-zinc-500 hover:border-white/30 hover:text-white"
+                                                {Array.from(attrValues).map((val) => {
+                                                    const isAvailable = attrKey.toLowerCase() === 'size' ? isAttributeValueAvailable(attrKey, val) : true;
+                                                    return (
+                                                        <button
+                                                            key={val}
+                                                            onClick={() => isAvailable && handleAttributeSelect(attrKey, val)}
+                                                            disabled={!isAvailable}
+                                                            className={`h-12 px-5 flex items-center justify-center text-[11px] font-black tracking-[0.15em] uppercase border transition-all duration-200 ${
+                                                                selectedAttributes[attrKey] === val
+                                                                    ? "border-white bg-white text-black"
+                                                                    : isAvailable
+                                                                        ? "border-white/[0.1] text-zinc-500 hover:border-white/30 hover:text-white cursor-pointer"
+                                                                        : "border-white/[0.05] text-zinc-800 bg-white/[0.02] cursor-not-allowed line-through"
                                                             }`}
-                                                    >
-                                                        {val}
-                                                    </button>
-                                                ))}
+                                                        >
+                                                            {val}
+                                                        </button>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     ))}
@@ -452,7 +476,7 @@ const ProductDetail = () => {
                                 {/* Buy Now */}
                                 <button
                                     id="buy-now-btn"
-                                    onClick={() => {
+                                    onClick={async () => {
                                         if (!user) {
                                             setShowLoginToast(true);
                                             setTimeout(() => {
@@ -461,7 +485,11 @@ const ProductDetail = () => {
                                             }, 2500);
                                             return;
                                         }
-                                        // TODO: handle buy now flow
+                                        await handleAddItem({
+                                            productId: product._id,
+                                            variantId: currentVariant?._id
+                                        });
+                                        navigate('/cart');
                                     }}
                                     className="w-full flex items-center justify-center gap-2 bg-white text-black text-[10px] sm:text-[11px] font-black tracking-[0.15em] sm:tracking-[0.22em] uppercase h-12 sm:h-14 px-3 sm:px-6 hover:bg-zinc-200 transition-all duration-300 cursor-pointer group"
                                 >
