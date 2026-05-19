@@ -34,6 +34,15 @@ export const removeItemApi = async({productId,variantId})=>{
     return response.data;
 }
 
+export const createBuyNowOrderApi = async ({ productId, variantId, quantity }) => {
+    const response = await cartApiInstance.post("/payment/buy-now", {
+        productId,
+        variantId,
+        quantity
+    });
+    return response.data;
+}
+
 export const createCartOrder = async()=>{
     const response = await cartApiInstance.post("/payment/create/order")
     return response.data;

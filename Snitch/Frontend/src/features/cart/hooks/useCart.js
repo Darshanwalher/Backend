@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { addItem, createCartOrder, decrementCartItemApi, getCart, incrementCartItemApi, removeItemApi, verifyCartOrder } from "../service/cart.api.js";
+import { addItem, createBuyNowOrderApi, createCartOrder, decrementCartItemApi, getCart, incrementCartItemApi, removeItemApi, verifyCartOrder } from "../service/cart.api.js";
 import { addItem as addItemToCart, decrementCartItem, increamentCartItem, removeItem, setItems, setLoading } from "../state/cart.slice.js";
 
 
@@ -97,6 +97,16 @@ export const useCart = () => {
         }
     }
 
+    async function handleCreateBuyNowOrder({ productId, variantId, quantity }) {
+        dispatch(setLoading(true));
+        try {
+            const data = await createBuyNowOrderApi({ productId, variantId, quantity });
+            return data;
+        } finally {
+            dispatch(setLoading(false));
+        }
+    }
+
     async function handleVerifyOrder({razorpay_order_id, razorpay_payment_id, razorpay_signature}){
         dispatch(setLoading(true));
         try {
@@ -115,6 +125,7 @@ export const useCart = () => {
         handleDecrementItem,
         handleRemoveItem,
         handleCreateOrder,
+        handleCreateBuyNowOrder,
         handleVerifyOrder
     }
 

@@ -398,6 +398,71 @@ export const createOrderController = async(req,res)=>{
     
 };
 
+export const createBuyNowOrderController = async (req, res) => {
+    try {
+        const { productId, variantId, quantity = 1 } = req.body;
+
+        const product = await productModel.findOne({
+            _id: productId,
+            "variants._id": variantId
+        });
+
+        if (!product) {
+            return res.status(404).json({
+                message: "Product or variant not found",
+                success: false
+            });
+        }
+
+        const variant = product.variants.find(v => v._id.toString() === variantId);
+        
+        if (!variant) {
+            return res.status(404).json({
+                message: "Variant not found",
+                success: false
+            });
+        }
+
+        const amount = variant.price.amount * quantity;
+        const currency = variant.price.currency;
+
+        const order = await createOrder({ amount, currency });
+
+        const payment = await paymentModel.create({
+            user: req.user._id,
+            isBuyNow: true,
+            razorpay: {
+                orderId: order.id,
+            },
+            price: {
+                amount,
+                currency
+            },
+            orderItems: [{
+                title: product.title,
+                productId: product._id,
+                variantId: variant._id,
+                quantity: quantity,
+                images: variant.images || product.images,
+                description: product.description,
+                price: variant.price
+            }]
+        });
+
+        return res.status(200).json({
+            message: "Buy Now order created successfully",
+            success: true,
+            order
+        });
+    } catch (error) {
+        console.error("Create Buy Now Order Error:", error);
+        return res.status(500).json({
+            message: "Internal server error.",
+            success: false
+        });
+    }
+};
+
 export const verifyOrderController = async(req,res)=>{
     const {
         razorpay_payment_id,
@@ -440,9 +505,11 @@ export const verifyOrderController = async(req,res)=>{
 
     await payment.save()
 
-    await cartModel.deleteOne({
-        user: payment.user
-    })
+    if (!payment.isBuyNow) {
+        await cartModel.deleteOne({
+            user: payment.user
+        })
+    }
 
     return res.status(200).json({
         message:"Payment verification successful",

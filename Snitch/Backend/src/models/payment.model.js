@@ -4,6 +4,10 @@ import priceSchema from "./price.schema.js";
 
 
 const paymentSchema = new mongoose.Schema({
+    isBuyNow: {
+        type: Boolean,
+        default: false
+    },
     status:{
         type:String,
         enum:["pending","paid","failed"],

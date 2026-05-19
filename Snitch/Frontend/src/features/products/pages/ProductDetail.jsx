@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Nav from "../../Shared/Components/Nav";
 import { useSelector } from "react-redux";
+import { useRazorpay } from "react-razorpay";
 
 /* ─────────────────── Constants ─────────────────── */
 const DM = "'DM Sans', sans-serif";
@@ -95,14 +96,15 @@ const ProductDetail = () => {
     const { productId } = useParams();
     const navigate = useNavigate();
     const { handleGetProductById } = useProduct();
-    const { handleAddItem } = useCart();
+    const { handleAddItem, handleCreateBuyNowOrder, handleVerifyOrder } = useCart();
     const user = useSelector(state => state.auth.user)
+    const { Razorpay } = useRazorpay();
 
 
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
-    const isActionLoading = useSelector((state) => state.product?.loading);
+    const isActionLoading = useSelector((state) => state.product?.loading || state.cart?.loading);
     const [imgIdx, setImgIdx] = useState(0);
     const [errorSet, setErrorSet] = useState(new Set());
     const [wishlisted, setWishlisted] = useState(false);
@@ -485,11 +487,42 @@ const ProductDetail = () => {
                                             }, 2500);
                                             return;
                                         }
-                                        await handleAddItem({
-                                            productId: product._id,
-                                            variantId: currentVariant?._id
-                                        });
-                                        navigate('/cart');
+
+                                        try {
+                                            const order = await handleCreateBuyNowOrder({
+                                                productId: product._id,
+                                                variantId: currentVariant?._id,
+                                                quantity: 1
+                                            });
+
+                                            const options = {
+                                                key: "rzp_test_SoMktJCBBYNrVf",
+                                                amount: order.order.amount,
+                                                currency: order.order.currency,
+                                                name: "Snitch",
+                                                description: "Snitch Checkout",
+                                                order_id: order.order.id,
+                                                handler: async (response) => {
+                                                    const isValidPayment = await handleVerifyOrder(response);
+                                                    if (isValidPayment) {
+                                                        navigate(`/order-success?order_id=${response?.razorpay_order_id}`);
+                                                    }
+                                                },
+                                                prefill: {
+                                                    name: user?.fullname,
+                                                    email: user?.email,
+                                                    contact: user?.contact,
+                                                },
+                                                theme: {
+                                                    color: "#F37254",
+                                                },
+                                            };
+
+                                            const razorpayInstance = new Razorpay(options);
+                                            razorpayInstance.open();
+                                        } catch (error) {
+                                            console.error("Failed to create buy now order", error);
+                                        }
                                     }}
                                     className="w-full flex items-center justify-center gap-2 bg-white text-black text-[10px] sm:text-[11px] font-black tracking-[0.15em] sm:tracking-[0.22em] uppercase h-12 sm:h-14 px-3 sm:px-6 hover:bg-zinc-200 transition-all duration-300 cursor-pointer group"
                                 >
