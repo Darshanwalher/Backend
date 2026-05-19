@@ -1,0 +1,30 @@
+#stage 1 :  Build the frontend
+
+FROM node:20-alpine AS frontend_builder
+
+WORKDIR /app
+
+COPY ./Frontend/package*.json /app
+
+RUN npm install
+
+COPY ./Frontend /app
+
+RUN npm run build
+
+
+#stage 2 : fullstack image
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY ./Backend/package*.json /app
+
+RUN npm install
+
+COPY ./Backend /app
+
+COPY --from=frontend_builder /app/dist /app/public
+
+CMD ["node", "server.js"]
