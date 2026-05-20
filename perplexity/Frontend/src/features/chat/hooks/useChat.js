@@ -141,10 +141,10 @@ export const useChat = () => {
         // Only fetch messages if they haven't been loaded yet (lazy loading)
         if (chats[chatId]?.messages.length === 0) {
             const data = await getMessages(chatId)
-            const { message } = data
+            const { messages } = data
 
             // Reshape API response to match Redux message shape
-            const formattedMessages = message.map(msg => ({
+            const formattedMessages = messages.map(msg => ({
                 content: msg.content,
                 role: msg.role,  // "user" or "assistant"
             }))
