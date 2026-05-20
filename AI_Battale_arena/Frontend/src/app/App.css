@@ -1,1 +1,385 @@
-@import "tailwindcss"
+@import "tailwindcss";
+
+/* ─── Claude Theme: Custom Properties ─── */
+@theme {
+  --color-claude-bg: #1A1816;
+  --color-claude-bg-elevated: #242220;
+  --color-claude-bg-card: #2D2B28;
+  --color-claude-bg-card-hover: #353330;
+  --color-claude-border: #3D3A36;
+  --color-claude-border-subtle: #2F2D2A;
+  --color-claude-text-primary: #FAF6F1;
+  --color-claude-text-secondary: #C4B8A9;
+  --color-claude-text-muted: #8C8177;
+  --color-claude-text-faint: #5C564F;
+  --color-claude-accent: #DA7756;
+  --color-claude-accent-hover: #E8825C;
+  --color-claude-accent-soft: rgba(218, 119, 86, 0.12);
+  --color-claude-accent-glow: rgba(218, 119, 86, 0.25);
+  --color-claude-winner: #DA7756;
+  --color-claude-winner-bg: rgba(218, 119, 86, 0.08);
+  --color-claude-runner: #A78BFA;
+  --color-claude-runner-bg: rgba(167, 139, 250, 0.08);
+  --color-claude-user-bubble: rgba(218, 119, 86, 0.10);
+  --color-claude-user-border: rgba(218, 119, 86, 0.18);
+  --color-claude-input-bg: #242220;
+  --color-claude-input-border: #3D3A36;
+  --color-claude-input-focus: #DA7756;
+  --color-claude-error: #EF4444;
+  --color-claude-success: #34D399;
+  --color-claude-code-bg: #1A1816;
+  --color-claude-code-border: rgba(61, 58, 54, 0.6);
+  --color-claude-glass: rgba(45, 43, 40, 0.60);
+  --color-claude-glass-border: rgba(61, 58, 54, 0.40);
+}
+
+/* ─── Keyframe Animations ─── */
+@keyframes claude-fade-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes claude-slide-up {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes claude-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes claude-pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(218, 119, 86, 0); }
+  50% { box-shadow: 0 0 20px 4px rgba(218, 119, 86, 0.15); }
+}
+
+@keyframes claude-breathe {
+  0%, 100% { opacity: 0.3; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes claude-spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes claude-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes claude-border-glow {
+  0%, 100% { border-color: rgba(218, 119, 86, 0.2); }
+  50% { border-color: rgba(218, 119, 86, 0.5); }
+}
+
+/* ─── Utility Classes ─── */
+.claude-fade-in {
+  animation: claude-fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.claude-slide-up {
+  animation: claude-slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.claude-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-claude-bg-card) 0%,
+    var(--color-claude-bg-card-hover) 40%,
+    var(--color-claude-bg-card) 80%
+  );
+  background-size: 200% 100%;
+  animation: claude-shimmer 1.8s ease-in-out infinite;
+}
+
+.claude-pulse-glow {
+  animation: claude-pulse-glow 2.5s ease-in-out infinite;
+}
+
+.claude-breathe {
+  animation: claude-breathe 1.4s ease-in-out infinite;
+}
+
+.claude-gradient-shift {
+  background-size: 200% 200%;
+  animation: claude-gradient-shift 4s ease-in-out infinite;
+}
+
+.claude-border-glow {
+  animation: claude-border-glow 2s ease-in-out infinite;
+}
+
+/* ─── Glass Card ─── */
+.claude-glass {
+  background: var(--color-claude-glass);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border: 1px solid var(--color-claude-glass-border);
+}
+
+/* ─── Hide All Scrollbars ─── */
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* ─── Global Body ─── */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--color-claude-bg);
+  color: var(--color-claude-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Focus ring override ─── */
+*:focus-visible {
+  outline: 2px solid var(--color-claude-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: rgba(218, 119, 86, 0.3);
+  color: var(--color-claude-text-primary);
+}
+
+/* ─── Highlight.js Override for Claude warm code ─── */
+.hljs {
+  background: var(--color-claude-code-bg) !important;
+  color: var(--color-claude-text-secondary) !important;
+}
+
+/* ─── Code Block with Copy Button ─── */
+.claude-code-block {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--color-claude-code-border);
+  margin: 12px 0;
+}
+
+.claude-code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--color-claude-bg-elevated);
+  border-bottom: 1px solid var(--color-claude-code-border);
+}
+
+.claude-code-lang {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-claude-text-faint);
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+}
+
+.claude-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--color-claude-border);
+  background: var(--color-claude-bg-card);
+  color: var(--color-claude-text-muted);
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.claude-copy-btn:hover {
+  background: var(--color-claude-bg-card-hover);
+  border-color: var(--color-claude-accent);
+  color: var(--color-claude-accent);
+}
+
+.claude-copy-btn.copied {
+  background: var(--color-claude-accent-soft);
+  border-color: var(--color-claude-accent);
+  color: var(--color-claude-accent);
+}
+
+.claude-code-pre {
+  padding: 16px;
+  margin: 0;
+  overflow-x: auto;
+  background: var(--color-claude-code-bg);
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #D4C5B4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Inline code */
+.claude-inline-code {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--color-claude-bg-card);
+  color: var(--color-claude-accent);
+  border: 1px solid var(--color-claude-border);
+}
+
+/* ─── Claude Warm Syntax Highlighting Theme ─── */
+/* Base */
+.hljs {
+  background: var(--color-claude-code-bg) !important;
+  color: #D4C5B4 !important;
+}
+
+/* Keywords: if, else, return, const, let, var, function, class, import, export, etc. */
+.hljs-keyword,
+.hljs-selector-tag {
+  color: #E06C9F;
+  font-weight: 500;
+}
+
+/* Built-in types and values: null, undefined, true, false, console, document */
+.hljs-built_in,
+.hljs-type {
+  color: #56B6C2;
+}
+
+/* Strings */
+.hljs-string,
+.hljs-template-variable,
+.hljs-addition {
+  color: #A8C97F;
+}
+
+/* Numbers */
+.hljs-number,
+.hljs-literal {
+  color: #D19A66;
+}
+
+/* Function/method names */
+.hljs-title,
+.hljs-title.function_,
+.hljs-title.class_ {
+  color: #E5C07B;
+  font-weight: 500;
+}
+
+/* Variables and parameters */
+.hljs-variable,
+.hljs-params {
+  color: #D4C5B4;
+}
+
+/* Properties */
+.hljs-property,
+.hljs-attr {
+  color: #E8825C;
+}
+
+/* Comments */
+.hljs-comment,
+.hljs-quote {
+  color: #5C564F;
+  font-style: italic;
+}
+
+/* Regex */
+.hljs-regexp {
+  color: #56B6C2;
+}
+
+/* Operators and punctuation */
+.hljs-operator,
+.hljs-punctuation {
+  color: #8C8177;
+}
+
+/* Meta / preprocessor */
+.hljs-meta,
+.hljs-meta .hljs-keyword {
+  color: #DA7756;
+}
+
+/* Tags (HTML/JSX) */
+.hljs-tag {
+  color: #8C8177;
+}
+
+.hljs-name {
+  color: #E06C9F;
+}
+
+/* Tag attributes */
+.hljs-tag .hljs-attr {
+  color: #E8825C;
+}
+
+/* Tag attribute values */
+.hljs-tag .hljs-string {
+  color: #A8C97F;
+}
+
+/* Symbols */
+.hljs-symbol,
+.hljs-bullet {
+  color: #DA7756;
+}
+
+/* Deletion (diffs) */
+.hljs-deletion {
+  color: #E06C75;
+  background: rgba(224, 108, 117, 0.08);
+}
+
+/* Addition (diffs) */
+.hljs-addition {
+  color: #A8C97F;
+  background: rgba(168, 201, 127, 0.08);
+}
+
+/* Section headers */
+.hljs-section {
+  color: #E5C07B;
+  font-weight: 600;
+}
+
+/* Emphasis */
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: 700;
+}
+
+/* Subst (template literals) */
+.hljs-subst {
+  color: #D4C5B4;
+}
+
+/* Selector (CSS) */
+.hljs-selector-class {
+  color: #E5C07B;
+}
+
+.hljs-selector-id {
+  color: #E8825C;
+}
+
+.hljs-selector-pseudo {
+  color: #56B6C2;
+}
