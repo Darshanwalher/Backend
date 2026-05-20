@@ -288,7 +288,7 @@ export async function logOut(req,res){
     const token = req.cookies.token;
 
     if(!token){
-        return resizeBy.status(400).json({
+        return res.status(400).json({
             message:"User not logged in",
             success:false,
             err:"User not logged in"

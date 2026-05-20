@@ -142,14 +142,14 @@ export async function getMessages(req, res) {
 
     // ── Fetch messages ──
     // Returns all messages in insertion order (oldest first)
-    const message = await messageModel.find({
+    const messages = await messageModel.find({
         chat: chatId
     });
 
     res.status(200).json({
         message: "Messages fetched successfully",
         success: true,
-        message  // ⚠️ naming conflict — consider renaming to `messages`
+        messages
     });
 }
 

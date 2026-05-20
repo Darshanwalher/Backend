@@ -4,7 +4,7 @@ import authRouter from "./routes/auth.routes.js";
 import chatRouter from "./routes/chat.routes.js";
 import morgan from "morgan";
 import cors from "cors";
-
+import path from "path";
 
 const app = express();
 
@@ -21,15 +21,18 @@ app.use(cors({
 app.use(express.static("./public"));
 
 
-
-
 // Health check
-app.get("/", (req, res) => {
+app.get("/api/health", (req, res) => {
     res.json({ message: "Server is running" });
 });
 
 app.use("/api/auth", authRouter);
 app.use("/api/chats", chatRouter);
 
+// Catch-all route to serve the frontend React/Vue app for any unknown routes (Fixes "Cannot GET /login")
+app.get(/.*/, (req, res) => {
+    res.sendFile(path.resolve("public", "index.html"));
+});
 
 export default app;
+
