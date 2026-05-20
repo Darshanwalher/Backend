@@ -1,7 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import {
+  startBattle,
+  onSolutions,
+  onJudge,
+  onComplete,
+  onError,
+  removeAllBattleListeners,
+} from '../services/socketService.js';
 
 function renderMarkdownLight(text) {
+  if (!text) return null;
   const parts = text.split(/(```[\s\S]*?```)/g);
   return parts.map((p, i) => {
     if (p.startsWith('```')) {
@@ -32,7 +40,7 @@ function ScoreBar({ label, score, isWinner }) {
   );
 }
 
-function SolutionCard({ label, solution, reasoning, score, isWinner }) {
+function SolutionCard({ label, solution, reasoning, score, isWinner, isLoading }) {
   return (
     <div className={`flex flex-col rounded-xl border overflow-hidden transition-all ${
       isWinner ? 'border-emerald-500/60' : 'border-zinc-800'
@@ -44,9 +52,24 @@ function SolutionCard({ label, solution, reasoning, score, isWinner }) {
             Winner
           </span>
         )}
+        {isLoading && (
+          <span className="text-xs font-medium bg-amber-500/15 text-amber-400 px-2 py-0.5 rounded-full animate-pulse">
+            Judging…
+          </span>
+        )}
       </div>
       <div className="p-4 text-sm text-zinc-300 leading-relaxed flex-1">
-        {renderMarkdownLight(solution)}
+        {solution ? renderMarkdownLight(solution) : (
+          <div className="flex gap-1.5 py-3 px-1 items-center">
+            {[0, 1, 2].map(i => (
+              <span
+                key={i}
+                className="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-pulse"
+                style={{ animationDelay: `${i * 0.2}s` }}
+              />
+            ))}
+          </div>
+        )}
       </div>
       {reasoning && (
         <div className="px-4 pb-4 text-xs text-zinc-500 leading-relaxed border-t border-zinc-800 pt-3">
@@ -92,47 +115,101 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
+  const currentBattleIdRef = useRef(null);
   const endRef = useRef(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
-  const handleSend = async (e) => {
+  useEffect(() => {
+    const unsubSolutions = onSolutions(({ solution_1, solution_2 }) => {
+      const battleId = currentBattleIdRef.current;
+      if (!battleId) return;
+
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.id === battleId
+            ? { ...msg, solution_1, solution_2, status: 'judging' }
+            : msg
+        )
+      );
+    });
+
+    const unsubJudge = onJudge(({ judge }) => {
+      const battleId = currentBattleIdRef.current;
+      if (!battleId) return;
+
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.id === battleId
+            ? { ...msg, judge, status: 'complete' }
+            : msg
+        )
+      );
+    });
+
+    const unsubComplete = onComplete(() => {
+      currentBattleIdRef.current = null;
+      setLoading(false);
+    });
+
+    const unsubError = onError(({ message }) => {
+      const battleId = currentBattleIdRef.current;
+
+      if (battleId) {
+        setMessages(prev =>
+          prev.map(msg =>
+            msg.id === battleId
+              ? { ...msg, error: message || 'Something went wrong. Please try again.', status: 'error' }
+              : msg
+          )
+        );
+      }
+
+      currentBattleIdRef.current = null;
+      setLoading(false);
+    });
+
+    return () => {
+      unsubSolutions();
+      unsubJudge();
+      unsubComplete();
+      unsubError();
+      removeAllBattleListeners();
+    };
+  }, []);
+
+  const handleSend = useCallback((e) => {
     e.preventDefault();
     if (!inputValue.trim() || loading) return;
 
     const question = inputValue.trim();
+    const battleId = Date.now();
+
     setInputValue('');
     setLoading(true);
 
-    try {
-      const response = await axios.post('http://localhost:3000/invoke', { input: question });
-      const data = response.data;
+    setMessages(prev => [...prev, {
+      id: battleId,
+      problem: question,
+      solution_1: null,
+      solution_2: null,
+      judge: null,
+      error: null,
+      status: 'waiting',
+    }]);
 
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        problem: question,
-        ...data.result
-      }]);
-    } catch (err) {
-      console.error(err);
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        problem: question,
-        error: 'Something went wrong. Please try again.'
-      }]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    currentBattleIdRef.current = battleId;
+    startBattle(question);
+  }, [inputValue, loading]);
 
   const winner = (judge) =>
     judge.solution_1_score > judge.solution_2_score ? 1
     : judge.solution_2_score > judge.solution_1_score ? 2 : 0;
 
   return (
-    <div className="flex flex-col h-screen bg-zinc-950 font-sans">
+    <div className="flex flex-col h-screen bg-zinc-950 font-sans text-zinc-100">
       {/* Header */}
       <header className="py-3.5 px-6 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between">
         <h1 className="text-lg font-semibold tracking-tight text-zinc-100" style={{ fontFamily: 'Georgia, serif' }}>
@@ -162,6 +239,9 @@ export default function ChatInterface() {
         ) : (
           messages.map((msg) => {
             const w = msg.judge ? winner(msg.judge) : 0;
+            const isJudging = msg.status === 'judging';
+            const isWaiting = msg.status === 'waiting';
+
             return (
               <div key={msg.id} className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-3 duration-400">
                 {/* User bubble */}
@@ -174,22 +254,31 @@ export default function ChatInterface() {
                 ) : (
                   <>
                     {/* Solutions side by side */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <SolutionCard
-                        label="Model A"
-                        solution={msg.solution_1}
-                        reasoning={msg.judge?.solution_1_reasoning}
-                        score={msg.judge?.solution_1_score}
-                        isWinner={w === 1}
-                      />
-                      <SolutionCard
-                        label="Model B"
-                        solution={msg.solution_2}
-                        reasoning={msg.judge?.solution_2_reasoning}
-                        score={msg.judge?.solution_2_score}
-                        isWinner={w === 2}
-                      />
-                    </div>
+                    {isWaiting ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <SolutionCard label="Model A" solution={null} isWinner={false} isLoading={false} />
+                        <SolutionCard label="Model B" solution={null} isWinner={false} isLoading={false} />
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <SolutionCard
+                          label="Model A"
+                          solution={msg.solution_1}
+                          reasoning={msg.judge?.solution_1_reasoning}
+                          score={msg.judge?.solution_1_score}
+                          isWinner={w === 1}
+                          isLoading={isJudging}
+                        />
+                        <SolutionCard
+                          label="Model B"
+                          solution={msg.solution_2}
+                          reasoning={msg.judge?.solution_2_reasoning}
+                          score={msg.judge?.solution_2_score}
+                          isWinner={w === 2}
+                          isLoading={isJudging}
+                        />
+                      </div>
+                    )}
 
                     {/* Score strip */}
                     {msg.judge && <JudgeStrip judge={msg.judge} />}
@@ -200,13 +289,8 @@ export default function ChatInterface() {
           })
         )}
 
-        {loading && (
-          <div className="flex flex-col gap-3">
-            <div className="self-end bg-blue-500/10 text-blue-300 text-sm px-4 py-2.5 rounded-2xl rounded-br-sm">
-              {inputValue || '…'}
-            </div>
-            <LoadingDots />
-          </div>
+        {loading && messages.length > 0 && messages[messages.length - 1]?.status === 'waiting' && (
+          <LoadingDots />
         )}
 
         <div ref={endRef} />
