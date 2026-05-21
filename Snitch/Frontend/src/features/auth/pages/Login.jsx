@@ -1,26 +1,35 @@
-import React, { useState } from 'react';
-import { ArrowRight, Mail, Lock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, Mail, Lock, AlertCircle, X } from 'lucide-react';
 import { useAuth } from "../hook/useAuth.js";
 import { useNavigate } from 'react-router';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { clearError } from '../state/auth.slice.js';
 import ContinueWithGoogle from '../components/ContinueWithGoogle.jsx';
 
-const DM = "'DM Sans', sans-serif";
+const DM    = "'DM Sans', sans-serif";
 const BEBAS = "'Bebas Neue', sans-serif";
 
 const Login = () => {
   const { handleLogin } = useAuth();
-  const navigate = useNavigate();
+  const navigate        = useNavigate();
+  const dispatch        = useDispatch();
 
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+  const [formData,  setFormData]  = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
+
   const isActionLoading = useSelector(state => state.auth?.loading);
+  const reduxError      = useSelector(state => state.auth?.error);
+
+  // Clear redux error when this page unmounts (so it doesn't bleed into other pages)
+  useEffect(() => {
+    return () => { dispatch(clearError()); };
+  }, [dispatch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (error) setError('');
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear the error the moment the user starts correcting
+    if (reduxError) dispatch(clearError());
   };
 
   const handleSubmit = async (e) => {
@@ -28,13 +37,10 @@ const Login = () => {
     setIsLoading(true);
     try {
       const user = await handleLogin({ email: formData.email, password: formData.password });
-      if(user.role == "buyer"){
-        navigate('/');
-      }else if(user.role == "seller"){
-        navigate("/seller/dashboard")
-      }
-    } catch (err) {
-      setError(err?.response?.data?.message || 'Invalid email or password.');
+      if (user.role === "buyer")  navigate('/');
+      if (user.role === "seller") navigate("/seller/dashboard");
+    } catch {
+      // Error is already in Redux (dispatched by useAuth) — nothing to do here
     } finally {
       setIsLoading(false);
     }
@@ -45,95 +51,68 @@ const Login = () => {
       className="h-screen w-full overflow-hidden flex bg-[#060606] text-white selection:bg-white selection:text-black"
       style={{ fontFamily: DM }}
     >
-      {/* ══ STUNNING AUTH PROCESSING OVERLAY ══ */}
+      {/* ══ AUTH PROCESSING OVERLAY ══ */}
       {isActionLoading && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-xl animate-in fade-in duration-500">
-            <style>{`
-                @keyframes authDash {
-                    0% { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
-                    50% { stroke-dasharray: 90, 200; stroke-dashoffset: -35px; }
-                    100% { stroke-dasharray: 90, 200; stroke-dashoffset: -124px; }
-                }
-                .auth-dash { animation: authDash 2s ease-in-out infinite; }
-                
-                @keyframes expandGlow {
-                    0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.2); }
-                    100% { box-shadow: 0 0 0 20px rgba(255,255,255,0); }
-                }
-                .auth-glow { animation: expandGlow 1.5s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
-                
-                @keyframes slideLine {
-                    0% { transform: translateX(-100%); }
-                    50% { transform: translateX(0); }
-                    100% { transform: translateX(100%); }
-                }
-                .auth-slide { animation: slideLine 1.5s ease-in-out infinite; }
-            `}</style>
-            
-            <div className="flex flex-col items-center">
-                {/* Geometric Animation */}
-                <div className="relative flex items-center justify-center w-32 h-32 mb-8">
-                    {/* Outer spinning ring */}
-                    <svg className="absolute inset-0 w-full h-full animate-[spin_4s_linear_infinite] opacity-30" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="48" fill="none" stroke="#fff" strokeWidth="1" strokeDasharray="4 4" />
-                    </svg>
-                    
-                    {/* SVG Stroke animation */}
-                    <svg className="absolute inset-0 w-full h-full rotate-[-90deg]" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="#222" strokeWidth="2" />
-                        <circle 
-                            cx="50" cy="50" r="40" 
-                            fill="none" 
-                            stroke="#fff" 
-                            strokeWidth="2" 
-                            strokeLinecap="round" 
-                            className="auth-dash"
-                        />
-                    </svg>
-                    
-                    {/* Inner morphing squares */}
-                    <div className="absolute w-10 h-10 border border-white/40 rotate-45 animate-[spin_3s_ease-in-out_infinite_reverse]"></div>
-                    <div className="absolute w-10 h-10 border border-white/20 rotate-[20deg] animate-[spin_4s_ease-in-out_infinite]"></div>
-                    
-                    {/* Center dot with expanding glow */}
-                    <div className="absolute w-2 h-2 bg-white rounded-full auth-glow"></div>
-                </div>
+          <style>{`
+            @keyframes authDash {
+              0%   { stroke-dasharray: 1, 200;  stroke-dashoffset: 0; }
+              50%  { stroke-dasharray: 90, 200; stroke-dashoffset: -35px; }
+              100% { stroke-dasharray: 90, 200; stroke-dashoffset: -124px; }
+            }
+            .auth-dash  { animation: authDash  2s   ease-in-out infinite; }
+            @keyframes expandGlow {
+              0%   { box-shadow: 0 0 0 0px  rgba(255,255,255,0.2); }
+              100% { box-shadow: 0 0 0 20px rgba(255,255,255,0);   }
+            }
+            .auth-glow  { animation: expandGlow 1.5s cubic-bezier(0.16,1,0.3,1) infinite; }
+            @keyframes slideLine {
+              0%   { transform: translateX(-100%); }
+              50%  { transform: translateX(0);     }
+              100% { transform: translateX(100%);  }
+            }
+            .auth-slide { animation: slideLine 1.5s ease-in-out infinite; }
+          `}</style>
 
-                {/* Typography */}
-                <div className="flex flex-col items-center gap-2 overflow-hidden">
-                    <span className="text-[12px] font-black tracking-[0.4em] uppercase text-white animate-pulse">
-                        Authenticating
-                    </span>
-                    <div className="h-[2px] w-12 bg-white/20 mt-1 mb-1 relative overflow-hidden">
-                        <div className="absolute inset-y-0 left-0 bg-white w-full auth-slide"></div>
-                    </div>
-                    <span className="text-[9px] text-zinc-500 font-bold tracking-[0.2em] uppercase">
-                        Securing Connection
-                    </span>
-                </div>
+          <div className="flex flex-col items-center">
+            <div className="relative flex items-center justify-center w-32 h-32 mb-8">
+              <svg className="absolute inset-0 w-full h-full animate-[spin_4s_linear_infinite] opacity-30" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="48" fill="none" stroke="#fff" strokeWidth="1" strokeDasharray="4 4" />
+              </svg>
+              <svg className="absolute inset-0 w-full h-full rotate-[-90deg]" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#222" strokeWidth="2" />
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" className="auth-dash" />
+              </svg>
+              <div className="absolute w-10 h-10 border border-white/40 rotate-45 animate-[spin_3s_ease-in-out_infinite_reverse]" />
+              <div className="absolute w-10 h-10 border border-white/20 rotate-[20deg] animate-[spin_4s_ease-in-out_infinite]" />
+              <div className="absolute w-2 h-2 bg-white rounded-full auth-glow" />
             </div>
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-[12px] font-black tracking-[0.4em] uppercase text-white animate-pulse">Authenticating</span>
+              <div className="h-[2px] w-12 bg-white/20 mt-1 mb-1 relative overflow-hidden">
+                <div className="absolute inset-y-0 left-0 bg-white w-full auth-slide" />
+              </div>
+              <span className="text-[9px] text-zinc-500 font-bold tracking-[0.2em] uppercase">Securing Connection</span>
+            </div>
+          </div>
         </div>
       )}
+
       {/* ── LEFT — brand panel ── */}
       <div className="hidden lg:flex lg:w-[52%] relative overflow-hidden">
         <div
           className="absolute inset-0 bg-[url('/snitch-aesthetic.png')] bg-cover bg-center transition-transform duration-[25s] ease-out hover:scale-105"
           style={{ opacity: 0.75 }}
         />
-        {/* gradient vignettes */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#060606] via-[#060606]/30 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#060606]" />
 
-        {/* Brand copy */}
         <div className="relative z-10 flex flex-col justify-end h-full w-full p-14 pb-16">
           <div className="flex items-center gap-3 mb-6">
             <span className="text-[11px] text-zinc-400 font-semibold tracking-[0.28em] uppercase">Welcome Back</span>
             <div className="h-px w-10 bg-zinc-600" />
           </div>
-          <h1
-            className="text-[clamp(3.5rem,5.5vw,5rem)] text-white uppercase leading-[0.9] mb-4"
-            style={{ fontFamily: BEBAS, letterSpacing: '0.04em' }}
-          >
+          <h1 className="text-[clamp(3.5rem,5.5vw,5rem)] text-white uppercase leading-[0.9] mb-4" style={{ fontFamily: BEBAS, letterSpacing: '0.04em' }}>
             Snitch
           </h1>
           <p className="text-[14px] text-zinc-400 font-normal tracking-wide leading-[1.7] max-w-xs">
@@ -144,22 +123,16 @@ const Login = () => {
 
       {/* ── RIGHT — form panel ── */}
       <div className="flex-1 flex items-center justify-center p-6 sm:p-10 lg:p-14 relative overflow-y-auto">
-        {/* subtle ambient glow */}
         <div className="absolute top-1/3 right-0 w-80 h-80 bg-zinc-800 rounded-full filter blur-[160px] opacity-10 pointer-events-none" />
 
         <div className="w-full max-w-sm relative z-10">
 
           {/* Mobile wordmark */}
           <div className="lg:hidden mb-10">
-            <span
-              className="text-[2.5rem] text-white uppercase leading-none tracking-[0.06em]"
-              style={{ fontFamily: BEBAS }}
-            >
+            <span className="text-[2.5rem] text-white uppercase leading-none tracking-[0.06em]" style={{ fontFamily: BEBAS }}>
               Snitch
             </span>
-            <p className="text-[12px] text-zinc-500 font-semibold tracking-[0.2em] uppercase mt-1">
-              Welcome back
-            </p>
+            <p className="text-[12px] text-zinc-500 font-semibold tracking-[0.2em] uppercase mt-1">Welcome back</p>
           </div>
 
           {/* Heading */}
@@ -169,10 +142,7 @@ const Login = () => {
               <div className="h-px flex-1 bg-white/[0.06]" />
               <span className="text-[11px] text-zinc-500 font-bold tracking-[0.22em] uppercase">Sign In</span>
             </div>
-            <h2
-              className="text-[2.8rem] text-white uppercase leading-[0.9]"
-              style={{ fontFamily: BEBAS, letterSpacing: '0.04em' }}
-            >
+            <h2 className="text-[2.8rem] text-white uppercase leading-[0.9]" style={{ fontFamily: BEBAS, letterSpacing: '0.04em' }}>
               Log In
             </h2>
             <p className="mt-2 text-[13px] text-zinc-400 tracking-wide leading-[1.6]">
@@ -182,15 +152,14 @@ const Login = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-8">
-            {error && (
-              <div className="flex items-start gap-3 border border-red-800/60 bg-red-950/20 px-4 py-3">
-                <div className="w-[3px] self-stretch bg-red-500 shrink-0" />
-                <p className="text-red-300 text-[13px] font-medium tracking-wide">{error}</p>
-              </div>
+
+            {/* ── Error Banner ── */}
+            {reduxError && (
+              <ErrorBanner message={reduxError} onDismiss={() => dispatch(clearError())} />
             )}
 
-            <AuthField id="email" name="email" type="email" label="Email Address" icon={<Mail className="w-4 h-4" strokeWidth={1.5} />} value={formData.email} onChange={handleChange} required />
-            <AuthField id="password" name="password" type="password" label="Password" icon={<Lock className="w-4 h-4" strokeWidth={1.5} />} value={formData.password} onChange={handleChange} required />
+            <AuthField id="email"    name="email"    type="email"    label="Email Address" icon={<Mail className="w-4 h-4" strokeWidth={1.5} />} value={formData.email}    onChange={handleChange} required />
+            <AuthField id="password" name="password" type="password" label="Password"      icon={<Lock className="w-4 h-4" strokeWidth={1.5} />} value={formData.password} onChange={handleChange} required />
 
             <div className="pt-2 space-y-3">
               <AuthButton loading={isLoading} label="Sign In" />
@@ -210,7 +179,41 @@ const Login = () => {
   );
 };
 
-/* ── shared sub-components ── */
+/* ══════════════════════════════════════════
+   Shared — exported so Register.jsx can use them too
+══════════════════════════════════════════ */
+
+/** Red error banner that matches the app's dark aesthetic */
+export const ErrorBanner = ({ message, onDismiss }) => (
+  <div
+    role="alert"
+    className="flex items-start gap-3 border border-red-800/60 bg-red-950/20 px-4 py-3 animate-in fade-in slide-in-from-top-2 duration-300"
+  >
+    {/* left accent bar */}
+    <div className="w-[3px] self-stretch bg-red-500 shrink-0" />
+
+    {/* icon */}
+    <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-[1px]" strokeWidth={1.8} />
+
+    {/* message — direct from backend */}
+    <p className="text-red-300 text-[13px] font-medium tracking-wide leading-[1.5] flex-1">
+      {message}
+    </p>
+
+    {/* dismiss × */}
+    {onDismiss && (
+      <button
+        type="button"
+        onClick={onDismiss}
+        aria-label="Dismiss error"
+        className="text-red-700 hover:text-red-300 transition-colors duration-200 shrink-0 mt-[1px] cursor-pointer"
+      >
+        <X className="w-3.5 h-3.5" strokeWidth={2} />
+      </button>
+    )}
+  </div>
+);
+
 export const AuthField = ({ id, name, type, label, icon, value, onChange, required }) => (
   <div className="relative group">
     <div className="flex items-center gap-2 mb-2">

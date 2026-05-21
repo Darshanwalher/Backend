@@ -1,42 +1,44 @@
-import { body, validationResult} from "express-validator";
+import { body, validationResult } from "express-validator";
 
-function validateRequest(req,res,next){
+function validateRequest(req, res, next) {
     const errors = validationResult(req);
-    if(!errors.isEmpty()){
-        return res.status(400).json({errors: errors.array()});
+    if (!errors.isEmpty()) {
+        // Return the FIRST validation error as { message: "..." }
+        // so it matches every other backend error shape and
+        // error.response.data.message works on the frontend
+        const firstError = errors.array()[0].msg;
+        return res.status(400).json({ message: firstError });
     }
     next();
 }
 
 export const validateRegisterUser = [
     body("email")
-    .isEmail().withMessage("Please provide a valid email"),
+        .isEmail().withMessage("Please provide a valid email address"),
 
     body("contact")
-    .matches(/^\d{10}$/)
-    .withMessage("Please provide a valid contact number and it should be 10 digits long"),
+        .matches(/^\d{10}$/)
+        .withMessage("Contact number must be exactly 10 digits"),
 
     body("password")
-    .isLength({min:6}).withMessage("Password should be at least 6 characters long"),
+        .isLength({ min: 6 }).withMessage("Password must be at least 6 characters long"),
 
     body("fullname")
-    .notEmpty().withMessage("Full name is required")
-    .isLength({min:3}).withMessage("Full name should be at least 3 characters long"),
+        .notEmpty().withMessage("Full name is required")
+        .isLength({ min: 3 }).withMessage("Full name must be at least 3 characters long"),
 
     body("isSeller")
-    .isBoolean().withMessage("isSeller should be a boolean value"),
-    
+        .isBoolean().withMessage("isSeller must be a boolean value"),
 
-
-    validateRequest
-]
+    validateRequest,
+];
 
 export const validateLoginUser = [
     body("email")
-    .isEmail().withMessage("Please provide a valid email"),
-    
-    body("password")
-    .notEmpty().withMessage("Password should not be empty"),
+        .isEmail().withMessage("Please provide a valid email address"),
 
-    validateRequest
-]
+    body("password")
+        .notEmpty().withMessage("Password is required"),
+
+    validateRequest,
+];

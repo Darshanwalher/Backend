@@ -1,18 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Phone, Mail, Lock, Store, ArrowRight } from 'lucide-react';
 import { useAuth } from "../hook/useAuth.js";
 import { useNavigate } from 'react-router';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { clearError } from '../state/auth.slice.js';
 import ContinueWithGoogle from '../components/ContinueWithGoogle.jsx';
+import { ErrorBanner } from './Login.jsx';
 
 const BEBAS = "'Bebas Neue', sans-serif";
 const DM    = "'DM Sans', sans-serif";
 
 const Register = () => {
   const { handleRegister } = useAuth();
-  const navigate = useNavigate();
+  const navigate            = useNavigate();
+  const dispatch            = useDispatch();
 
   const isActionLoading = useSelector(state => state.auth?.loading);
+  const reduxError      = useSelector(state => state.auth?.error);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -21,13 +25,18 @@ const Register = () => {
     password: '',
     isSeller: false,
   });
-  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Clear redux error when this page unmounts
+  useEffect(() => {
+    return () => { dispatch(clearError()); };
+  }, [dispatch]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-    if (error) setError('');
+    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    // Clear error the moment the user starts correcting their input
+    if (reduxError) dispatch(clearError());
   };
 
   const handleSubmit = async (e) => {
@@ -35,15 +44,15 @@ const Register = () => {
     setIsLoading(true);
     try {
       await handleRegister({
-        email: formData.email,
-        contact: formData.contactNumber,
+        email:    formData.email,
+        contact:  formData.contactNumber,
         password: formData.password,
         fullname: formData.fullName,
         isSeller: formData.isSeller,
       });
       navigate('/');
-    } catch (err) {
-      setError(err?.response?.data?.message || 'Registration failed. Please try again.');
+    } catch {
+      // Error is already in Redux (dispatched by useAuth) — nothing to do here
     } finally {
       setIsLoading(false);
     }
@@ -54,75 +63,53 @@ const Register = () => {
       className="h-screen w-full overflow-hidden flex bg-[#060606] text-white selection:bg-white selection:text-black"
       style={{ fontFamily: DM }}
     >
-      {/* ══ STUNNING AUTH PROCESSING OVERLAY ══ */}
+      {/* ══ AUTH PROCESSING OVERLAY ══ */}
       {isActionLoading && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-xl animate-in fade-in duration-500">
-            <style>{`
-                @keyframes authDash {
-                    0% { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
-                    50% { stroke-dasharray: 90, 200; stroke-dashoffset: -35px; }
-                    100% { stroke-dasharray: 90, 200; stroke-dashoffset: -124px; }
-                }
-                .auth-dash { animation: authDash 2s ease-in-out infinite; }
-                
-                @keyframes expandGlow {
-                    0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.2); }
-                    100% { box-shadow: 0 0 0 20px rgba(255,255,255,0); }
-                }
-                .auth-glow { animation: expandGlow 1.5s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
-                
-                @keyframes slideLine {
-                    0% { transform: translateX(-100%); }
-                    50% { transform: translateX(0); }
-                    100% { transform: translateX(100%); }
-                }
-                .auth-slide { animation: slideLine 1.5s ease-in-out infinite; }
-            `}</style>
-            
-            <div className="flex flex-col items-center">
-                {/* Geometric Animation */}
-                <div className="relative flex items-center justify-center w-32 h-32 mb-8">
-                    {/* Outer spinning ring */}
-                    <svg className="absolute inset-0 w-full h-full animate-[spin_4s_linear_infinite] opacity-30" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="48" fill="none" stroke="#fff" strokeWidth="1" strokeDasharray="4 4" />
-                    </svg>
-                    
-                    {/* SVG Stroke animation */}
-                    <svg className="absolute inset-0 w-full h-full rotate-[-90deg]" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="#222" strokeWidth="2" />
-                        <circle 
-                            cx="50" cy="50" r="40" 
-                            fill="none" 
-                            stroke="#fff" 
-                            strokeWidth="2" 
-                            strokeLinecap="round" 
-                            className="auth-dash"
-                        />
-                    </svg>
-                    
-                    {/* Inner morphing squares */}
-                    <div className="absolute w-10 h-10 border border-white/40 rotate-45 animate-[spin_3s_ease-in-out_infinite_reverse]"></div>
-                    <div className="absolute w-10 h-10 border border-white/20 rotate-[20deg] animate-[spin_4s_ease-in-out_infinite]"></div>
-                    
-                    {/* Center dot with expanding glow */}
-                    <div className="absolute w-2 h-2 bg-white rounded-full auth-glow"></div>
-                </div>
+          <style>{`
+            @keyframes authDash {
+              0%   { stroke-dasharray: 1, 200;  stroke-dashoffset: 0; }
+              50%  { stroke-dasharray: 90, 200; stroke-dashoffset: -35px; }
+              100% { stroke-dasharray: 90, 200; stroke-dashoffset: -124px; }
+            }
+            .auth-dash  { animation: authDash  2s   ease-in-out infinite; }
+            @keyframes expandGlow {
+              0%   { box-shadow: 0 0 0 0px  rgba(255,255,255,0.2); }
+              100% { box-shadow: 0 0 0 20px rgba(255,255,255,0);   }
+            }
+            .auth-glow  { animation: expandGlow 1.5s cubic-bezier(0.16,1,0.3,1) infinite; }
+            @keyframes slideLine {
+              0%   { transform: translateX(-100%); }
+              50%  { transform: translateX(0);     }
+              100% { transform: translateX(100%);  }
+            }
+            .auth-slide { animation: slideLine 1.5s ease-in-out infinite; }
+          `}</style>
 
-                {/* Typography */}
-                <div className="flex flex-col items-center gap-2 overflow-hidden">
-                    <span className="text-[12px] font-black tracking-[0.4em] uppercase text-white animate-pulse">
-                        Creating Account
-                    </span>
-                    <div className="h-[2px] w-12 bg-white/20 mt-1 mb-1 relative overflow-hidden">
-                        <div className="absolute inset-y-0 left-0 bg-white w-full auth-slide"></div>
-                    </div>
-                    <span className="text-[9px] text-zinc-500 font-bold tracking-[0.2em] uppercase">
-                        Establishing Identity
-                    </span>
-                </div>
+          <div className="flex flex-col items-center">
+            <div className="relative flex items-center justify-center w-32 h-32 mb-8">
+              <svg className="absolute inset-0 w-full h-full animate-[spin_4s_linear_infinite] opacity-30" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="48" fill="none" stroke="#fff" strokeWidth="1" strokeDasharray="4 4" />
+              </svg>
+              <svg className="absolute inset-0 w-full h-full rotate-[-90deg]" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#222" strokeWidth="2" />
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" className="auth-dash" />
+              </svg>
+              <div className="absolute w-10 h-10 border border-white/40 rotate-45 animate-[spin_3s_ease-in-out_infinite_reverse]" />
+              <div className="absolute w-10 h-10 border border-white/20 rotate-[20deg] animate-[spin_4s_ease-in-out_infinite]" />
+              <div className="absolute w-2 h-2 bg-white rounded-full auth-glow" />
             </div>
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-[12px] font-black tracking-[0.4em] uppercase text-white animate-pulse">Creating Account</span>
+              <div className="h-[2px] w-12 bg-white/20 mt-1 mb-1 relative overflow-hidden">
+                <div className="absolute inset-y-0 left-0 bg-white w-full auth-slide" />
+              </div>
+              <span className="text-[9px] text-zinc-500 font-bold tracking-[0.2em] uppercase">Establishing Identity</span>
+            </div>
+          </div>
         </div>
       )}
+
       {/* ── LEFT — brand panel ── */}
       <div className="hidden lg:flex lg:w-[52%] relative overflow-hidden">
         <div
@@ -137,10 +124,7 @@ const Register = () => {
             <span className="text-[11px] text-zinc-400 font-semibold tracking-[0.28em] uppercase">Join the Movement</span>
             <div className="h-px w-10 bg-zinc-600" />
           </div>
-          <h1
-            className="text-[clamp(3.5rem,5.5vw,5rem)] text-white uppercase leading-[0.9] mb-4"
-            style={{ fontFamily: BEBAS, letterSpacing: '0.04em' }}
-          >
+          <h1 className="text-[clamp(3.5rem,5.5vw,5rem)] text-white uppercase leading-[0.9] mb-4" style={{ fontFamily: BEBAS, letterSpacing: '0.04em' }}>
             Snitch
           </h1>
           <p className="text-[13px] text-zinc-400 tracking-wide leading-[1.7] max-w-xs">
@@ -149,24 +133,18 @@ const Register = () => {
         </div>
       </div>
 
-      {/* ── RIGHT — form panel (no scroll) ── */}
+      {/* ── RIGHT — form panel ── */}
       <div className="flex-1 h-full flex items-center justify-center px-6 sm:px-10 lg:px-14 relative overflow-hidden">
-        {/* ambient glow */}
         <div className="absolute top-1/3 right-0 w-80 h-80 bg-zinc-800 rounded-full filter blur-[160px] opacity-10 pointer-events-none" />
 
         <div className="w-full max-w-sm relative z-10">
 
           {/* Mobile wordmark */}
           <div className="lg:hidden mb-6">
-            <span
-              className="text-[2.2rem] text-white uppercase leading-none tracking-[0.06em]"
-              style={{ fontFamily: BEBAS }}
-            >
+            <span className="text-[2.2rem] text-white uppercase leading-none tracking-[0.06em]" style={{ fontFamily: BEBAS }}>
               Snitch
             </span>
-            <p className="text-[11px] text-zinc-500 font-semibold tracking-[0.2em] uppercase mt-0.5">
-              Join the movement
-            </p>
+            <p className="text-[11px] text-zinc-500 font-semibold tracking-[0.2em] uppercase mt-0.5">Join the movement</p>
           </div>
 
           {/* Heading */}
@@ -176,10 +154,7 @@ const Register = () => {
               <div className="h-px flex-1 bg-white/[0.06]" />
               <span className="text-[10px] text-zinc-500 font-bold tracking-[0.22em] uppercase">New Account</span>
             </div>
-            <h2
-              className="text-[2.4rem] text-white uppercase leading-[0.9]"
-              style={{ fontFamily: BEBAS, letterSpacing: '0.04em' }}
-            >
+            <h2 className="text-[2.4rem] text-white uppercase leading-[0.9]" style={{ fontFamily: BEBAS, letterSpacing: '0.04em' }}>
               Register
             </h2>
             <p className="mt-1.5 text-[12px] text-zinc-400 tracking-wide leading-[1.6]">
@@ -189,17 +164,16 @@ const Register = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {error && (
-              <div className="flex items-start gap-3 border border-red-800/60 bg-red-950/20 px-3 py-2.5">
-                <div className="w-[3px] self-stretch bg-red-500 shrink-0" />
-                <p className="text-red-300 text-[12px] font-medium tracking-wide">{error}</p>
-              </div>
+
+            {/* ── Error Banner — shows the exact backend message ── */}
+            {reduxError && (
+              <ErrorBanner message={reduxError} onDismiss={() => dispatch(clearError())} />
             )}
 
             {/* Two-column row: Full Name + Contact */}
             <div className="grid grid-cols-2 gap-4">
-              <CompactField id="fullName"      name="fullName"      type="text"  label="Full Name"    icon={<User  className="w-3.5 h-3.5" strokeWidth={1.5} />} value={formData.fullName}      onChange={handleChange} required />
-              <CompactField id="contactNumber" name="contactNumber" type="tel"   label="Contact"      icon={<Phone className="w-3.5 h-3.5" strokeWidth={1.5} />} value={formData.contactNumber} onChange={handleChange} required />
+              <CompactField id="fullName"      name="fullName"      type="text" label="Full Name" icon={<User  className="w-3.5 h-3.5" strokeWidth={1.5} />} value={formData.fullName}      onChange={handleChange} required />
+              <CompactField id="contactNumber" name="contactNumber" type="tel"  label="Contact"   icon={<Phone className="w-3.5 h-3.5" strokeWidth={1.5} />} value={formData.contactNumber} onChange={handleChange} required />
             </div>
 
             <CompactField id="email"    name="email"    type="email"    label="Email Address" icon={<Mail className="w-3.5 h-3.5" strokeWidth={1.5} />} value={formData.email}    onChange={handleChange} required />
@@ -208,26 +182,17 @@ const Register = () => {
             {/* isSeller toggle */}
             <div
               className="flex items-center gap-2.5 cursor-pointer group"
-              onClick={() => setFormData((p) => ({ ...p, isSeller: !p.isSeller }))}
+              onClick={() => setFormData(p => ({ ...p, isSeller: !p.isSeller }))}
             >
-              <div
-                className={`w-3.5 h-3.5 shrink-0 flex items-center justify-center border transition-all duration-300 ${
-                  formData.isSeller ? 'bg-white border-white' : 'border-zinc-600 group-hover:border-zinc-400'
-                }`}
-              >
+              <div className={`w-3.5 h-3.5 shrink-0 flex items-center justify-center border transition-all duration-300 ${formData.isSeller ? 'bg-white border-white' : 'border-zinc-600 group-hover:border-zinc-400'}`}>
                 {formData.isSeller && (
                   <svg className="w-2 h-2 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.5" d="M5 13l4 4L19 7" />
                   </svg>
                 )}
               </div>
-              <Store
-                className={`w-3.5 h-3.5 transition-colors duration-300 ${formData.isSeller ? 'text-white' : 'text-zinc-600 group-hover:text-zinc-400'}`}
-                strokeWidth={1.5}
-              />
-              <span className={`text-[12px] tracking-wide select-none transition-colors duration-300 font-medium ${
-                formData.isSeller ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-300'
-              }`}>
+              <Store className={`w-3.5 h-3.5 transition-colors duration-300 ${formData.isSeller ? 'text-white' : 'text-zinc-600 group-hover:text-zinc-400'}`} strokeWidth={1.5} />
+              <span className={`text-[12px] tracking-wide select-none transition-colors duration-300 font-medium ${formData.isSeller ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-300'}`}>
                 Register as a Seller
               </span>
             </div>
@@ -259,7 +224,7 @@ const Register = () => {
   );
 };
 
-/* ── Compact field (tighter than Login's full-size AuthField) ── */
+/* ── Compact field (tighter spacing than Login's AuthField) ── */
 const CompactField = ({ id, name, type, label, icon, value, onChange, required }) => (
   <div className="relative group">
     <div className="flex items-center gap-1.5 mb-1.5">
