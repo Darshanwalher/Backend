@@ -1,128 +1,172 @@
 import { useDispatch } from "react-redux";
-import { addProductVariant, createProduct, deleteProduct, getAllProducts, getProductById, getSellerProducts,deleteProductVariant, updateProductVariant, updateProduct } from "../service/product.api.js";
-import { setSellerProducts,setProducts,setDeleteProduct,setDeleteProductVariant, setUpdateProductVariant, setUpdateProduct,setLoading } from "../state/product.slice.js";
+import {
+    addProductVariant,
+    createProduct,
+    deleteProduct,
+    getAllProducts,
+    getProductById,
+    getSellerProducts,
+    deleteProductVariant,
+    updateProductVariant,
+    updateProduct,
+} from "../service/product.api.js";
+import {
+    setSellerProducts,
+    setProducts,
+    setDeleteProduct,
+    setDeleteProductVariant,
+    setUpdateProductVariant,
+    setUpdateProduct,
+    setLoading,
+    setError,
+    clearError,
+} from "../state/product.slice.js";
 
-export const useProduct = ()=>{
+export const useProduct = () => {
 
     const dispatch = useDispatch();
 
+    /**
+     * Extracts a human-readable message from an axios error.
+     * Priority: server JSON message → axios message → fallback string
+     */
+    const extractMessage = (error, fallback) =>
+        error?.response?.data?.message || error?.message || fallback;
+
     async function handleCreateProduct(formData) {
+        dispatch(setLoading(true));
+        dispatch(clearError());
         try {
-            dispatch(setLoading(true));
             const data = await createProduct(formData);
             return data.product;
         } catch (error) {
-            console.error("Error creating product:", error);
+            const message = extractMessage(error, "Failed to create product. Please try again.");
+            dispatch(setError(message));
             throw error;
         } finally {
             dispatch(setLoading(false));
         }
-    } 
+    }
 
-    async function handleGetSellerProducts(){
+    async function handleGetSellerProducts() {
+        dispatch(setLoading(true));
+        dispatch(clearError());
         try {
-            dispatch(setLoading(true));
             const data = await getSellerProducts();
             dispatch(setSellerProducts(data.products));
             return data.products;
         } catch (error) {
-            console.error("Error getting seller products:", error);
+            const message = extractMessage(error, "Failed to fetch your products.");
+            dispatch(setError(message));
             throw error;
         } finally {
             dispatch(setLoading(false));
         }
     }
 
-    async function handleGetAllProducts(){
+    async function handleGetAllProducts() {
+        dispatch(setLoading(true));
+        dispatch(clearError());
         try {
-            dispatch(setLoading(true));
             const data = await getAllProducts();
             dispatch(setProducts(data.products));
         } catch (error) {
-            console.error("Error getting all products:", error);
+            const message = extractMessage(error, "Failed to fetch products.");
+            dispatch(setError(message));
             throw error;
         } finally {
             dispatch(setLoading(false));
         }
     }
 
-    async function handleGetProductById(productId){
+    async function handleGetProductById(productId) {
+        dispatch(setLoading(true));
+        dispatch(clearError());
         try {
-            dispatch(setLoading(true));
             const data = await getProductById(productId);
             return data.product;
         } catch (error) {
-            console.error("Error getting product by ID:", error);
+            const message = extractMessage(error, "Failed to fetch product details.");
+            dispatch(setError(message));
             throw error;
         } finally {
             dispatch(setLoading(false));
         }
     }
 
-    async function handleAddProductVariant(productId,newProductVariant){
+    async function handleAddProductVariant(productId, newProductVariant) {
+        dispatch(setLoading(true));
+        dispatch(clearError());
         try {
-            dispatch(setLoading(true));
-            const data = await addProductVariant(productId,newProductVariant);
+            const data = await addProductVariant(productId, newProductVariant);
             return data;
         } catch (error) {
-            console.error("Error adding product variant:", error);
+            const message = extractMessage(error, "Failed to add product variant.");
+            dispatch(setError(message));
             throw error;
         } finally {
             dispatch(setLoading(false));
         }
     }
 
-    async function handleDeleteProduct(productId){
+    async function handleDeleteProduct(productId) {
+        dispatch(setLoading(true));
+        dispatch(clearError());
         try {
-            dispatch(setLoading(true));
             const data = await deleteProduct(productId);
             dispatch(setDeleteProduct(productId));
             return data.product;
         } catch (error) {
-            console.error("Error deleting product:", error);
+            const message = extractMessage(error, "Failed to delete product.");
+            dispatch(setError(message));
             throw error;
         } finally {
             dispatch(setLoading(false));
         }
     }
 
-    async function handleDeleteProductVariant(productId,variantId){
+    async function handleDeleteProductVariant(productId, variantId) {
+        dispatch(setLoading(true));
+        dispatch(clearError());
         try {
-            dispatch(setLoading(true));
-            const data = await deleteProductVariant(productId,variantId);
-            dispatch(setDeleteProductVariant({productId, variantId}));
+            const data = await deleteProductVariant(productId, variantId);
+            dispatch(setDeleteProductVariant({ productId, variantId }));
             return data.product;
         } catch (error) {
-            console.error("Error deleting product variant:", error);
+            const message = extractMessage(error, "Failed to delete product variant.");
+            dispatch(setError(message));
             throw error;
         } finally {
             dispatch(setLoading(false));
         }
     }
 
-    async function handleUpdateProductVariant(productId, variantId, updatedVariant){
+    async function handleUpdateProductVariant(productId, variantId, updatedVariant) {
+        dispatch(setLoading(true));
+        dispatch(clearError());
         try {
-            dispatch(setLoading(true));
             const data = await updateProductVariant(productId, variantId, updatedVariant);
-            // Assuming setUpdateProductVariant updates the redux state with the updated product
-            dispatch(setUpdateProductVariant({productId, variantId, variant: data.product})); 
+            dispatch(setUpdateProductVariant({ productId, variantId, variant: data.product }));
             return data.product;
         } catch (error) {
-            console.error("Error updating product variant:", error);
+            const message = extractMessage(error, "Failed to update product variant.");
+            dispatch(setError(message));
             throw error;
         } finally {
             dispatch(setLoading(false));
         }
     }
 
-    async function handleUpdateProduct(productId, updatedProduct){
+    async function handleUpdateProduct(productId, updatedProduct) {
+        dispatch(setLoading(true));
+        dispatch(clearError());
         try {
-            dispatch(setLoading(true));
             const data = await updateProduct(productId, updatedProduct);
             dispatch(setUpdateProduct(data.product));
             return data.product;
         } catch (error) {
-            console.error("Error updating product:", error);
+            const message = extractMessage(error, "Failed to update product.");
+            dispatch(setError(message));
             throw error;
         } finally {
             dispatch(setLoading(false));
@@ -138,7 +182,6 @@ export const useProduct = ()=>{
         handleDeleteProduct,
         handleDeleteProductVariant,
         handleUpdateProductVariant,
-        handleUpdateProduct
-    }
-}
-
+        handleUpdateProduct,
+    };
+};

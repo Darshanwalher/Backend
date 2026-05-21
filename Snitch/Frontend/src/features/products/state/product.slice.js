@@ -1,66 +1,82 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const productSlice = createSlice({
-    name:"product",
-    initialState:{
-        sellerProducts:[],
-        products:[],
-        loading:false,
+    name: "product",
+    initialState: {
+        sellerProducts: [],
+        products: [],
+        loading: false,
+        error: null,
     },
-    reducers:{
-        setSellerProducts:(state,action)=>{
+    reducers: {
+        setSellerProducts: (state, action) => {
             state.sellerProducts = action.payload;
         },
-        setProducts:(state,action)=>{
+
+        setProducts: (state, action) => {
             state.products = action.payload;
-        }
-        ,
+        },
+
         setDeleteProduct(state, action) {
             state.products = state.products.filter((p) => p.id !== action.payload);
         },
-        setDeleteProductVariant:(state,action)=>{
-            state.sellerProducts = state.sellerProducts.map((p)=>{
-                if(p.id === action.payload.productId){
-                    p.variants = p.variants.filter((v)=>v.id !== action.payload.variantId)
+
+        setDeleteProductVariant: (state, action) => {
+            state.sellerProducts = state.sellerProducts.map((p) => {
+                if (p.id === action.payload.productId) {
+                    p.variants = p.variants.filter((v) => v.id !== action.payload.variantId);
                 }
-                return p
-            })
+                return p;
+            });
         },
-        setUpdateProductVariant:(state,action)=>{
-            state.sellerProducts = state.sellerProducts.map((p)=>{
-                if(p.id === action.payload.productId){
-                    p.variants = p.variants.map((v)=>{
-                        if(v.id === action.payload.variantId){
+
+        setUpdateProductVariant: (state, action) => {
+            state.sellerProducts = state.sellerProducts.map((p) => {
+                if (p.id === action.payload.productId) {
+                    p.variants = p.variants.map((v) => {
+                        if (v.id === action.payload.variantId) {
                             return action.payload.variant;
                         }
                         return v;
-                    })
+                    });
                 }
-                return p
-            })
+                return p;
+            });
         },
-        setUpdateProduct:(state,action)=>{
-            state.products = state.products.map((p)=>{
-                if(p.id === action.payload.id){
-                    return action.payload;
-                }
-                return p
-            })
-            state.sellerProducts = state.sellerProducts.map((p)=>{
-                if(p.id === action.payload.id){
-                    return action.payload;
-                }
-                return p
-            })  
+
+        setUpdateProduct: (state, action) => {
+            state.products = state.products.map((p) =>
+                p.id === action.payload.id ? action.payload : p
+            );
+            state.sellerProducts = state.sellerProducts.map((p) =>
+                p.id === action.payload.id ? action.payload : p
+            );
         },
-        setLoading:(state,action)=>{
+
+        setLoading: (state, action) => {
             state.loading = action.payload;
-        }
+        },
 
-    }
-    
+        setError: (state, action) => {
+            state.error = action.payload;
+        },
 
-})
+        clearError: (state) => {
+            state.error = null;
+        },
+    },
+});
 
-export const {setSellerProducts,setProducts,setDeleteProduct,setDeleteProductVariant,setUpdateProductVariant,setUpdateProduct,setLoading} = productSlice.actions;
+export const {
+    setSellerProducts,
+    setProducts,
+    setDeleteProduct,
+    setDeleteProductVariant,
+    setUpdateProductVariant,
+    setUpdateProduct,
+    setLoading,
+    setError,
+    clearError,
+} = productSlice.actions;
+
 export default productSlice.reducer;

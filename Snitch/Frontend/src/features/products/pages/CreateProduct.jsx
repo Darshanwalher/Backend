@@ -9,9 +9,11 @@ import {
   Home,
 } from "lucide-react";
 import { useProduct } from "../hooks/useProduct";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { clearError } from "../state/product.slice.js";
 import { useNavigate } from "react-router";
 import Nav from "../../Shared/Components/Nav";
+import { ErrorBanner } from "../../auth/pages/Login.jsx";
 const MAX_IMAGES = 7;
 const DESC_MAX = 600;
 
@@ -28,6 +30,7 @@ const CURRENCY_OPTIONS = [
 const CreateProduct = () => {
   const { handleCreateProduct } = useProduct();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -35,12 +38,18 @@ const CreateProduct = () => {
     priceAmount: "",
     priceCurrency: "USD",
   });
-  const [images, setImages]         = useState([]);
+  const [images, setImages]             = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError]           = useState("");
-  const [success, setSuccess]       = useState(false);
-  const [dragOver, setDragOver]     = useState(false);
+  const [success, setSuccess]           = useState(false);
+  const [dragOver, setDragOver]         = useState(false);
+
   const isActionLoading = useSelector((state) => state.product?.loading);
+  const reduxError      = useSelector((state) => state.product?.error);
+
+  // Clear product error when this page unmounts
+  useEffect(() => {
+    return () => { dispatch(clearError()); };
+  }, [dispatch]);
 
   const fileInputRef = useRef(null);
 
@@ -48,7 +57,8 @@ const CreateProduct = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (error) setError("");
+    // Clear error the moment the user starts correcting input
+    if (reduxError) dispatch(clearError());
   };
 
   const addFiles = (files) => {
@@ -80,20 +90,14 @@ const CreateProduct = () => {
 
   const resetForm = () => {
     setFormData({ title: "", description: "", priceAmount: "", priceCurrency: "USD" });
-    // revoke all blob URLs before clearing
     images.forEach(({ preview }) => URL.revokeObjectURL(preview));
     setImages([]);
-    setError("");
+    dispatch(clearError());
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title.trim())               return setError("Product title is required.");
-    if (!formData.priceAmount || isNaN(Number(formData.priceAmount)))
-      return setError("Enter a valid price amount.");
-
     setIsSubmitting(true);
-    setError("");
     try {
       const fd = new FormData();
       fd.append("title",         formData.title.trim());
@@ -105,8 +109,8 @@ const CreateProduct = () => {
       resetForm();
       setSuccess(true);
       setTimeout(() => setSuccess(false), 4000);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Something went wrong. Please try again.");
+    } catch {
+      // Error is already dispatched to Redux by useProduct — nothing extra needed
     } finally {
       setIsSubmitting(false);
     }
@@ -215,13 +219,11 @@ const CreateProduct = () => {
                 </div>
               )}
 
-              {error && (
-                <div className="flex items-start gap-3 border border-red-800/60 bg-red-950/25 px-4 py-3">
-                  <div className="w-[3px] self-stretch bg-red-500 shrink-0" />
-                  <p className="text-red-300 text-[13px] font-medium tracking-wide leading-relaxed">
-                    {error}
-                  </p>
-                </div>
+              {reduxError && (
+                <ErrorBanner
+                  message={reduxError}
+                  onDismiss={() => dispatch(clearError())}
+                />
               )}
 
               {/* 01 — Title */}
