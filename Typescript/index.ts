@@ -19,5 +19,10 @@ function getUserinfo1(data:User): void{
     console.log(data.name+ " " + data.age + " " + data.isAdmin);
 }
 
+function getUserinfo12(data:User): void{
+    console.log(data.name+ " " + data.age + " " + data.isAdmin);
+}
+
 getUserinfo(user)
 getUserinfo1(user)
+getUserinfo12(user)
