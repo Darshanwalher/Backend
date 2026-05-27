@@ -1,5 +1,5 @@
 import { V1VolumeMount } from '@kubernetes/client-node';
-import {k8sCoreApi} from './config.js';
+import { k8sCoreApi } from './config.js';
 
 export async function createPod(sandboxId) {
 
@@ -19,7 +19,7 @@ export async function createPod(sandboxId) {
                     emptyDir: {}
                 }
             ],
-            
+
             initContainers: [
                 {
                     image: "template",
@@ -84,7 +84,7 @@ export async function createPod(sandboxId) {
             ]
         }
     };
-    
+
     const response = await k8sCoreApi.createNamespacedPod({
         namespace: 'default',
         body: podManifest
