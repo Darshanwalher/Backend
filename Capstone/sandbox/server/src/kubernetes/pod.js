@@ -1,3 +1,4 @@
+import { V1VolumeMount } from '@kubernetes/client-node';
 import {k8sCoreApi} from './config.js';
 
 export async function createPod(sandboxId) {
@@ -11,6 +12,29 @@ export async function createPod(sandboxId) {
             }
         },
         spec: {
+
+            volumes: [
+                {
+                    name: "workspace-volume",
+                    emptyDir: {}
+                }
+            ],
+            
+            initContainers: [
+                {
+                    image: "template",
+                    imagePullPolicy: "IfNotPresent",
+                    name: "init-container",
+                    command: ["sh", "-c", "cp -r /workspace/* /seed/"],
+                    volumeMounts: [
+                        {
+                            name: "workspace-volume",
+                            mountPath: "/seed"
+                        }
+                    ]
+                }
+            ],
+
             containers: [
                 {
                     image: "template",
@@ -26,8 +50,36 @@ export async function createPod(sandboxId) {
                             cpu: "250m",
                             memory: "500Mi"
                         }
-                    }
+                    },
+                    volumeMounts: [
+                        {
+                            name: "workspace-volume",
+                            mountPath: "/workspace"
+                        }
+                    ]
 
+                },
+                {
+                    image: "agent",
+                    imagePullPolicy: "IfNotPresent",
+                    name: "agent-container",
+                    ports: [{ containerPort: 3000, name: "http" }],
+                    resources: {
+                        limits: {
+                            cpu: "500m",
+                            memory: "1Gi"
+                        },
+                        requests: {
+                            cpu: "250m",
+                            memory: "500Mi"
+                        }
+                    },
+                    volumeMounts: [
+                        {
+                            name: "workspace-volume",
+                            mountPath: "/workspace"
+                        }
+                    ],
                 }
             ]
         }
