@@ -1,26 +1,20 @@
 import "dotenv/config";
 import { ChatMistralAI } from "@langchain/mistralai";
 import { listFiles, readFiles, updateFiles } from "./tools.js";
-import { createAgent } from "langchain";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
 
 const model = new ChatMistralAI({
-    temperature: 0.7,
-    model: "mistral-medium-latest",
+    temperature: 0.2,
+    model: "mistral-large-latest",
     apiKey: process.env.MISTRAL_API_KEY
 });
 
-const agent = createAgent({
-    model,
+const agent = createReactAgent({
+    llm: model,
     tools: [listFiles, readFiles, updateFiles],
-    
 });
 
-const result = await agent.invoke({
-    messages: [
-        {
-            role: "user",
-            content: "create a somple snake game using react and css use dark theme"
-        }
-    ]
-});
+export default agent;
+
+
 

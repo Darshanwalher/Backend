@@ -7,9 +7,18 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
-    allowedHosts: true,
+    allowedHosts: 'all',
     hmr: {
-      clientPort: 80,  // Browser connects via ingress on port 80
+      // Browser connects via ingress on port 80 at {sandboxId}.preview.localhost
+      // Vite must tell its client JS to open the HMR WebSocket back to that same host/port
+      clientPort: 80,
+      protocol: 'ws',
     },
+    watch: {
+      usePolling: true,
+      interval: 300,
+      ignored: ['node_modules']
+    }
   }
 })
+

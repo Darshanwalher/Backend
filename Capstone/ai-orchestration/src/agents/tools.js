@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { tool } from 'langchain';
+import { tool } from '@langchain/core/tools';
 import * as z from "zod";
 
 export const listFiles = tool(
@@ -9,14 +9,7 @@ export const listFiles = tool(
         console.log("using list_files tools ");
         console.log("======================================")
 
-        const response = await axios.get(
-            "http://127.0.0.1/list-files",
-            {
-                headers: {
-                    Host: "019e6add-6c97-75ca-a468-5bad36d159df.agent.localhost"
-                }
-            }
-        );
+        const response = await axios.get("http://sandbox-service-019e72db-43c3-700c-80fb-4c36e56ae325:3000/list-files",);
 
         console.log("=====================================")
         console.log("response from the list files", response.data)
@@ -38,14 +31,8 @@ export const readFiles = tool(
         console.log("using read_files tools with files ", files);
         console.log("======================================")
 
-        const response = await axios.get(
-            `http://127.0.0.1/read-files?files=${files.join(',')}`,
-            {
-                headers: {
-                    Host: "019e6abd-8094-7208-a784-8013a8335e3d.agent.localhost"
-                }
-            }
-        );
+        const response = await axios.get(`http://sandbox-service-019e72db-43c3-700c-80fb-4c36e56ae325:3000/read-files?files=${files.join(',')}`)
+        
 
         console.log("=====================================")
         console.log("response from the read files", response.data)
@@ -72,14 +59,9 @@ export const updateFiles = tool(
         console.log("======================================")
 
         const response = await axios.patch(
-            "http://127.0.0.1/update-files",
+            "http://sandbox-service-019e72db-43c3-700c-80fb-4c36e56ae325:3000/update-files",
             {
                 updates: files
-            },
-            {
-                headers: {
-                    Host: "019e6add-6c97-75ca-a468-5bad36d159df.agent.localhost"
-                }
             }
         );
 
