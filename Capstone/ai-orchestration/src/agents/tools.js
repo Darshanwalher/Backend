@@ -3,13 +3,14 @@ import { tool } from '@langchain/core/tools';
 import * as z from "zod";
 
 export const listFiles = tool(
-    async ({ }) => {
+    async ({ }, config) => {
+        const sandboxId = config?.configurable?.sandboxId || '019e7358-c2e5-7299-92f8-0ba2268f0f34';
 
         console.log("=====================================")
-        console.log("using list_files tools ");
+        console.log(`using list_files tools for sandbox: ${sandboxId}`);
         console.log("======================================")
 
-        const response = await axios.get("http://sandbox-service-019e72db-43c3-700c-80fb-4c36e56ae325:3000/list-files",);
+        const response = await axios.get(`http://sandbox-service-${sandboxId}:3000/list-files`);
 
         console.log("=====================================")
         console.log("response from the list files", response.data)
@@ -25,14 +26,15 @@ export const listFiles = tool(
 );
 
 export const readFiles = tool(
-    async ({ files = [] }) => {
+    async ({ files = [] }, config) => {
+        const sandboxId = config?.configurable?.sandboxId || '019e7358-c2e5-7299-92f8-0ba2268f0f34';
 
         console.log("=====================================")
-        console.log("using read_files tools with files ", files);
+        console.log(`using read_files tools with files for sandbox ${sandboxId}: `, files);
         console.log("======================================")
 
-        const response = await axios.get(`http://sandbox-service-019e72db-43c3-700c-80fb-4c36e56ae325:3000/read-files?files=${files.join(',')}`)
-        
+        const response = await axios.get(`http://sandbox-service-${sandboxId}:3000/read-files?files=${files.join(',')}`)
+
 
         console.log("=====================================")
         console.log("response from the read files", response.data)
@@ -51,15 +53,16 @@ export const readFiles = tool(
 
 
 export const updateFiles = tool(
-    async ({ files = [] }) => {
+    async ({ files = [] }, config) => {
+        const sandboxId = config?.configurable?.sandboxId || '019e7358-c2e5-7299-92f8-0ba2268f0f34';
 
 
         console.log("=====================================")
-        console.log("using update_files tools with files ", files);
+        console.log(`using update_files tools with files for sandbox ${sandboxId}: `, files);
         console.log("======================================")
 
         const response = await axios.patch(
-            "http://sandbox-service-019e72db-43c3-700c-80fb-4c36e56ae325:3000/update-files",
+            `http://sandbox-service-${sandboxId}:3000/update-files`,
             {
                 updates: files
             }
