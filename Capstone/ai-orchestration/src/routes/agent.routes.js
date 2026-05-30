@@ -37,7 +37,13 @@ agentRouter.post('/invoke', async (req, res) => {
         const { message } = req.body;
         const sandboxId = getSandboxId(req);
 
-        console.log(`[Agent API] Invoking agent for sandboxId: ${sandboxId}`);
+        res.writeHead(200, {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive'
+        });
+
+        const writer = (text) => res.write(text);
 
         if (!sandboxId) {
             return res.status(400).json({
@@ -45,7 +51,7 @@ agentRouter.post('/invoke', async (req, res) => {
             });
         }
 
-        const response = await agent.invoke(
+        const response = await agent.stream(
             {
                 messages: [
                     {
@@ -57,14 +63,19 @@ agentRouter.post('/invoke', async (req, res) => {
             {
                 configurable: {
                     sandboxId: sandboxId
-                }
+                },
+                streamMode: "custom"
             }
         );
 
-        const finalMessage = response.messages[response.messages.length - 1];
+        for await (const chunk of response) {
+            console.log(chunk);
+            res.write(`data: ${JSON.stringify(chunk)}\n\n`)
+        }
+
 
         res.json({
-            response: finalMessage.content
+            response
         });
     } catch (error) {
         console.error("Error invoking agent:", error);
