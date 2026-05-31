@@ -20,7 +20,7 @@ export default function WelcomeScreen({ onCreateSandbox, isMockMode, toggleMockM
     }
 
     try {
-      const response = await fetch('http://localhost/api/sandbox/start', {
+      const response = await fetch('/api/sandbox/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });

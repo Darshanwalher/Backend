@@ -37,19 +37,17 @@ agentRouter.post('/invoke', async (req, res) => {
         const { message } = req.body;
         const sandboxId = getSandboxId(req);
 
-        res.writeHead(200, {
-            'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive'
-        });
-
-        const writer = (text) => res.write(text);
-
         if (!sandboxId) {
             return res.status(400).json({
                 error: "sandboxId is required. Please pass it in the request body ('sandboxId'), in the 'x-sandbox-id' header, or make the request through your sandbox subdomain (e.g., http://{sandboxId}.preview.localhost/api/ai/invoke)."
             });
         }
+
+        res.writeHead(200, {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive'
+        });
 
         const response = await agent.stream(
             {
@@ -73,15 +71,16 @@ agentRouter.post('/invoke', async (req, res) => {
             res.write(`data: ${JSON.stringify(chunk)}\n\n`)
         }
 
-
-        res.json({
-            response
-        });
+        res.end();
     } catch (error) {
         console.error("Error invoking agent:", error);
-        res.status(500).json({
-            error: "An error occurred while invoking the agent."
-        });
+        if (!res.headersSent) {
+            res.status(500).json({
+                error: "An error occurred while invoking the agent."
+            });
+        } else {
+            res.end();
+        }
     }
 });
 

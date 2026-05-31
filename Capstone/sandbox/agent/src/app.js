@@ -7,12 +7,16 @@ import { log } from 'console';
 import pty from 'node-pty';
 import http from 'http';
 import os from 'os';
+import cors from 'cors';
+
 
 
 
 const WORKING_DIR = "/workspace";
 
 const app = express();
+app.use(cors({ methods: ["GET","POST","PATCH","DELETE"], origin: "*" }));
+
 const httpServer = http.createServer(app);
 
 app.use(morgan('dev'));

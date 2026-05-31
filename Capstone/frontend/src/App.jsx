@@ -334,7 +334,7 @@ export default App
 
     // --- REAL SSE STREAM READER ---
     try {
-      const response = await fetch('http://localhost/api/ai/invoke', {
+      const response = await fetch('/api/ai/invoke', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -442,6 +442,7 @@ export default App
     return (
       <ProvisioningScreen
         sandboxId={sandboxId}
+        isMockMode={isMockMode}
         onComplete={handleProvisioningComplete}
       />
     );

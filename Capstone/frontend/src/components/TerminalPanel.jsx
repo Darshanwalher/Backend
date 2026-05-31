@@ -41,19 +41,23 @@ export default function TerminalPanel({ sandboxId, isMockMode }) {
     term.loadAddon(fitAddon);
     term.open(terminalRef.current);
     
-    setTimeout(() => {
-      try {
-        fitAddon.fit();
-      } catch (e) {}
+    const fitTimeout = setTimeout(() => {
+      if (terminalRef.current && terminalRef.current.clientWidth > 0 && terminalRef.current.clientHeight > 0) {
+        try {
+          fitAddon.fit();
+        } catch (e) {}
+      }
     }, 100);
 
     xtermRef.current = term;
     fitAddonRef.current = fitAddon;
 
     const resizeObserver = new ResizeObserver(() => {
-      try {
-        fitAddon.fit();
-      } catch (e) {}
+      if (terminalRef.current && terminalRef.current.clientWidth > 0 && terminalRef.current.clientHeight > 0) {
+        try {
+          fitAddon.fit();
+        } catch (e) {}
+      }
     });
     if (terminalRef.current) {
       resizeObserver.observe(terminalRef.current);
@@ -97,9 +101,10 @@ export default function TerminalPanel({ sandboxId, isMockMode }) {
       });
 
       return () => {
+        clearTimeout(fitTimeout);
+        resizeObserver.disconnect();
         handleMockKey.dispose();
         term.dispose();
-        resizeObserver.disconnect();
       };
     } else {
       // --- REAL SOCKET.IO INTEGRATION ---
@@ -154,6 +159,8 @@ export default function TerminalPanel({ sandboxId, isMockMode }) {
       });
 
       return () => {
+        clearTimeout(fitTimeout);
+        resizeObserver.disconnect();
         handleData.dispose();
         if (xtermRef.current?._fallbackHandle) {
           xtermRef.current._fallbackHandle.dispose();
@@ -162,7 +169,6 @@ export default function TerminalPanel({ sandboxId, isMockMode }) {
           socket.disconnect();
         }
         term.dispose();
-        resizeObserver.disconnect();
       };
     }
   }, [sandboxId, isMockMode]);
