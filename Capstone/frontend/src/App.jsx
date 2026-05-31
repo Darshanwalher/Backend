@@ -1,8 +1,173 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import WelcomeScreen from './components/WelcomeScreen';
+import ProvisioningScreen from './components/ProvisioningScreen';
+import TopNav from './components/TopNav';
+import FileExplorer from './components/FileExplorer';
+import PreviewPanel from './components/PreviewPanel';
+import TerminalPanel from './components/TerminalPanel';
+import AIChatPanel from './components/AIChatPanel';
+
+const standardizePath = (path) => {
+  if (!path) return '';
+  return path.startsWith('/') ? path : '/' + path;
+};
+
+function clamp(val, min, max) {
+  return Math.min(Math.max(val, min), max);
+}
+
+function DragHandle({ direction, onMouseDown }) {
+  const isCol = direction === 'col';
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      onMouseDown={(e) => onMouseDown(e, direction)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        width:  isCol ? '4px' : '100%',
+        height: isCol ? '100%' : '4px',
+        cursor: isCol ? 'col-resize' : 'row-resize',
+        backgroundColor: hovered ? '#4ec9b0' : '#3e3e42',
+        flexShrink: 0,
+        transition: 'background-color 150ms ease',
+        zIndex: 10,
+        position: 'relative',
+      }}
+    >
+      {/* invisible wider hit area for easier grabbing */}
+      <div style={{
+        position: 'absolute',
+        top:    isCol ? 0    : '-6px',
+        left:   isCol ? '-6px' : 0,
+        right:  isCol ? '-6px' : 0,
+        bottom: isCol ? 0    : '-6px',
+        cursor: isCol ? 'col-resize' : 'row-resize',
+      }} />
+    </div>
+  );
+}
+
+export default function App() {
+  const [sandboxState, setSandboxState] = useState('welcome'); // 'welcome' | 'provisioning' | 'dashboard'
+  const [sandboxId, setSandboxId] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [isMockMode, setIsMockMode] = useState(true);
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
+  
+  const [files, setFiles] = useState([]);
+  const [fileContents, setFileContents] = useState({});
+  const [openTabs, setOpenTabs] = useState([]);
+  const [activeTab, setActiveTab] = useState('preview');
+  const [modifiedFiles, setModifiedFiles] = useState([]); // Paths of files updated by AI
+
+  // Resizable panel widths & height states
+  const [explorerWidth, setExplorerWidth] = useState(220);
+  const [chatWidth, setChatWidth] = useState(340);
+  const [previewHeight, setPreviewHeight] = useState(260); // Default, updated dynamically in useEffect
+  const [isDragging, setIsDragging] = useState(false);
+
+  const centerRef = useRef(null);
+
+  const [chatMessages, setChatMessages] = useState([
+    { role: 'assistant', content: 'Sandbox environment created successfully. Ask me to make changes to your codebase!' }
+  ]);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiLogs, setAiLogs] = useState([]);
+
+  const [previewKey, setPreviewKey] = useState(0);
+
+  // Initialize preview height dynamically on first load
+  useEffect(() => {
+    if (sandboxState === 'dashboard' && centerRef.current) {
+      const rect = centerRef.current.getBoundingClientRect();
+      setPreviewHeight(Math.round(rect.height * 0.6));
+    }
+  }, [sandboxState]);
+
+  // Hook layout resizing
+  const useDrag = useCallback((onDrag) => {
+    const startRef = useRef(null);
+
+    const onMouseDown = useCallback((e, direction) => {
+      e.preventDefault();
+      setIsDragging(true);
+      startRef.current = direction === 'col' ? e.clientX : e.clientY;
+
+      const move = (moveE) => {
+        const current = direction === 'col' ? moveE.clientX : moveE.clientY;
+        const delta = current - startRef.current;
+        startRef.current = current;
+        onDrag(delta);
+      };
+
+      const up = () => {
+        setIsDragging(false);
+        window.removeEventListener('mousemove', move);
+        window.removeEventListener('mouseup', up);
+      };
+
+      window.addEventListener('mousemove', move);
+      window.addEventListener('mouseup', up);
+    }, [onDrag]);
+
+    return onMouseDown;
+  }, []);
+
+  const dragExplorer = useDrag((delta) =>
+    setExplorerWidth(w => clamp(w + delta, 140, 420))
+  );
+  const dragChat = useDrag((delta) =>
+    setChatWidth(w => clamp(w - delta, 260, 540))
+  );
+  const dragPreview = useDrag((delta) =>
+    setPreviewHeight(h => {
+      if (centerRef.current) {
+        const rect = centerRef.current.getBoundingClientRect();
+        return clamp(h + delta, 120, rect.height - 120);
+      }
+      return clamp(h + delta, 120, 600);
+    })
+  );
+
+  const toggleMockMode = () => {
+    setIsMockMode(prev => !prev);
+  };
+
+  const handleCreateSandbox = (sandboxInfo) => {
+    setSandboxId(sandboxInfo.sandboxId);
+    setPreviewUrl(sandboxInfo.previewUrl);
+    setIsMockMode(sandboxInfo.isMock);
+    setSandboxState('provisioning');
+  };
+
+  const handleProvisioningComplete = () => {
+    setSandboxState('dashboard');
+    if (!isMockMode) {
+      setConnectionStatus('connected');
+    }
+  };
+
+  useEffect(() => {
+    if (sandboxState !== 'dashboard') return;
+
+    if (isMockMode) {
+      const mockFiles = [
+        '/README.md',
+        '/eslint.config.js',
+        '/package.json',
+        '/index.html',
+        '/src/App.jsx',
+        '/src/index.css',
+        '/src/main.jsx',
+        '/vite.config.js'
+      ];
+      setFiles(mockFiles);
+      setFileContents({
+        '/README.md': '# CodeSpace Sandbox\n\nThis is a fully editable preview sandbox with interactive file modifications.\n',
+        '/package.json': '{\n  "name": "codespace-demo",\n  "private": true,\n  "version": "1.0.0",\n  "type": "module",\n  "scripts": {\n    "dev": "vite",\n    "build": "vite build"\n  },\n  "dependencies": {\n    "react": "^19.0.0",\n    "react-dom": "^19.0.0"\n  }\n}\n',
+        '/src/App.jsx': `import { useState } from 'react'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -10,11 +175,6 @@ function App() {
   return (
     <>
       <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
         <div>
           <h1>Get started</h1>
           <p>
@@ -23,100 +183,371 @@ function App() {
         </div>
         <button
           type="button"
-          className="counter"
           onClick={() => setCount((count) => count + 1)}
         >
-          Count is {count}
+          Count is \${count}
         </button>
       </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
     </>
   )
 }
 
 export default App
+`,
+        '/src/index.css': 'body { background-color: #1e1e1e; color: #d4d4d4; font-family: sans-serif; }\n'
+      });
+      setOpenTabs(['/src/App.jsx']);
+      setActiveTab('/src/App.jsx');
+    } else {
+      fetchFileTree();
+    }
+  }, [sandboxState, isMockMode]);
+
+  const fetchFileTree = async () => {
+    try {
+      const response = await fetch(`http://${sandboxId}.agent.localhost/list-files`);
+      if (response.ok) {
+        const data = await response.json();
+        const standardizedFiles = (data.files || []).map(standardizePath);
+        setFiles(standardizedFiles);
+      }
+    } catch (err) {
+      console.error('Error fetching file list:', err);
+    }
+  };
+
+  const handleSelectFile = async (rawFilePath) => {
+    const filePath = standardizePath(rawFilePath);
+
+    if (!openTabs.includes(filePath)) {
+      setOpenTabs(prev => [...prev, filePath]);
+    }
+    setActiveTab(filePath);
+
+    if (fileContents[filePath] === undefined) {
+      if (isMockMode) {
+        setFileContents(prev => ({ ...prev, [filePath]: '' }));
+      } else {
+        try {
+          const response = await fetch(`http://${sandboxId}.agent.localhost/read-files?files=${filePath}`);
+          if (response.ok) {
+            const data = await response.json();
+            let content = '';
+            if (data.files && data.files[0]) {
+              const fileObj = data.files[0];
+              content = fileObj[filePath] !== undefined ? fileObj[filePath] : (fileObj[filePath.slice(1)] || '');
+            }
+            setFileContents(prev => ({
+              ...prev,
+              [filePath]: content
+            }));
+          }
+        } catch (err) {
+          console.error(`Error reading file ${filePath}:`, err);
+        }
+      }
+    }
+  };
+
+  const handleSelectTab = (tabIdentifier) => {
+    setActiveTab(tabIdentifier);
+  };
+
+  const handleCloseTab = (rawTabPath) => {
+    const tabPath = standardizePath(rawTabPath);
+    const nextTabs = openTabs.filter(t => t !== tabPath);
+    setOpenTabs(nextTabs);
+    if (activeTab === tabPath) {
+      setActiveTab(nextTabs.length > 0 ? nextTabs[nextTabs.length - 1] : 'preview');
+    }
+  };
+
+  const handleSendMessage = async (userPrompt) => {
+    const userMsg = { role: 'user', content: userPrompt };
+    setChatMessages(prev => [...prev, userMsg]);
+    setIsAiLoading(true);
+    setAiLogs(['Establishing SSE channel with agent...', 'Initializing AI model context...']);
+
+    if (isMockMode) {
+      // --- SIMULATED AI GENERATION SSE SEQUENCE ---
+      const steps = [
+        { log: 'Reading files... /src/index.css, /src/App.jsx', delay: 800 },
+        { log: 'Files read successfully.', delay: 1500 },
+        { log: 'Invoking reasoning LLM model...', delay: 2200 },
+        { log: 'Updating files... /src/App.jsx', delay: 3500 },
+        { log: 'Vite compilation reload success.', delay: 4200 }
+      ];
+
+      steps.forEach(s => {
+        setTimeout(() => {
+          setAiLogs(prev => [...prev, s.log]);
+        }, s.delay);
+      });
+
+      setTimeout(() => {
+        setIsAiLoading(false);
+        const modifiedApp = `import { useState } from 'react'
+
+function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <>
+      <section id="center" className="text-center py-10">
+        <div className="bg-[#252526] p-6 rounded-lg border border-[#3e3e42] max-w-sm mx-auto shadow-md font-mono">
+          <h1 className="text-[#d4d4d4] text-lg font-bold mb-4 font-mono">React App Refactored</h1>
+          <p className="text-[#858585] text-xs mb-4 font-mono">
+            Successfully generated custom styles and optimized performance counter.
+          </p>
+          <button
+            type="button"
+            className="px-4 py-2 bg-[#2d2d30] border border-[#3e3e42] hover:text-[#4ec9b0] text-[#d4d4d4] rounded text-xs transition-all duration-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#007fd4]"
+            onClick={() => setCount((count) => count + 1)}
+          >
+            Count is \${count}
+          </button>
+        </div>
+      </section>
+    </>
+  )
+}
+
+export default App
+`;
+        setFileContents(prev => ({
+          ...prev,
+          '/src/App.jsx': modifiedApp,
+          'src/App.jsx': modifiedApp
+        }));
+        
+        setModifiedFiles(prev => [...new Set([...prev, '/src/App.jsx'])]);
+        setPreviewKey(prev => prev + 1);
+
+        setChatMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `I've successfully updated your calculator/counter view component. Let me know if you would like me to add additional modules!`
+        }]);
+      }, 4800);
+      
+      return;
+    }
+
+    // --- REAL SSE STREAM READER ---
+    try {
+      const response = await fetch('http://localhost/api/ai/invoke', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userPrompt,
+          sandboxId: sandboxId
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`SSE request failed with status: ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          const cleanLine = line.trim();
+          if (cleanLine) {
+            setAiLogs(prev => [...prev, cleanLine]);
+
+            if (cleanLine.toLowerCase().includes('updating files')) {
+              const filePart = cleanLine.split('updating files...')[1] || cleanLine.split('Updating files...')[1] || '';
+              const cleanedFilePart = filePart.trim();
+              if (cleanedFilePart) {
+                setModifiedFiles(prev => [...new Set([...prev, standardizePath(cleanedFilePart)])]);
+              }
+            }
+          }
+        }
+      }
+
+      setAiLogs(prev => [...prev, 'AI invocation completed. Reloading workspace files...']);
+      
+      await fetchFileTree();
+      
+      if (activeTab !== 'preview') {
+        const activeRes = await fetch(`http://${sandboxId}.agent.localhost/read-files?files=${activeTab}`);
+        if (activeRes.ok) {
+          const activeData = await activeRes.json();
+          let content = '';
+          if (activeData.files && activeData.files[0]) {
+            const fileObj = activeData.files[0];
+            content = fileObj[activeTab] !== undefined ? fileObj[activeTab] : (fileObj[activeTab.slice(1)] || '');
+          }
+          setFileContents(prev => ({ ...prev, [activeTab]: content }));
+        }
+      }
+
+      setPreviewKey(prev => prev + 1);
+
+      setChatMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `I've successfully processed the request and updated the files. Take a look at the code changes!`
+      }]);
+      setIsAiLoading(false);
+
+    } catch (err) {
+      console.error('SSE connection error:', err);
+      setChatMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `Sorry, there was an issue communicating with the AI invoke endpoint: ${err.message}`
+      }]);
+      setIsAiLoading(false);
+    }
+  };
+
+  const handleResetSandbox = () => {
+    if (window.confirm('Are you sure you want to restart this sandbox? Unsaved files will be lost.')) {
+      setSandboxState('welcome');
+      setSandboxId(null);
+      setPreviewUrl(null);
+      setOpenTabs([]);
+      setActiveTab('preview');
+      setFileContents({});
+      setModifiedFiles([]);
+      setChatMessages([
+        { role: 'assistant', content: 'Sandbox environment created successfully. Ask me to make changes to your codebase!' }
+      ]);
+      setPreviewKey(0);
+      setPreviewHeight(260);
+    }
+  };
+
+  if (sandboxState === 'welcome') {
+    return (
+      <WelcomeScreen
+        onCreateSandbox={handleCreateSandbox}
+        isMockMode={isMockMode}
+        toggleMockMode={toggleMockMode}
+      />
+    );
+  }
+
+  if (sandboxState === 'provisioning') {
+    return (
+      <ProvisioningScreen
+        sandboxId={sandboxId}
+        onComplete={handleProvisioningComplete}
+      />
+    );
+  }
+
+  return (
+    <div 
+      className="flex flex-col h-screen w-screen overflow-hidden bg-[#1e1e1e] text-[#d4d4d4]"
+      style={{ userSelect: isDragging ? 'none' : 'auto' }}
+    >
+      {/* Top Nav (48px height) */}
+      <TopNav
+        sandboxId={sandboxId}
+        isMockMode={isMockMode}
+        onResetSandbox={handleResetSandbox}
+        connectionStatus={connectionStatus}
+      />
+
+      {/* Main split resizable space */}
+      <div className="flex flex-1 overflow-hidden">
+        
+        {/* Left panel */}
+        <div
+          className="flex-shrink-0 overflow-hidden bg-[#252526] border-r border-[#3e3e42] flex flex-col h-full"
+          style={{ width: explorerWidth }}
+        >
+          <FileExplorer
+            files={files}
+            activeFile={activeTab}
+            onSelectFile={handleSelectFile}
+            modifiedFiles={modifiedFiles}
+          />
+        </div>
+
+        {/* Drag handle — explorer | center */}
+        <DragHandle direction="col" onMouseDown={dragExplorer} />
+
+        {/* Center column */}
+        <div ref={centerRef} className="flex flex-col flex-1 min-w-0 overflow-hidden bg-[#1e1e1e]">
+          
+          {/* Editor / Preview tabs */}
+          <div
+            className="flex-shrink-0 overflow-hidden border-b border-[#3e3e42]"
+            style={{ height: previewHeight }}
+          >
+            <PreviewPanel
+              key={`${previewKey}-${activeTab}`}
+              previewUrl={previewUrl}
+              isMockMode={isMockMode}
+              fileContents={fileContents}
+              openTabs={openTabs}
+              activeTab={activeTab}
+              onSelectTab={handleSelectTab}
+              onCloseTab={handleCloseTab}
+              activeFile={activeTab !== 'preview' ? activeTab : null}
+              modifiedFiles={modifiedFiles}
+              isDragging={isDragging}
+            />
+          </div>
+
+          {/* Drag handle — preview | terminal */}
+          <DragHandle direction="row" onMouseDown={dragPreview} />
+
+          {/* Terminal */}
+          <div className="flex-grow flex-1 overflow-hidden min-h-[120px]">
+            <TerminalPanel
+              sandboxId={sandboxId}
+              isMockMode={isMockMode}
+            />
+          </div>
+
+        </div>
+
+        {/* Drag handle — center | chat */}
+        <DragHandle direction="col" onMouseDown={dragChat} />
+
+        {/* Right panel */}
+        <div
+          className="flex-shrink-0 overflow-hidden bg-[#252526] border-l border-[#3e3e42] flex flex-col h-full"
+          style={{ width: chatWidth }}
+        >
+          <AIChatPanel
+            chatMessages={chatMessages}
+            onSendMessage={handleSendMessage}
+            isAiLoading={isAiLoading}
+            aiLogs={aiLogs}
+          />
+        </div>
+
+      </div>
+
+      {/* Footer status bar */}
+      <footer className="h-6 bg-[#252526] border-t border-[#3e3e42] text-[#858585] font-mono text-[10px] font-semibold flex items-center justify-between px-4 z-40 select-none">
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#4ec9b0]"></span>
+            Host: codespace.localhost
+          </span>
+          {isMockMode && (
+            <span className="uppercase tracking-widest text-[8px] bg-[#2a2d2e] border border-[#3e3e42] text-[#4ec9b0] px-1.5 py-0.5 rounded">
+              Simulated Session
+            </span>
+          )}
+        </div>
+        <span>UTF-8 • Line endings: LF</span>
+      </footer>
+    </div>
+  );
+}
