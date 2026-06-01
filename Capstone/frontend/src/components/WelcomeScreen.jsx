@@ -1,23 +1,13 @@
 import React, { useState } from 'react';
 import { Play, Sparkles, Terminal, Cpu, Layers, HelpCircle, AlertCircle } from 'lucide-react';
 
-export default function WelcomeScreen({ onCreateSandbox, isMockMode, toggleMockMode }) {
+export default function WelcomeScreen({ onCreateSandbox }) {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleStart = async (forceMock = false) => {
+  const handleStart = async () => {
     setLoading(true);
     setErrorMsg('');
-    if (forceMock || isMockMode) {
-      setTimeout(() => {
-        onCreateSandbox({
-          sandboxId: 'demo-' + Math.random().toString(36).substring(2, 11),
-          previewUrl: 'http://localhost:5173/demo-preview',
-          isMock: true
-        });
-      }, 1000);
-      return;
-    }
 
     try {
       const response = await fetch('/api/sandbox/start', {
@@ -32,12 +22,11 @@ export default function WelcomeScreen({ onCreateSandbox, isMockMode, toggleMockM
       const data = await response.json();
       onCreateSandbox({
         sandboxId: data.sandboxId,
-        previewUrl: data.previewUrl,
-        isMock: false
+        previewUrl: data.previewUrl
       });
     } catch (err) {
-      console.warn('API connection failed. Offering fallback demo mode.', err);
-      setErrorMsg('Could not connect to sandbox backend. Would you like to run in Demo (Simulated) Mode instead?');
+      console.warn('API connection failed.', err);
+      setErrorMsg('Could not connect to sandbox backend. Please verify that the backend is running.');
       setLoading(false);
     }
   };
@@ -104,12 +93,6 @@ export default function WelcomeScreen({ onCreateSandbox, isMockMode, toggleMockM
             <AlertCircle className="w-5 h-5 shrink-0 text-[#f44747]" />
             <div className="flex flex-col gap-2">
               <span>{errorMsg}</span>
-              <button 
-                onClick={() => handleStart(true)}
-                className="self-start px-3 py-1 bg-[#2d2d30] hover:bg-[#2d2d30]/80 border border-[#3e3e42] text-[#d4d4d4] rounded font-semibold transition-all duration-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#007fd4]"
-              >
-                Launch Demo Mode
-              </button>
             </div>
           </div>
         )}
@@ -117,7 +100,7 @@ export default function WelcomeScreen({ onCreateSandbox, isMockMode, toggleMockM
         {/* Action Controls */}
         <div className="flex flex-col gap-4">
           <button
-            onClick={() => handleStart(false)}
+            onClick={handleStart}
             disabled={loading}
             className="w-full relative overflow-hidden bg-[#0e639c] hover:bg-[#1177bb] disabled:bg-[#2d2d30] text-[#d4d4d4] disabled:text-[#858585] font-bold py-3 rounded-lg active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 font-mono text-xs uppercase tracking-wider focus:outline-none focus:ring-1 focus:ring-[#007fd4]"
           >
@@ -141,23 +124,7 @@ export default function WelcomeScreen({ onCreateSandbox, isMockMode, toggleMockM
             <span className="text-[#858585] flex items-center gap-1">
               <HelpCircle className="w-3.5 h-3.5" /> Session state:
             </span>
-            <div className="flex items-center gap-2">
-              <span className="text-[#858585] text-[11px]">Demo Mode</span>
-              <button
-                role="switch"
-                aria-checked={isMockMode}
-                onClick={toggleMockMode}
-                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-1 focus:ring-[#007fd4] ${
-                  isMockMode ? 'bg-[#0e639c]' : 'bg-[#2d2d30] border border-[#3e3e42]'
-                }`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-[#1e1e1e] shadow ring-0 transition duration-200 ease-in-out ${
-                    isMockMode ? 'translate-x-4' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
-            </div>
+            <span className="text-[#858585] text-[11px] uppercase tracking-wider">Uninitialized</span>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Cpu, Terminal, ShieldCheck, Wifi, Layers } from 'lucide-react';
 
-export default function ProvisioningScreen({ sandboxId, isMockMode, onComplete }) {
+export default function ProvisioningScreen({ sandboxId, onComplete }) {
   const [step, setStep] = useState(0);
   const [logs, setLogs] = useState([
     'SYSTEM: Initializing container cluster allocation...',
@@ -54,33 +54,26 @@ export default function ProvisioningScreen({ sandboxId, isMockMode, onComplete }
       } else {
         clearInterval(stepInterval);
         
-        if (isMockMode) {
-          clearInterval(logInterval);
-          setTimeout(() => {
-            onComplete();
-          }, 800);
-        } else {
-          setLogs(prev => [...prev, 'SYSTEM: Verifying agent network propagation...']);
-          let attempts = 0;
-          const pollInterval = setInterval(async () => {
-            attempts++;
-            try {
-              const res = await fetch(`http://${sandboxId}.agent.localhost/`);
-              if (res.ok) {
-                setLogs(prev => [...prev, 'SYSTEM: Agent network propagation verified.']);
-                clearInterval(pollInterval);
-                clearInterval(logInterval);
-                setTimeout(() => {
-                  onComplete();
-                }, 800);
-              } else {
-                setLogs(prev => [...prev, `SYSTEM: Waiting for routing (attempt ${attempts})...`]);
-              }
-            } catch (err) {
+        setLogs(prev => [...prev, 'SYSTEM: Verifying agent network propagation...']);
+        let attempts = 0;
+        const pollInterval = setInterval(async () => {
+          attempts++;
+          try {
+            const res = await fetch(`http://${sandboxId}.agent.localhost/`);
+            if (res.ok) {
+              setLogs(prev => [...prev, 'SYSTEM: Agent network propagation verified.']);
+              clearInterval(pollInterval);
+              clearInterval(logInterval);
+              setTimeout(() => {
+                onComplete();
+              }, 800);
+            } else {
               setLogs(prev => [...prev, `SYSTEM: Waiting for routing (attempt ${attempts})...`]);
             }
-          }, 1000);
-        }
+          } catch (err) {
+            setLogs(prev => [...prev, `SYSTEM: Waiting for routing (attempt ${attempts})...`]);
+          }
+        }, 1000);
       }
     }, 1000);
 
@@ -199,7 +192,7 @@ export default function ProvisioningScreen({ sandboxId, isMockMode, onComplete }
             <span>RAM: 512MB limit</span>
             <span>CPU: 1 core allocation</span>
           </div>
-          <span>Ref: {sandboxId ? sandboxId.substring(0, 8) : 'demo'}</span>
+          <span>Ref: {sandboxId?.substring(0, 8)}</span>
         </div>
       </section>
     </div>

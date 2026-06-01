@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Copy, Check, Plus } from 'lucide-react';
 
-export default function TopNav({ sandboxId, isMockMode, onResetSandbox, connectionStatus }) {
+export default function TopNav({ sandboxId, onResetSandbox, connectionStatus }) {
   const [copied, setCopied] = useState(false);
 
   const copyId = () => {
@@ -11,7 +11,7 @@ export default function TopNav({ sandboxId, isMockMode, onResetSandbox, connecti
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const isActive = isMockMode || connectionStatus === 'connected';
+  const isActive = connectionStatus === 'connected';
 
   return (
     <header className="h-[48px] px-4 bg-[#3c3c3c] border-b border-[#3e3e42] flex justify-between items-center z-50 shrink-0 select-none">
@@ -67,11 +67,6 @@ export default function TopNav({ sandboxId, isMockMode, onResetSandbox, connecti
 
       {/* Right: + New button */}
       <div className="flex items-center gap-3">
-        {isMockMode && (
-          <span className="hidden md:inline uppercase tracking-widest text-[9px] bg-[#252526] border border-[#3e3e42] text-[#4ec9b0] px-2 py-0.5 rounded font-mono">
-            Simulated
-          </span>
-        )}
         <button
           onClick={onResetSandbox}
           className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#0e639c] hover:bg-[#1177bb] text-[#d4d4d4] font-mono text-xs font-bold transition-all duration-200 ease-in-out active:scale-95 cursor-pointer shadow-sm focus:outline-none focus:ring-1 focus:ring-[#007fd4]"

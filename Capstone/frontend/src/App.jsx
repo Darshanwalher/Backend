@@ -53,7 +53,6 @@ export default function App() {
   const [sandboxState, setSandboxState] = useState('welcome'); // 'welcome' | 'provisioning' | 'dashboard'
   const [sandboxId, setSandboxId] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [isMockMode, setIsMockMode] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
   
   const [files, setFiles] = useState([]);
@@ -131,77 +130,21 @@ export default function App() {
     })
   );
 
-  const toggleMockMode = () => {
-    setIsMockMode(prev => !prev);
-  };
-
   const handleCreateSandbox = (sandboxInfo) => {
     setSandboxId(sandboxInfo.sandboxId);
     setPreviewUrl(sandboxInfo.previewUrl);
-    setIsMockMode(sandboxInfo.isMock);
     setSandboxState('provisioning');
   };
 
   const handleProvisioningComplete = () => {
     setSandboxState('dashboard');
-    if (!isMockMode) {
-      setConnectionStatus('connected');
-    }
+    setConnectionStatus('connected');
   };
 
   useEffect(() => {
     if (sandboxState !== 'dashboard') return;
-
-    if (isMockMode) {
-      const mockFiles = [
-        '/README.md',
-        '/eslint.config.js',
-        '/package.json',
-        '/index.html',
-        '/src/App.jsx',
-        '/src/index.css',
-        '/src/main.jsx',
-        '/vite.config.js'
-      ];
-      setFiles(mockFiles);
-      setFileContents({
-        '/README.md': '# CodeSpace Sandbox\n\nThis is a fully editable preview sandbox with interactive file modifications.\n',
-        '/package.json': '{\n  "name": "codespace-demo",\n  "private": true,\n  "version": "1.0.0",\n  "type": "module",\n  "scripts": {\n    "dev": "vite",\n    "build": "vite build"\n  },\n  "dependencies": {\n    "react": "^19.0.0",\n    "react-dom": "^19.0.0"\n  }\n}\n',
-        '/src/App.jsx': `import { useState } from 'react'
-
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <section id="center">
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is \${count}
-        </button>
-      </section>
-    </>
-  )
-}
-
-export default App
-`,
-        '/src/index.css': 'body { background-color: #1e1e1e; color: #d4d4d4; font-family: sans-serif; }\n'
-      });
-      setOpenTabs(['/src/App.jsx']);
-      setActiveTab('/src/App.jsx');
-    } else {
-      fetchFileTree();
-    }
-  }, [sandboxState, isMockMode]);
+    fetchFileTree();
+  }, [sandboxState]);
 
   const fetchFileTree = async () => {
     try {
@@ -225,26 +168,22 @@ export default App
     setActiveTab(filePath);
 
     if (fileContents[filePath] === undefined) {
-      if (isMockMode) {
-        setFileContents(prev => ({ ...prev, [filePath]: '' }));
-      } else {
-        try {
-          const response = await fetch(`http://${sandboxId}.agent.localhost/read-files?files=${filePath}`);
-          if (response.ok) {
-            const data = await response.json();
-            let content = '';
-            if (data.files && data.files[0]) {
-              const fileObj = data.files[0];
-              content = fileObj[filePath] !== undefined ? fileObj[filePath] : (fileObj[filePath.slice(1)] || '');
-            }
-            setFileContents(prev => ({
-              ...prev,
-              [filePath]: content
-            }));
+      try {
+        const response = await fetch(`http://${sandboxId}.agent.localhost/read-files?files=${filePath}`);
+        if (response.ok) {
+          const data = await response.json();
+          let content = '';
+          if (data.files && data.files[0]) {
+            const fileObj = data.files[0];
+            content = fileObj[filePath] !== undefined ? fileObj[filePath] : (fileObj[filePath.slice(1)] || '');
           }
-        } catch (err) {
-          console.error(`Error reading file ${filePath}:`, err);
+          setFileContents(prev => ({
+            ...prev,
+            [filePath]: content
+          }));
         }
+      } catch (err) {
+        console.error(`Error reading file ${filePath}:`, err);
       }
     }
   };
@@ -268,69 +207,7 @@ export default App
     setIsAiLoading(true);
     setAiLogs(['Establishing SSE channel with agent...', 'Initializing AI model context...']);
 
-    if (isMockMode) {
-      // --- SIMULATED AI GENERATION SSE SEQUENCE ---
-      const steps = [
-        { log: 'Reading files... /src/index.css, /src/App.jsx', delay: 800 },
-        { log: 'Files read successfully.', delay: 1500 },
-        { log: 'Invoking reasoning LLM model...', delay: 2200 },
-        { log: 'Updating files... /src/App.jsx', delay: 3500 },
-        { log: 'Vite compilation reload success.', delay: 4200 }
-      ];
 
-      steps.forEach(s => {
-        setTimeout(() => {
-          setAiLogs(prev => [...prev, s.log]);
-        }, s.delay);
-      });
-
-      setTimeout(() => {
-        setIsAiLoading(false);
-        const modifiedApp = `import { useState } from 'react'
-
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <section id="center" className="text-center py-10">
-        <div className="bg-[#252526] p-6 rounded-lg border border-[#3e3e42] max-w-sm mx-auto shadow-md font-mono">
-          <h1 className="text-[#d4d4d4] text-lg font-bold mb-4 font-mono">React App Refactored</h1>
-          <p className="text-[#858585] text-xs mb-4 font-mono">
-            Successfully generated custom styles and optimized performance counter.
-          </p>
-          <button
-            type="button"
-            className="px-4 py-2 bg-[#2d2d30] border border-[#3e3e42] hover:text-[#4ec9b0] text-[#d4d4d4] rounded text-xs transition-all duration-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#007fd4]"
-            onClick={() => setCount((count) => count + 1)}
-          >
-            Count is \${count}
-          </button>
-        </div>
-      </section>
-    </>
-  )
-}
-
-export default App
-`;
-        setFileContents(prev => ({
-          ...prev,
-          '/src/App.jsx': modifiedApp,
-          'src/App.jsx': modifiedApp
-        }));
-        
-        setModifiedFiles(prev => [...new Set([...prev, '/src/App.jsx'])]);
-        setPreviewKey(prev => prev + 1);
-
-        setChatMessages(prev => [...prev, {
-          role: 'assistant',
-          content: `I've successfully updated your calculator/counter view component. Let me know if you would like me to add additional modules!`
-        }]);
-      }, 4800);
-      
-      return;
-    }
 
     // --- REAL SSE STREAM READER ---
     try {
@@ -432,8 +309,6 @@ export default App
     return (
       <WelcomeScreen
         onCreateSandbox={handleCreateSandbox}
-        isMockMode={isMockMode}
-        toggleMockMode={toggleMockMode}
       />
     );
   }
@@ -442,7 +317,6 @@ export default App
     return (
       <ProvisioningScreen
         sandboxId={sandboxId}
-        isMockMode={isMockMode}
         onComplete={handleProvisioningComplete}
       />
     );
@@ -456,7 +330,6 @@ export default App
       {/* Top Nav (48px height) */}
       <TopNav
         sandboxId={sandboxId}
-        isMockMode={isMockMode}
         onResetSandbox={handleResetSandbox}
         connectionStatus={connectionStatus}
       />
@@ -491,7 +364,6 @@ export default App
             <PreviewPanel
               key={`${previewKey}-${activeTab}`}
               previewUrl={previewUrl}
-              isMockMode={isMockMode}
               fileContents={fileContents}
               openTabs={openTabs}
               activeTab={activeTab}
@@ -510,7 +382,6 @@ export default App
           <div className="flex-grow flex-1 overflow-hidden min-h-[120px]">
             <TerminalPanel
               sandboxId={sandboxId}
-              isMockMode={isMockMode}
             />
           </div>
 
@@ -541,11 +412,6 @@ export default App
             <span className="w-1.5 h-1.5 rounded-full bg-[#4ec9b0]"></span>
             Host: codespace.localhost
           </span>
-          {isMockMode && (
-            <span className="uppercase tracking-widest text-[8px] bg-[#2a2d2e] border border-[#3e3e42] text-[#4ec9b0] px-1.5 py-0.5 rounded">
-              Simulated Session
-            </span>
-          )}
         </div>
         <span>UTF-8 • Line endings: LF</span>
       </footer>

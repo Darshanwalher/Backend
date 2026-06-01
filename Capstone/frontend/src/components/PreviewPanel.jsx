@@ -32,7 +32,6 @@ function splitHighlightedHtml(html) {
 
 export default function PreviewPanel({
   previewUrl,
-  isMockMode,
   fileContents,
   openTabs,
   activeTab,
@@ -44,7 +43,6 @@ export default function PreviewPanel({
 }) {
   const [iframeKey, setIframeKey] = useState(0);
   const [urlBar, setUrlBar] = useState('');
-  const [mockAppCount, setMockAppCount] = useState(0);
   const [hljsReady, setHljsReady] = useState(false);
   const [activeLine, setActiveLine] = useState(null);
 
@@ -72,39 +70,6 @@ export default function PreviewPanel({
 
   const handleRefresh = () => {
     setIframeKey(prev => prev + 1);
-  };
-
-  const getMockText = () => {
-    try {
-      const content = fileContents['src/App.jsx'] || fileContents['/src/App.jsx'] || '';
-      const h1Match = content.match(/<h1>(.*?)<\/h1>/);
-      if (h1Match && h1Match[1]) {
-        return h1Match[1].replace(/\{.*?\}/g, '').trim() || 'Get started';
-      }
-      
-      const textMatch = content.match(/<h1[^>]*>([\s\S]*?)<\/h1>/);
-      if (textMatch && textMatch[1]) {
-        return textMatch[1].replace(/\{.*?\}/g, '').trim() || 'Get started';
-      }
-    } catch (e) {}
-    return 'Get started';
-  };
-
-  const getMockButtonLabel = () => {
-    try {
-      const content = fileContents['src/App.jsx'] || fileContents['/src/App.jsx'] || '';
-      const buttonMatch = content.match(/<button[^>]*>([\s\S]*?)<\/button>/);
-      if (buttonMatch && buttonMatch[1]) {
-        return buttonMatch[1].replace(/\{count\}/g, mockAppCount).trim();
-      }
-    } catch (e) {}
-    return `Count is ${mockAppCount}`;
-  };
-
-  const handleScroll = () => {
-    if (textareaRef.current && gutterRef.current) {
-      gutterRef.current.scrollTop = textareaRef.current.scrollTop;
-    }
   };
 
   const getFileTabColor = (name) => {
@@ -244,75 +209,23 @@ export default function PreviewPanel({
 
             {/* Embedded Screen Canvas */}
             <div className="flex-grow bg-[#1e1e1e] relative overflow-hidden flex flex-col">
-              {isMockMode ? (
-                /* High-Fidelity Mock UI rendering */
-                <div className="absolute inset-0 bg-[#1e1e1e] text-[#858585] flex flex-col font-sans select-none overflow-y-auto">
-                  <div className="bg-[#252526] px-4 py-2 border-b border-[#3e3e42] flex items-center justify-between text-[11px] font-mono text-[#858585]">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#4ec9b0] animate-pulse" />
-                      <span className="text-[#d4d4d4] font-semibold">Demo Sandbox Port: 5173</span>
-                    </div>
-                    <span className="text-[#6a9955]">HMR: ACTIVE</span>
-                  </div>
-
-                  <div className="flex-grow flex-1 flex flex-col items-center justify-center p-8 text-center text-[#d4d4d4] relative">
-                    {/* Add drag protection over mock preview area just in case */}
-                    {isDragging && (
-                      <div style={{
-                        position: 'absolute', inset: 0,
-                        zIndex: 20, background: 'transparent',
-                        cursor: 'inherit'
-                      }} />
-                    )}
-                    <div className="mb-6 relative flex justify-center">
-                      <div className="w-16 h-16 rounded-full border border-[#3e3e42] flex items-center justify-center relative bg-[#252526]">
-                        <div className="w-12 h-5 border border-[#4ec9b0]/40 rounded-full absolute rotate-45 animate-pulse" />
-                        <div className="w-12 h-5 border border-[#4ec9b0]/40 rounded-full absolute -rotate-45 animate-pulse" />
-                        <div className="w-2.5 h-2.5 bg-[#4ec9b0] rounded-full" />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 mb-6">
-                      <h1 className="text-2xl font-bold text-white tracking-tight">
-                        {getMockText()}
-                      </h1>
-                      <p className="text-xs text-[#858585] max-w-sm mx-auto font-mono">
-                        Edit <code className="bg-[#252526] text-[#4ec9b0] px-1 py-0.5 rounded font-mono border border-[#3e3e42]">src/App.jsx</code> and save to test Hot Module Replacement.
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={() => setMockAppCount(prev => prev + 1)}
-                      className="bg-[#2d2d30] border border-[#3e3e42] hover:border-[#4ec9b0]/50 hover:text-[#4ec9b0] text-[#d4d4d4] font-mono text-xs rounded py-2 px-4 active:scale-95 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#007fd4]"
-                    >
-                      {getMockButtonLabel()}
-                    </button>
-
-                    <div className="mt-8 border-t border-[#3e3e42] pt-4 w-full max-w-xs text-[9px] text-[#858585] font-mono space-y-0.5">
-                      <p>Status: Compiles successfully</p>
-                      <p>HMR latency: 3ms</p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                /* Live sandbox frame with drag overlay protection */
-                <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                  <iframe
-                    key={iframeKey}
-                    src={previewUrl}
-                    title="Sandbox Live Preview"
-                    style={{ width: '100%', height: '100%', border: 'none' }}
-                    sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-                  />
-                  {isDragging && (
-                    <div style={{
-                      position: 'absolute', inset: 0,
-                      zIndex: 20, background: 'transparent',
-                      cursor: 'inherit'
-                    }} />
-                  )}
-                </div>
-              )}
+              {/* Live sandbox frame with drag overlay protection */}
+              <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                <iframe
+                  key={iframeKey}
+                  src={previewUrl}
+                  title="Sandbox Live Preview"
+                  style={{ width: '100%', height: '100%', border: 'none' }}
+                  sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+                />
+                {isDragging && (
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    zIndex: 20, background: 'transparent',
+                    cursor: 'inherit'
+                  }} />
+                )}
+              </div>
             </div>
           </div>
         ) : (
