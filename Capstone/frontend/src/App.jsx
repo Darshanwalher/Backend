@@ -205,7 +205,9 @@ export default function App() {
     const userMsg = { role: 'user', content: userPrompt };
     setChatMessages(prev => [...prev, userMsg]);
     setIsAiLoading(true);
-    setAiLogs(['Establishing SSE channel with agent...', 'Initializing AI model context...']);
+    
+    let accumulatedLogs = ['Establishing SSE channel with agent...', 'Initializing AI model context...'];
+    setAiLogs(accumulatedLogs);
 
     // --- SSE STREAM READER ---
     try {
@@ -219,7 +221,12 @@ export default function App() {
       });
 
       if (!response.ok) {
-        throw new Error(`SSE request failed with status: ${response.status}`);
+        let errorMsg = `SSE request failed with status: ${response.status}`;
+        try {
+          const errData = await response.json();
+          if (errData.error) errorMsg = errData.error;
+        } catch (e) {}
+        throw new Error(errorMsg);
       }
 
       const reader = response.body.getReader();
@@ -232,24 +239,21 @@ export default function App() {
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        // SSE events are separated by double newlines
         const parts = buffer.split('\n\n');
-        // Last element may be an incomplete event — keep it in the buffer
         buffer = parts.pop();
 
         for (const part of parts) {
           const line = part.trim();
-          if (!line || line.startsWith(':')) continue; // skip empty lines and SSE comments (heartbeats)
+          if (!line || line.startsWith(':')) continue;
 
-          // Strip the "data: " prefix
           const dataStr = line.startsWith('data: ') ? line.slice(6) : line;
 
           try {
             const event = JSON.parse(dataStr);
 
             if (event.type === 'log') {
-              // Status messages from tools (writer calls)
-              setAiLogs(prev => [...prev, event.message]);
+              accumulatedLogs.push(event.message);
+              setAiLogs([...accumulatedLogs]);
 
               // Detect file update events for the file tree highlight
               if (event.message.toLowerCase().includes('updating files')) {
@@ -261,8 +265,9 @@ export default function App() {
               }
 
             } else if (event.type === 'chunk') {
-              // Raw agent stream chunk — log a readable summary
-              setAiLogs(prev => [...prev, `Agent step received`]);
+              // We log this in a less spammy way to denote progress in the timeline
+              accumulatedLogs.push('Processing response chunk...');
+              setAiLogs([...accumulatedLogs]);
 
             } else if (event.type === 'done') {
               isDone = true;
@@ -271,13 +276,14 @@ export default function App() {
               throw new Error(event.message);
             }
           } catch (parseErr) {
-            // Non-JSON line — treat as plain log text
-            setAiLogs(prev => [...prev, dataStr]);
+            accumulatedLogs.push(dataStr);
+            setAiLogs([...accumulatedLogs]);
           }
         }
       }
 
-      setAiLogs(prev => [...prev, '✅ AI invocation completed. Reloading workspace files...']);
+      accumulatedLogs.push('✅ AI invocation completed. Reloading workspace files...');
+      setAiLogs([...accumulatedLogs]);
       
       await fetchFileTree();
       
@@ -298,15 +304,20 @@ export default function App() {
 
       setChatMessages(prev => [...prev, {
         role: 'assistant',
-        content: `I've successfully processed the request and updated the files. Take a look at the code changes!`
+        content: `I've successfully processed the request and updated the files. Take a look at the code changes!`,
+        logs: [...accumulatedLogs]
       }]);
       setIsAiLoading(false);
 
     } catch (err) {
       console.error('SSE connection error:', err);
+      // To avoid cluttering the small timeline with a massive stack trace, only push the first line to logs
+      accumulatedLogs.push(`❌ Error: ${err.message.split('\n')[0]}`);
+      setAiLogs([...accumulatedLogs]);
       setChatMessages(prev => [...prev, {
         role: 'assistant',
-        content: `Sorry, there was an issue communicating with the AI invoke endpoint: ${err.message}`
+        content: `**Agent Invocation Failed:**\n\n\`\`\`plaintext\n${err.message}\n\`\`\``,
+        logs: [...accumulatedLogs]
       }]);
       setIsAiLoading(false);
     }
