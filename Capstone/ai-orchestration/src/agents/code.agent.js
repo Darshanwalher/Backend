@@ -1,7 +1,7 @@
 import "dotenv/config";
-import { ChatMistralAI } from "@langchain/mistralai"
+import { ChatMistralAI } from "@langchain/mistralai";
 import { listFiles, readFiles, updateFiles } from "./tools.js";
-import { createAgent } from "langchain";
+import { createReactAgent } from "@langchain/langgraph";
 
 const model = new ChatMistralAI({
     model: "mistral-large-latest",
@@ -10,7 +10,7 @@ const model = new ChatMistralAI({
 
 })
 
-const agent = (createAgent({
+const agent = createReactAgent({
     model,
     tools: [ listFiles, readFiles, updateFiles ],
     systemPrompt: `
@@ -157,8 +157,8 @@ FINAL PRINCIPLE
 ═══════════════════════════════════════════════
 Build the thing the user would build if they were a senior frontend engineer with taste and one afternoon to spare. Default to doing more, not less. When in doubt, ship something polished and offer to refine.
     `
-})).withConfig({
-    recursionLimit: 100
-})
+});
+// Increase the recursion/step limit so large multi-file builds don't hit the default cap
+agent.config = { recursionLimit: 100 };
 
 export default agent;

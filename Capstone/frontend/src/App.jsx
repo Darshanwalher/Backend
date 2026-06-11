@@ -207,9 +207,7 @@ export default function App() {
     setIsAiLoading(true);
     setAiLogs(['Establishing SSE channel with agent...', 'Initializing AI model context...']);
 
-
-
-    // --- REAL SSE STREAM READER ---
+    // --- SSE STREAM READER ---
     try {
       const response = await fetch('/api/ai/invoke', {
         method: 'POST',
@@ -227,33 +225,59 @@ export default function App() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
       let buffer = '';
+      let isDone = false;
 
-      while (true) {
+      while (!isDone) {
         const { done, value } = await reader.read();
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        
-        buffer = lines.pop();
+        // SSE events are separated by double newlines
+        const parts = buffer.split('\n\n');
+        // Last element may be an incomplete event — keep it in the buffer
+        buffer = parts.pop();
 
-        for (const line of lines) {
-          const cleanLine = line.trim();
-          if (cleanLine) {
-            setAiLogs(prev => [...prev, cleanLine]);
+        for (const part of parts) {
+          const line = part.trim();
+          if (!line || line.startsWith(':')) continue; // skip empty lines and SSE comments (heartbeats)
 
-            if (cleanLine.toLowerCase().includes('updating files')) {
-              const filePart = cleanLine.split('updating files...')[1] || cleanLine.split('Updating files...')[1] || '';
-              const cleanedFilePart = filePart.trim();
-              if (cleanedFilePart) {
-                setModifiedFiles(prev => [...new Set([...prev, standardizePath(cleanedFilePart)])]);
+          // Strip the "data: " prefix
+          const dataStr = line.startsWith('data: ') ? line.slice(6) : line;
+
+          try {
+            const event = JSON.parse(dataStr);
+
+            if (event.type === 'log') {
+              // Status messages from tools (writer calls)
+              setAiLogs(prev => [...prev, event.message]);
+
+              // Detect file update events for the file tree highlight
+              if (event.message.toLowerCase().includes('updating files')) {
+                const filePart = event.message.split('...')[1] || '';
+                const files = filePart.split(',').map(f => f.trim()).filter(Boolean);
+                files.forEach(f => {
+                  setModifiedFiles(prev => [...new Set([...prev, standardizePath(f)])]);
+                });
               }
+
+            } else if (event.type === 'chunk') {
+              // Raw agent stream chunk — log a readable summary
+              setAiLogs(prev => [...prev, `Agent step received`]);
+
+            } else if (event.type === 'done') {
+              isDone = true;
+
+            } else if (event.type === 'error') {
+              throw new Error(event.message);
             }
+          } catch (parseErr) {
+            // Non-JSON line — treat as plain log text
+            setAiLogs(prev => [...prev, dataStr]);
           }
         }
       }
 
-      setAiLogs(prev => [...prev, 'AI invocation completed. Reloading workspace files...']);
+      setAiLogs(prev => [...prev, '✅ AI invocation completed. Reloading workspace files...']);
       
       await fetchFileTree();
       

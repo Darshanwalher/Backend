@@ -43,11 +43,23 @@ agentRouter.post('/invoke', async (req, res) => {
             });
         }
 
+        // SSE headers — keep-alive is critical for long-running AI streams
         res.writeHead(200, {
             'Content-Type': 'text/event-stream',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive'
+            'Cache-Control': 'no-cache, no-transform',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no',   // Disable nginx buffering for SSE
         });
+
+        // Heartbeat: send a comment every 15s to prevent proxy/browser timeouts
+        const heartbeat = setInterval(() => {
+            res.write(': heartbeat\n\n');
+        }, 15000);
+
+        // writer is injected into config.writer — tools call it to stream status messages
+        const writer = (msg) => {
+            res.write(`data: ${JSON.stringify({ type: 'log', message: msg })}\n\n`);
+        };
 
         const response = await agent.stream(
             {
@@ -60,18 +72,23 @@ agentRouter.post('/invoke', async (req, res) => {
             },
             {
                 configurable: {
-                    sandboxId: sandboxId
+                    sandboxId: sandboxId,
                 },
-                streamMode: "custom"
+                streamMode: "custom",
+                // LangGraph injects this into config.writer inside tools
+                writer,
             }
         );
 
         for await (const chunk of response) {
-            console.log(chunk);
-            res.write(`data: ${JSON.stringify(chunk)}\n\n`)
+            console.log('[agent stream chunk]', chunk);
+            res.write(`data: ${JSON.stringify({ type: 'chunk', data: chunk })}\n\n`);
         }
 
+        clearInterval(heartbeat);
+        res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
         res.end();
+
     } catch (error) {
         console.error("Error invoking agent:", error);
         if (!res.headersSent) {
@@ -79,6 +96,7 @@ agentRouter.post('/invoke', async (req, res) => {
                 error: "An error occurred while invoking the agent."
             });
         } else {
+            res.write(`data: ${JSON.stringify({ type: 'error', message: error.message })}\n\n`);
             res.end();
         }
     }
