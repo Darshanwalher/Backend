@@ -1,7 +1,6 @@
 import "dotenv/config";
 import express from 'express';
 import morgan from "morgan";
-import jwt from "jsonwebtoken";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import cookieParser from "cookie-parser";
 import passport from "passport";

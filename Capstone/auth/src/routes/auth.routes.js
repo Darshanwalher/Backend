@@ -1,6 +1,8 @@
 import { Router } from "express";
 import userModel from "../models/user.model.js";
 import passport from "passport";
+import jwt from "jsonwebtoken";
+import { sendAuthNotification } from "../config/mq.js";
 
 const router = Router();
 
@@ -22,6 +24,13 @@ router.get('/google/callback', passport.authenticate('google', {
             });
             await user.save();
         }
+
+        await sendAuthNotification({
+            userId: user._id,
+            action: 'google_login',
+            timestamp: new Date(),
+            email: emails[0].value
+        });
         // Generate JWT token
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.cookie('token', token, { httpOnly: true });
