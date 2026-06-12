@@ -56,4 +56,5 @@ manifests:
     - K8s/router-deployment.yml
     - K8s/router-service.yml
     - K8s/rbac.yml
+    - K8s/secrets.yml
 
