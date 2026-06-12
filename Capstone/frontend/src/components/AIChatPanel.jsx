@@ -492,10 +492,10 @@ export default function AIChatPanel({
           <Bot className="w-4 h-4 text-[#569cd6]" />
           <span>AI Assistant</span>
         </div>
-        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#1e1e1e] border border-[#3e3e42] text-[10px] font-mono text-[#858585]">
+        {/* <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#1e1e1e] border border-[#3e3e42] text-[10px] font-mono text-[#858585]">
           <Sparkles className="w-3 h-3 text-[#4ec9b0]" />
           <span>copilot_v2</span>
-        </div>
+        </div> */}
       </div>
 
       {/* Messages Viewport */}
@@ -509,7 +509,7 @@ export default function AIChatPanel({
           return (
             <div key={index} className={`flex flex-col w-full ${isUser ? 'items-end' : 'items-start'}`}>
               <span className="text-[9px] font-mono text-[#858585] mb-1 px-1">
-                {isUser ? 'DEVELOPER' : 'NEON_CORE'}
+                {isUser ? 'DEVELOPER' : 'AI Agent'}
               </span>
               
               <div
