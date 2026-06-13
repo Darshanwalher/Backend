@@ -214,6 +214,7 @@ export default function App() {
       const response = await fetch('/api/ai/invoke', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           message: userPrompt,
           sandboxId: sandboxId
