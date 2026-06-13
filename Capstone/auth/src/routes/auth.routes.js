@@ -32,9 +32,9 @@ router.get('/google/callback', passport.authenticate('google', {
             email: emails[0].value
         });
         // Generate JWT token
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id }, process.env.jwt_secret, { expiresIn: '1h' });
         res.cookie('token', token, { httpOnly: true });
-        res.redirect('/');
+        res.redirect('http://localhost:5173');
     } catch (err) {
         console.error('Error occurred while processing Google login:', err);
         res.redirect('/');

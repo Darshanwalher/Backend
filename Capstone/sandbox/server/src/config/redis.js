@@ -2,9 +2,24 @@ import Redis from 'ioredis';
 import { deletePod } from '../kubernetes/pod.js';
 import { deleteService } from '../kubernetes/service.js';
 
-const redis = new Redis(process.env.REDIS_URL);
+const redisOptions = {
+    retryStrategy(times) {
+        const delay = Math.min(times * 500, 5000);
+        console.log(`Redis reconnecting... attempt ${times}, next retry in ${delay}ms`);
+        return delay;
+    },
+    maxRetriesPerRequest: null,
+};
 
-const subscriber = new Redis(process.env.REDIS_URL);
+const redis = new Redis(process.env.REDIS_URL, redisOptions);
+
+redis.on('connect', () => console.log('Redis client connected'));
+redis.on('error', (err) => console.error('Redis client error:', err.message));
+
+const subscriber = new Redis(process.env.REDIS_URL, redisOptions);
+
+subscriber.on('connect', () => console.log('Redis subscriber connected'));
+subscriber.on('error', (err) => console.error('Redis subscriber error:', err.message));
 
 export async function createSandboxKey(sandboxId){
     await redis.set(`sandbox:${sandboxId}`, JSON.stringify({

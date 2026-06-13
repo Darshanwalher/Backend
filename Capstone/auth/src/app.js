@@ -4,14 +4,21 @@ import morgan from "morgan";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import cookieParser from "cookie-parser";
 import passport from "passport";
+import cors from "cors";
 
 import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 
+
 app.use(morgan("dev"));
 app.use(cookieParser());
 app.use(passport.initialize());
+
+app.use(cors({
+    origin: 'http://localhost:5173',  
+    credentials: true
+}));
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
