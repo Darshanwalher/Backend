@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Cpu, Terminal, ShieldCheck, Wifi, Layers } from 'lucide-react';
 
 export default function ProvisioningScreen({ sandboxId, onComplete }) {
@@ -9,6 +9,7 @@ export default function ProvisioningScreen({ sandboxId, onComplete }) {
     'DHCP: Requesting sandbox IP lease...'
   ]);
   const logContainerRef = useRef(null);
+  const canvasRef = useRef(null);
 
   const steps = [
     { label: 'Allocating dedicated container resources', icon: Cpu },
@@ -35,6 +36,73 @@ export default function ProvisioningScreen({ sandboxId, onComplete }) {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
   }, [logs]);
+
+  // Particle background animation (LoginPage vibes)
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resize);
+    resize();
+
+    const particles = [];
+    const colors = ['rgba(86, 156, 214, 0.15)', 'rgba(78, 201, 176, 0.15)'];
+    const particleCount = Math.min(45, Math.floor((window.innerWidth * window.innerHeight) / 28000));
+    
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2 + 1.5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.35,
+      });
+    }
+
+    const animate = () => {
+      ctx.fillStyle = '#121214';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw dot grid texture
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+      for (let x = 0; x < canvas.width; x += 24) {
+        for (let y = 0; y < canvas.height; y += 24) {
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+
+      // Draw particles
+      particles.forEach((p) => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
 
   // Sequential loading and log append
   useEffect(() => {
@@ -70,7 +138,7 @@ export default function ProvisioningScreen({ sandboxId, onComplete }) {
             } else {
               setLogs(prev => [...prev, `SYSTEM: Waiting for routing (attempt ${attempts})...`]);
             }
-          } catch (err) {
+          } catch {
             setLogs(prev => [...prev, `SYSTEM: Waiting for routing (attempt ${attempts})...`]);
           }
         }, 1000);
@@ -84,114 +152,103 @@ export default function ProvisioningScreen({ sandboxId, onComplete }) {
   }, []);
 
   return (
-    <div className="flex-1 flex items-center justify-center p-6 bg-[#1e1e1e] select-none">
-      <section className="w-full max-w-2xl bg-[#252526] border border-[#3e3e42] rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[750px] relative font-mono">
-        {/* Panel Header */}
-        <div className="h-10 px-4 flex items-center justify-between bg-[#2d2d30] border-b border-[#3e3e42] shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#4ec9b0] animate-pulse"></span>
-            <span className="font-mono text-[11px] text-[#858585]">Sandbox Provisioning Manager</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-[#3e3e42]"></div>
-            <div className="w-2 h-2 rounded-full bg-[#3e3e42]"></div>
-            <div className="w-2 h-2 rounded-full bg-[#3e3e42]"></div>
-          </div>
+    <div className="min-h-screen w-screen flex items-center justify-center p-4 sm:p-6 relative bg-[#121214] overflow-hidden select-none">
+      {/* Background Canvas */}
+      <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none" />
+
+      {/* Main Glassmorphic Panel Container */}
+      <section className="auth-card z-10 w-full max-w-[650px] p-6 sm:p-8 flex flex-col gap-6 animate-card-entrance relative">
+        {/* Top Progress Bar */}
+        <div className="w-full h-1 bg-[#1e1e1e] rounded overflow-hidden relative border border-[#3e3e42]/50">
+          <div 
+            className="h-full bg-[#4ec9b0] transition-all duration-300 shadow-[0_0_12px_rgba(78,201,176,0.5)]"
+            style={{ width: `${Math.min(Math.round((step / steps.length) * 100), 100)}%` }}
+          ></div>
         </div>
 
-        {/* Central Layout */}
-        <div className="flex-1 flex flex-col p-6 items-center text-center bg-[#252526]">
-          {/* Circular SVG Spinner */}
-          <div className="relative w-20 h-20 mb-6 flex items-center justify-center">
-            <svg className="spinner-ring w-full h-full absolute inset-0" viewBox="0 0 50 50">
-              <circle
-                cx="25"
-                cy="25"
-                fill="none"
-                r="20"
-                stroke="#4ec9b0"
-                strokeDasharray="90, 150"
-                strokeDashoffset="-35"
-                strokeLinecap="round"
-                strokeWidth="3.5"
-              ></circle>
-            </svg>
-            <div className="text-white font-mono text-xs font-bold">
-              {Math.min(Math.round((step / steps.length) * 100), 100)}%
-            </div>
+        {/* Loading core & status metadata */}
+        <div className="flex flex-col items-center text-center">
+          <div className="relative w-16 h-16 mb-4 flex items-center justify-center">
+            <div className="absolute inset-0 border border-[#4ec9b0]/20 rounded-full animate-ping"></div>
+            <div className="absolute inset-2 border border-[#4ec9b0]/40 rounded-full animate-pulse"></div>
+            <Cpu className="w-6 h-6 text-[#4ec9b0] animate-pulse" />
           </div>
 
-          <h1 className="text-sm font-bold text-[#d4d4d4] mb-6 tracking-wider uppercase font-mono">
+          <h2 className="text-sm font-bold text-white tracking-widest uppercase">
             Provisioning Sandbox Container
-          </h1>
+          </h2>
+          <p className="text-[#858585] text-[9px] uppercase tracking-wider font-mono mt-1.5">
+            Ref: {sandboxId ? sandboxId.substring(0, 8) : 'allocating'}
+          </p>
+        </div>
 
-          {/* Status Step List */}
-          <div className="w-full max-w-md space-y-2 text-left mb-6 font-mono text-[11px]">
-            {steps.map((s, idx) => {
-              const Icon = s.icon;
-              const isDone = step > idx;
-              const isActive = step === idx;
+        {/* Status Step List */}
+        <div className="space-y-2 text-left font-mono text-[11px] w-full">
+          {steps.map((s, idx) => {
+            const Icon = s.icon;
+            const isDone = step > idx;
+            const isActive = step === idx;
 
-              return (
-                <div
-                  key={idx}
-                  className={`flex items-center justify-between p-2.5 rounded border transition-all duration-200 ${isDone
-                      ? 'bg-[#2d2d30]/30 border-[#3e3e42] text-[#858585]'
-                      : isActive
-                        ? 'bg-[#2d2d30] border-[#4ec9b0]/40 text-[#d4d4d4] shadow-sm'
-                        : 'border-transparent text-[#858585]/20'
-                    }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#4ec9b0] animate-pulse' : isDone ? 'text-[#4ec9b0]/65' : 'text-[#858585]/20'}`} />
-                    <span>{s.label}...</span>
-                  </div>
-                  <span>
-                    {isDone ? (
-                      <span className="text-[#6a9955] font-bold">[ OK ]</span>
-                    ) : isActive ? (
-                      <span className="text-[#4ec9b0] animate-pulse font-semibold">BOOTING</span>
-                    ) : (
-                      <span>WAIT</span>
-                    )}
-                  </span>
+            return (
+              <div
+                key={idx}
+                className={`flex items-center justify-between p-2.5 rounded border transition-all duration-200 ${
+                  isDone
+                    ? 'bg-[#1a1a1c]/30 border-[#3e3e42]/60 text-[#858585]'
+                    : isActive
+                      ? 'bg-[#1e1e1e] border-[#4ec9b0]/40 text-[#d4d4d4] shadow-[0_0_10px_rgba(78,201,176,0.05)]'
+                      : 'border-transparent text-[#858585]/20'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#4ec9b0] animate-pulse' : isDone ? 'text-[#4ec9b0]/65' : 'text-[#858585]/20'}`} />
+                  <span>{s.label}...</span>
                 </div>
-              );
-            })}
+                <span>
+                  {isDone ? (
+                    <span className="text-[#6a9955] font-bold">[ OK ]</span>
+                  ) : isActive ? (
+                    <span className="text-[#4ec9b0] animate-pulse font-semibold">BOOTING</span>
+                  ) : (
+                    <span>WAIT</span>
+                  )}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Terminal Console Logs */}
+        <div className="w-full bg-[#1a1a1c] border border-[#3e3e42] rounded-lg overflow-hidden flex flex-col text-left font-mono">
+          <div className="flex items-center justify-between px-3 py-1.5 bg-[#252526] border-b border-[#3e3e42]">
+            <span className="text-[9px] text-[#858585] uppercase tracking-wider flex items-center gap-1.5 font-semibold">
+              <Terminal className="w-3.5 h-3.5 text-[#569cd6]" />
+              Boot Diagnostic Console
+            </span>
+            <span className="text-[9px] text-[#858585]/40">log_feed.txt</span>
           </div>
 
-          {/* Terminal Console Logs */}
-          <div className="w-full bg-[#1e1e1e] border border-[#3e3e42] rounded-lg overflow-hidden flex flex-col text-left">
-            <div className="flex items-center justify-between px-3 py-1.5 bg-[#252526] border-b border-[#3e3e42]">
-              <span className="font-mono text-[9px] text-[#858585] uppercase tracking-wider flex items-center gap-1.5">
-                <Terminal className="w-3.5 h-3.5 text-[#569cd6]" />
-                Boot Diagnostic Console
-              </span>
-              <span className="text-[9px] text-[#858585]/40 font-mono">log_feed.txt</span>
-            </div>
-
-            <div
-              ref={logContainerRef}
-              className="p-4 font-mono text-[11px] h-32 overflow-y-auto custom-scrollbar bg-[#1e1e1e] text-[#858585]"
-            >
-              {logs.map((log, idx) => (
-                <div key={idx} className="mb-0.5 leading-relaxed break-all font-mono">
-                  <span className="text-[#858585]/45 mr-1.5">$</span>
-                  {log}
-                </div>
-              ))}
-              <div className="inline-block w-1.5 h-3 bg-[#4ec9b0] align-middle cursor-blink ml-1"></div>
-            </div>
+          <div
+            ref={logContainerRef}
+            className="p-3.5 text-[10px] h-32 overflow-y-auto bg-[#121214] text-[#858585] font-mono leading-relaxed"
+          >
+            {logs.map((log, idx) => (
+              <div key={idx} className="mb-0.5 break-all">
+                <span className="text-[#858585]/45 mr-1.5">$</span>
+                {log}
+              </div>
+            ))}
+            <div className="inline-block w-1.5 h-3 bg-[#4ec9b0] align-middle cursor-blink ml-1"></div>
           </div>
         </div>
 
-        {/* Footer Bar */}
-        <div className="h-9 px-4 bg-[#2d2d30] flex items-center justify-between border-t border-[#3e3e42] shrink-0 font-mono text-[10px] text-[#858585]">
-          <div className="flex items-center gap-4">
-            <span>RAM: 512MB limit</span>
-            <span>CPU: 1 core allocation</span>
+        {/* Footer info bar */}
+        <div className="flex justify-between items-center border-t border-[#3e3e42]/50 pt-4 font-mono text-[9px] text-[#858585]">
+          <div className="flex items-center gap-3">
+            <span>RAM: 512MB Limit</span>
+            <span>CPU: 1 Core Allocation</span>
           </div>
-          <span>Ref: {sandboxId?.substring(0, 8)}</span>
+          <span className="text-[#4ec9b0] animate-pulse uppercase tracking-wider font-bold">telemetry_connected</span>
         </div>
       </section>
     </div>

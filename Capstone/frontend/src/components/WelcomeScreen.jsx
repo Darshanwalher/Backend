@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../store/authSlice';
-import { Play, Sparkles, Terminal, Cpu, Layers, HelpCircle, AlertCircle, Plus, LogIn, Folder, ChevronRight, Check } from 'lucide-react';
+import { Play, Sparkles, Terminal, Cpu, HelpCircle, AlertCircle, Plus, Folder, Check } from 'lucide-react';
 
 export default function WelcomeScreen({ onCreateSandbox }) {
   const dispatch = useDispatch();
@@ -14,6 +14,8 @@ export default function WelcomeScreen({ onCreateSandbox }) {
   const [loading, setLoading] = useState(false);
   const [creatingProject, setCreatingProject] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const canvasRef = useRef(null);
 
   // Fetch projects on load
   const fetchProjects = async () => {
@@ -44,6 +46,73 @@ export default function WelcomeScreen({ onCreateSandbox }) {
 
   useEffect(() => {
     fetchProjects();
+  }, []);
+
+  // Particle background animation (LoginPage vibes)
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resize);
+    resize();
+
+    const particles = [];
+    const colors = ['rgba(86, 156, 214, 0.15)', 'rgba(78, 201, 176, 0.15)'];
+    const particleCount = Math.min(45, Math.floor((window.innerWidth * window.innerHeight) / 28000));
+    
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2 + 1.5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.35,
+      });
+    }
+
+    const animate = () => {
+      ctx.fillStyle = '#121214';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw dot grid texture
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+      for (let x = 0; x < canvas.width; x += 24) {
+        for (let y = 0; y < canvas.height; y += 24) {
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+
+      // Draw particles
+      particles.forEach((p) => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId);
+    };
   }, []);
 
   const handleCreateProject = async (e) => {
@@ -125,164 +194,206 @@ export default function WelcomeScreen({ onCreateSandbox }) {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center p-6 relative overflow-hidden bg-[#1e1e1e] select-none">
-      <div className="max-w-xl w-full bg-[#252526] border border-[#3e3e42] rounded-xl p-8 shadow-2xl relative">
-        <div className="absolute -top-12 -left-12 w-32 h-32 bg-[#4ec9b0]/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-[#569cd6]/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen w-screen flex items-center justify-center p-4 sm:p-6 relative bg-[#121214] overflow-hidden select-none">
+      {/* Background Canvas */}
+      <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none" />
 
-        {/* User Profile Info Badge */}
-        {user && (
-          <div className="mb-6 p-4 rounded-lg bg-[#1e1e1e] border border-[#3e3e42] flex items-center justify-between gap-4 font-mono">
-            <div className="flex items-center gap-3">
-              {user.avtar ? (
-                <img
-                  src={user.avtar}
-                  alt={user.name}
-                  className="w-10 h-10 rounded-full object-cover border border-[#3e3e42]"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}`;
-                  }}
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-[#2a2d2e] border border-[#3e3e42] flex items-center justify-center text-[#569cd6] text-xs font-bold font-mono">
-                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+      {/* Main Glassmorphic Bento Container */}
+      <div className="auth-card z-10 w-full max-w-[850px] p-6 sm:p-10 transition-all duration-300 ease-in-out flex flex-col md:grid md:grid-cols-12 md:gap-10 animate-card-entrance">
+        
+        {/* Left Column: Branding and Tech Teaser */}
+        <div className="md:col-span-7 flex flex-col justify-between mb-8 md:mb-0">
+          <div>
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="relative w-10 h-10 flex items-center justify-center bg-[#1e1e1e] rounded-full border border-white/5 shadow-inner">
+                <Cpu className="w-5 h-5 text-[#569cd6] animate-icon-glow rounded-full" />
+              </div>
+              <span className="font-mono text-[9px] px-2.5 py-0.5 bg-[#252526] text-[#858585] rounded border border-[#3e3e42] tracking-wider uppercase font-semibold">
+                v1.0.0 Stable
+              </span>
+            </div>
+            
+            <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">
+              CodeSpace
+            </h1>
+            <p className="text-[#858585] text-xs font-sans leading-relaxed mb-6">
+              The ultra-dense, technical development environment designed for advanced telemetry and AI-native architecture.
+            </p>
+
+            {/* Bento-style Features List */}
+            <div className="flex flex-col gap-3 font-sans">
+              <div className="p-3.5 bg-[#1a1a1c]/60 border-l-2 border-[#3e3e42] hover:border-[#569cd6] transition-all duration-300 rounded-r-lg">
+                <div className="flex items-start gap-3">
+                  <Terminal className="w-4 h-4 text-[#569cd6] mt-0.5 shrink-0" />
+                  <div>
+                    <h3 className="text-xs font-bold text-white font-mono">Full Terminal Access</h3>
+                    <p className="text-[10px] text-[#858585] font-sans mt-0.5 leading-relaxed">
+                      Low-latency shell access with pre-configured container environments and libraries.
+                    </p>
+                  </div>
                 </div>
-              )}
-              <div className="flex flex-col">
-                <span className="text-xs font-semibold text-[#d4d4d4] truncate max-w-[200px]">{user.name}</span>
-                <span className="text-[10px] text-[#858585] truncate max-w-[200px]">{user.email}</span>
+              </div>
+
+              <div className="p-3.5 bg-[#1a1a1c]/60 border-l-2 border-[#3e3e42] hover:border-[#4ec9b0] transition-all duration-300 rounded-r-lg">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="w-4 h-4 text-[#4ec9b0] mt-0.5 shrink-0" />
+                  <div>
+                    <h3 className="text-xs font-bold text-white font-mono">AI-Driven Co-Development</h3>
+                    <p className="text-[10px] text-[#858585] font-sans mt-0.5 leading-relaxed">
+                      Instant file tree generation, real-time code edit triggers, and conversational AI workflows.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
 
+          {/* Action Button */}
+          <div className="mt-8">
             <button
-              onClick={() => dispatch(logoutUser())}
-              className="text-[10px] uppercase font-semibold text-[#f44747] hover:text-[#ff6a6a] border border-[#f44747]/20 hover:border-[#f44747]/40 px-2.5 py-1.5 rounded transition-all duration-150 cursor-pointer"
+              onClick={() => handleStart()}
+              disabled={loading || !selectedProjectId}
+              className="animate-border-shimmer w-full bg-[#569cd6] hover:bg-[#6db3f2] active:bg-[#4a8bc2] disabled:bg-[#3e3e42] disabled:opacity-50 text-[#121214] font-semibold py-3.5 rounded-lg active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer text-xs uppercase tracking-wider border border-[#569cd6] hover:shadow-[0_0_20px_rgba(86,156,214,0.3)] hover:-translate-y-0.5 active:translate-y-0 focus:outline-none font-mono"
             >
-              Sign Out
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-[#121214] border-t-transparent rounded-full animate-spin"></span>
+                  <span>Deploying Container...</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4 fill-[#121214] stroke-[#121214]" />
+                  <span>Initialize Sandbox Environment</span>
+                </>
+              )}
             </button>
           </div>
-        )}
-
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#2a2d2e] border border-[#3e3e42] text-[#4ec9b0] text-[10px] font-semibold uppercase tracking-wider mb-4 font-mono">
-            <Cpu className="w-3.5 h-3.5 text-[#4ec9b0]" />
-            Developer Dashboard
-          </div>
-          <h1 className="text-4xl font-extrabold text-[#d4d4d4] tracking-tight mb-2 flex justify-center items-center gap-2 font-mono">
-            <svg className="w-8 h-8 text-[#569cd6]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
-            CodeSpace
-          </h1>
-          <p className="text-[#858585] text-xs font-mono">
-            Select an existing sandbox project or deploy a brand new environment.
-          </p>
         </div>
 
-        {errorMsg && (
-          <div className="mb-6 p-4 bg-red-950/20 border border-red-900/30 text-[#f44747] rounded-lg text-xs flex gap-3 font-mono">
-            <AlertCircle className="w-5 h-5 shrink-0 text-[#f44747]" />
-            <div className="flex flex-col gap-2">
-              <span>{errorMsg}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Project Selection / List */}
-        <div className="mb-6">
-          <h3 className="text-xs font-mono font-semibold text-[#858585] mb-2 uppercase tracking-wide">
-            Select Active Project
-          </h3>
-
-          {projects.length === 0 ? (
-            <div className="p-4 rounded-lg bg-[#2d2d30] border border-dashed border-[#3e3e42] text-center text-xs text-[#858585] font-mono">
-              No projects found. Create one below to begin.
-            </div>
-          ) : (
-            <div className="max-h-[160px] overflow-y-auto border border-[#3e3e42] rounded-lg divide-y divide-[#3e3e42] custom-scrollbar bg-[#1e1e1e]">
-              {projects.map((proj) => {
-                const isSelected = selectedProjectId === proj._id;
-                return (
-                  <button
-                    key={proj._id}
-                    onClick={() => {
-                      setSelectedProjectId(proj._id);
-                      handleStart(proj._id);
-                    }}
-                    className={`w-full flex items-center justify-between p-3 text-left transition-all duration-150 cursor-pointer ${isSelected
-                        ? 'bg-[#2d2d30] text-[#d4d4d4]'
-                        : 'text-[#858585] hover:text-[#d4d4d4] hover:bg-[#202021]'
-                      }`}
-                  >
-                    <div className="flex items-center gap-2.5 font-mono text-xs">
-                      <Folder className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#4ec9b0]' : 'text-[#858585]'}`} />
-                      <span className="font-semibold truncate max-w-[280px]">{proj.title}</span>
+        {/* Right Column: Projects & User Info */}
+        <div className="md:col-span-5 flex flex-col justify-between border-t md:border-t-0 md:border-l border-[#3e3e42]/60 pt-6 md:pt-0 md:pl-8">
+          <div>
+            {/* User Profile Info Badge */}
+            {user && (
+              <div className="p-3.5 rounded-lg bg-[#1a1a1c]/60 border border-[#3e3e42]/70 flex items-center justify-between gap-3 font-mono mb-5 shadow-sm">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {user.avtar ? (
+                    <img
+                      src={user.avtar}
+                      alt={user.name}
+                      className="w-8 h-8 rounded-full object-cover border border-[#3e3e42] shrink-0"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}`;
+                      }}
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-[#252526] border border-[#3e3e42] flex items-center justify-center text-[#569cd6] text-xs font-bold font-mono shrink-0">
+                      {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                     </div>
-                    {isSelected && (
-                      <Check className="w-4 h-4 text-[#4ec9b0] stroke-[2.5]" />
-                    )}
-                  </button>
-                );
-              })}
+                  )}
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[11px] font-semibold text-[#d4d4d4] truncate max-w-[120px]">{user.name}</span>
+                    <span className="text-[9px] text-[#858585] truncate max-w-[120px]">{user.email}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => dispatch(logoutUser())}
+                  className="text-[9px] uppercase font-semibold text-[#f14c4c] hover:text-[#ff6a6a] border border-[#f14c4c]/20 hover:border-[#f14c4c]/40 px-2 py-1 rounded transition-all duration-150 cursor-pointer shrink-0"
+                >
+                  Sign Out
+                </button>
+              </div>
+            )}
+
+            {/* Error Message Display */}
+            {errorMsg && (
+              <div className="mb-4 p-3 bg-red-950/20 border border-[#f14c4c]/30 text-[#f14c4c] rounded-lg text-[10px] flex gap-2.5 animate-fade-in font-mono">
+                <AlertCircle className="w-4 h-4 shrink-0 text-[#f14c4c]" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            {/* Project Selection / List */}
+            <div className="mb-5">
+              <h3 className="text-[10px] font-mono font-semibold text-[#858585] mb-2 uppercase tracking-wider">
+                Select Active Project
+              </h3>
+
+              {projects.length === 0 ? (
+                <div className="p-4 rounded-lg bg-[#1a1a1c]/40 border border-dashed border-[#3e3e42] text-center text-[10px] text-[#858585] font-mono">
+                  No projects found. Create one below to begin.
+                </div>
+              ) : (
+                <div className="max-h-[160px] overflow-y-auto border border-[#3e3e42]/80 rounded-lg divide-y divide-[#3e3e42]/60 bg-[#1a1a1c]/40 shadow-inner">
+                  {projects.map((proj) => {
+                    const isSelected = selectedProjectId === proj._id;
+                    return (
+                      <button
+                        key={proj._id}
+                        onClick={() => {
+                          setSelectedProjectId(proj._id);
+                          handleStart(proj._id);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 text-left transition-all duration-150 cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#252526] text-white font-bold'
+                            : 'text-[#858585] hover:text-[#d4d4d4] hover:bg-[#202021]/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 font-mono text-[11px] min-w-0">
+                          <Folder className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-[#4ec9b0]' : 'text-[#858585]'}`} />
+                          <span className="truncate">{proj.title}</span>
+                        </div>
+                        {isSelected && (
+                          <Check className="w-3.5 h-3.5 text-[#4ec9b0] shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Create New Project Section */}
-        <form onSubmit={handleCreateProject} className="mb-8 p-3 rounded-lg bg-[#2d2d30]/65 border border-[#3e3e42] flex gap-2 items-center">
-          <input
-            type="text"
-            placeholder="New Project Title..."
-            value={newProjectTitle}
-            onChange={(e) => setNewProjectTitle(e.target.value)}
-            disabled={creatingProject}
-            className="flex-1 bg-[#1e1e1e] border border-[#3e3e42] rounded px-3 py-1.5 font-mono text-xs text-[#d4d4d4] focus:outline-none focus:ring-1 focus:ring-[#007fd4] disabled:opacity-50"
-          />
-          <button
-            type="submit"
-            disabled={creatingProject || !newProjectTitle.trim()}
-            className="px-3.5 py-1.5 rounded bg-[#2a2d2e] hover:bg-[#3e3e42] border border-[#3e3e42] hover:border-[#569cd6]/30 text-[#d4d4d4] disabled:text-[#858585] font-mono text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors duration-150 disabled:opacity-50"
-          >
-            {creatingProject ? (
-              <span className="w-3.5 h-3.5 border-2 border-[#858585] border-t-transparent rounded-full animate-spin"></span>
-            ) : (
-              <Plus className="w-3.5 h-3.5" />
-            )}
-            <span>Create</span>
-          </button>
-        </form>
+            {/* Create New Project Section */}
+            <div className="mb-6">
+              <h3 className="text-[10px] font-mono font-semibold text-[#858585] mb-2 uppercase tracking-wider">
+                Create New Project
+              </h3>
+              <form onSubmit={handleCreateProject} className="p-2 rounded-lg bg-[#1a1a1c]/40 border border-[#3e3e42]/80 flex gap-2 items-center">
+                <input
+                  type="text"
+                  placeholder="New Project Title..."
+                  value={newProjectTitle}
+                  onChange={(e) => setNewProjectTitle(e.target.value)}
+                  disabled={creatingProject}
+                  className="flex-1 bg-[#252526]/80 border border-[#3e3e42] rounded px-3 py-1.5 font-mono text-[11px] text-[#d4d4d4] focus:outline-none focus:border-[#569cd6] disabled:opacity-50"
+                />
+                <button
+                  type="submit"
+                  disabled={creatingProject || !newProjectTitle.trim()}
+                  className="px-3 py-1.5 rounded bg-[#252526] hover:bg-[#2d2d30] border border-[#3e3e42] hover:border-[#569cd6]/30 text-white disabled:text-[#858585] font-mono text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-colors duration-150 disabled:opacity-50"
+                >
+                  {creatingProject ? (
+                    <span className="w-3 h-3 border-2 border-[#858585] border-t-transparent rounded-full animate-spin"></span>
+                  ) : (
+                    <Plus className="w-3.5 h-3.5" />
+                  )}
+                  <span>Create</span>
+                </button>
+              </form>
+            </div>
+          </div>
 
-        {/* Action Controls */}
-        <div className="flex flex-col gap-4">
-          <button
-            onClick={() => handleStart()}
-            disabled={loading || !selectedProjectId}
-            className="w-full relative overflow-hidden bg-[#0e639c] hover:bg-[#1177bb] disabled:bg-[#2d2d30] text-[#d4d4d4] disabled:text-[#858585] font-bold py-3 rounded-lg active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 font-mono text-xs uppercase tracking-wider focus:outline-none focus:ring-1 focus:ring-[#007fd4]"
-          >
-            {loading ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-[#d4d4d4]" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Deploying Container...
-              </>
-            ) : (
-              <>
-                <Play className="w-4 h-4 fill-[#d4d4d4] stroke-[#d4d4d4]" />
-                Initialize Sandbox Environment
-              </>
-            )}
-          </button>
-
-          <div className="flex items-center justify-between border-t border-[#3e3e42] pt-4 text-xs font-mono">
+          <div className="flex items-center justify-between border-t border-[#3e3e42]/50 pt-4 text-[10px] font-mono">
             <span className="text-[#858585] flex items-center gap-1">
-              <HelpCircle className="w-3.5 h-3.5" /> Session state:
+              <HelpCircle className="w-3 h-3" /> Session State:
             </span>
-            <span className="text-[#4ec9b0] text-[11px] uppercase tracking-wider font-bold">Authenticated</span>
+            <span className="text-[#4ec9b0] text-[10px] uppercase tracking-wider font-bold">Authenticated</span>
           </div>
         </div>
+
       </div>
     </div>
   );

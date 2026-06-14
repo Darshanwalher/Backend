@@ -115,7 +115,11 @@ const authSlice = createSlice({
         state.status = 'failed';
         state.user = null;
         state.isAuthenticated = false;
-        state.error = action.payload;
+        // If the user has no token (not logged in yet), don't set an error message
+        // since it is the expected initial state, not an actual application failure.
+        if (action.payload && action.payload !== 'Authentication token is missing') {
+          state.error = action.payload;
+        }
       })
       // loginUser
       .addCase(loginUser.pending, (state) => {
