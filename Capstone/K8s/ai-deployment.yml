@@ -19,11 +19,11 @@ spec:
         name:  ai-server
         resources:
           requests:
-            cpu: "250m"
-            memory: "128M"
-          limits:
             cpu: "500m"
-            memory: "256M"
+            memory: "256Mi"
+          limits:
+            cpu: "1000m"
+            memory: "512Mi"
         env:
           - name: MISTRAL_API_KEY
             valueFrom:

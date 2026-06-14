@@ -1,12 +1,42 @@
 import "dotenv/config";
-import { ChatMistralAI } from "@langchain/mistralai"
+import { ChatMistralAI } from "@langchain/mistralai";
 import { listFiles, readFiles, updateFiles } from "./tools.js";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { HTTPClient } from "@mistralai/mistralai/lib/http.js";
+
+const customFetcher = (input, init) => {
+  const url = typeof input === 'string' ? input : (input && input.url) ? input.url : '';
+  if (url && url.includes('api.mistral.ai')) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort(new DOMException('The operation was aborted due to timeout', 'TimeoutError'));
+    }, 120000); // 120 seconds
+    
+    let fetchInput = input;
+    let fetchInit = { ...init, signal: controller.signal };
+    
+    if (input instanceof Request) {
+      const { signal, ...restInit } = init || {};
+      fetchInput = new Request(input, {
+        signal: controller.signal,
+        ...restInit
+      });
+      fetchInit = undefined;
+    }
+    
+    return fetch(fetchInput, fetchInit).finally(() => clearTimeout(timeoutId));
+  }
+  return fetch(input, init);
+};
+
+const customHttpClient = new HTTPClient({ fetcher: customFetcher });
 
 const model = new ChatMistralAI({
     model: "mistral-large-latest",
     apiKey: process.env.MISTRAL_API_KEY,
-    "temperature": 0.7,
+    temperature: 0.7,
+    timeout: 120000,
+    httpClient: customHttpClient,
 })
 
 const agent = createReactAgent({
