@@ -53,7 +53,7 @@ export default function ProvisioningScreen({ sandboxId, onComplete }) {
         stepIndex++;
       } else {
         clearInterval(stepInterval);
-        
+
         setLogs(prev => [...prev, 'SYSTEM: Verifying agent network propagation...']);
         let attempts = 0;
         const pollInterval = setInterval(async () => {
@@ -135,13 +135,12 @@ export default function ProvisioningScreen({ sandboxId, onComplete }) {
               return (
                 <div
                   key={idx}
-                  className={`flex items-center justify-between p-2.5 rounded border transition-all duration-200 ${
-                    isDone
+                  className={`flex items-center justify-between p-2.5 rounded border transition-all duration-200 ${isDone
                       ? 'bg-[#2d2d30]/30 border-[#3e3e42] text-[#858585]'
                       : isActive
-                      ? 'bg-[#2d2d30] border-[#4ec9b0]/40 text-[#d4d4d4] shadow-sm'
-                      : 'border-transparent text-[#858585]/20'
-                  }`}
+                        ? 'bg-[#2d2d30] border-[#4ec9b0]/40 text-[#d4d4d4] shadow-sm'
+                        : 'border-transparent text-[#858585]/20'
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <Icon className={`w-4 h-4 ${isActive ? 'text-[#4ec9b0] animate-pulse' : isDone ? 'text-[#4ec9b0]/65' : 'text-[#858585]/20'}`} />
@@ -170,8 +169,8 @@ export default function ProvisioningScreen({ sandboxId, onComplete }) {
               </span>
               <span className="text-[9px] text-[#858585]/40 font-mono">log_feed.txt</span>
             </div>
-            
-            <div 
+
+            <div
               ref={logContainerRef}
               className="p-4 font-mono text-[11px] h-32 overflow-y-auto custom-scrollbar bg-[#1e1e1e] text-[#858585]"
             >

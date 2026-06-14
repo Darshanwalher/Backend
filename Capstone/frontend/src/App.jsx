@@ -1,4 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { fetchCurrentUser } from './store/authSlice';
+import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
 import WelcomeScreen from './components/WelcomeScreen';
 import ProvisioningScreen from './components/ProvisioningScreen';
 import TopNav from './components/TopNav';
@@ -6,6 +11,7 @@ import FileExplorer from './components/FileExplorer';
 import PreviewPanel from './components/PreviewPanel';
 import TerminalPanel from './components/TerminalPanel';
 import AIChatPanel from './components/AIChatPanel';
+import { Cpu } from 'lucide-react';
 
 const standardizePath = (path) => {
   if (!path) return '';
@@ -26,7 +32,7 @@ function DragHandle({ direction, onMouseDown }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        width:  isCol ? '4px' : '100%',
+        width: isCol ? '4px' : '100%',
         height: isCol ? '100%' : '4px',
         cursor: isCol ? 'col-resize' : 'row-resize',
         backgroundColor: hovered ? '#4ec9b0' : '#3e3e42',
@@ -39,10 +45,10 @@ function DragHandle({ direction, onMouseDown }) {
       {/* invisible wider hit area for easier grabbing */}
       <div style={{
         position: 'absolute',
-        top:    isCol ? 0    : '-6px',
-        left:   isCol ? '-6px' : 0,
-        right:  isCol ? '-6px' : 0,
-        bottom: isCol ? 0    : '-6px',
+        top: isCol ? 0 : '-6px',
+        left: isCol ? '-6px' : 0,
+        right: isCol ? '-6px' : 0,
+        bottom: isCol ? 0 : '-6px',
         cursor: isCol ? 'col-resize' : 'row-resize',
       }} />
     </div>
@@ -50,11 +56,18 @@ function DragHandle({ direction, onMouseDown }) {
 }
 
 export default function App() {
+  const dispatch = useDispatch();
+  const { isAuthenticated, status, user } = useSelector((state) => state.auth);
+
   const [sandboxState, setSandboxState] = useState('welcome'); // 'welcome' | 'provisioning' | 'dashboard'
   const [sandboxId, setSandboxId] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState('disconnected');
-  
+
+  useEffect(() => {
+    dispatch(fetchCurrentUser());
+  }, [dispatch]);
+
   const [files, setFiles] = useState([]);
   const [fileContents, setFileContents] = useState({});
   const [openTabs, setOpenTabs] = useState([]);
@@ -205,7 +218,7 @@ export default function App() {
     const userMsg = { role: 'user', content: userPrompt };
     setChatMessages(prev => [...prev, userMsg]);
     setIsAiLoading(true);
-    
+
     let accumulatedLogs = ['Establishing SSE channel with agent...', 'Initializing AI model context...'];
     setAiLogs(accumulatedLogs);
 
@@ -226,7 +239,7 @@ export default function App() {
         try {
           const errData = await response.json();
           if (errData.error) errorMsg = errData.error;
-        } catch (e) {}
+        } catch (e) { }
         throw new Error(errorMsg);
       }
 
@@ -285,9 +298,9 @@ export default function App() {
 
       accumulatedLogs.push('✅ AI invocation completed. Reloading workspace files...');
       setAiLogs([...accumulatedLogs]);
-      
+
       await fetchFileTree();
-      
+
       if (activeTab !== 'preview') {
         const activeRes = await fetch(`http://${sandboxId}.agent.localhost/read-files?files=${activeTab}`);
         if (activeRes.ok) {
@@ -341,116 +354,153 @@ export default function App() {
     }
   };
 
-  if (sandboxState === 'welcome') {
+  if (status === 'loading' && !user) {
     return (
-      <WelcomeScreen
-        onCreateSandbox={handleCreateSandbox}
-      />
-    );
-  }
-
-  if (sandboxState === 'provisioning') {
-    return (
-      <ProvisioningScreen
-        sandboxId={sandboxId}
-        onComplete={handleProvisioningComplete}
-      />
+      <div className="flex h-screen w-screen items-center justify-center bg-[#1e1e1e] font-mono select-none">
+        <div className="text-center space-y-4">
+          <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
+            <svg className="spinner-ring w-full h-full absolute inset-0" viewBox="0 0 50 50">
+              <circle
+                cx="25"
+                cy="25"
+                fill="none"
+                r="20"
+                stroke="#569cd6"
+                strokeDasharray="90, 150"
+                strokeDashoffset="-35"
+                strokeLinecap="round"
+                strokeWidth="3"
+              ></circle>
+            </svg>
+            <Cpu className="w-6 h-6 text-[#569cd6] animate-pulse" />
+          </div>
+          <p className="text-sm text-[#858585] tracking-wide animate-pulse">
+            Verifying Authentication...
+          </p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div 
-      className="flex flex-col h-screen w-screen overflow-hidden bg-[#1e1e1e] text-[#d4d4d4]"
-      style={{ userSelect: isDragging ? 'none' : 'auto' }}
-    >
-      {/* Top Nav (48px height) */}
-      <TopNav
-        sandboxId={sandboxId}
-        onResetSandbox={handleResetSandbox}
-        connectionStatus={connectionStatus}
-      />
+    <Routes>
+      {!isAuthenticated ? (
+        <>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </>
+      ) : (
+        <>
+          <Route path="/login" element={<Navigate to="/" replace />} />
+          <Route path="/register" element={<Navigate to="/" replace />} />
+          <Route
+            path="/"
+            element={
+              sandboxState === 'welcome' ? (
+                <WelcomeScreen onCreateSandbox={handleCreateSandbox} />
+              ) : sandboxState === 'provisioning' ? (
+                <ProvisioningScreen sandboxId={sandboxId} onComplete={handleProvisioningComplete} />
+              ) : (
+                <div
+                  className="flex flex-col h-screen w-screen overflow-hidden bg-[#1e1e1e] text-[#d4d4d4]"
+                  style={{ userSelect: isDragging ? 'none' : 'auto' }}
+                >
+                  {/* Top Nav (48px height) */}
+                  <TopNav
+                    sandboxId={sandboxId}
+                    onResetSandbox={handleResetSandbox}
+                    connectionStatus={connectionStatus}
+                  />
 
-      {/* Main split resizable space */}
-      <div className="flex flex-1 overflow-hidden">
-        
-        {/* Left panel */}
-        <div
-          className="flex-shrink-0 overflow-hidden bg-[#252526] border-r border-[#3e3e42] flex flex-col h-full"
-          style={{ width: explorerWidth }}
-        >
-          <FileExplorer
-            files={files}
-            activeFile={activeTab}
-            onSelectFile={handleSelectFile}
-            modifiedFiles={modifiedFiles}
+                  {/* Main split resizable space */}
+                  <div className="flex flex-1 overflow-hidden">
+
+                    {/* Left panel */}
+                    <div
+                      className="flex-shrink-0 overflow-hidden bg-[#252526] border-r border-[#3e3e42] flex flex-col h-full"
+                      style={{ width: explorerWidth }}
+                    >
+                      <FileExplorer
+                        files={files}
+                        activeFile={activeTab}
+                        onSelectFile={handleSelectFile}
+                        modifiedFiles={modifiedFiles}
+                      />
+                    </div>
+
+                    {/* Drag handle — explorer | center */}
+                    <DragHandle direction="col" onMouseDown={dragExplorer} />
+
+                    {/* Center column */}
+                    <div ref={centerRef} className="flex flex-col flex-1 min-w-0 overflow-hidden bg-[#1e1e1e]">
+
+                      {/* Editor / Preview tabs */}
+                      <div
+                        className="flex-shrink-0 overflow-hidden border-b border-[#3e3e42]"
+                        style={{ height: previewHeight }}
+                      >
+                        <PreviewPanel
+                          key={`${previewKey}-${activeTab}`}
+                          previewUrl={previewUrl}
+                          fileContents={fileContents}
+                          openTabs={openTabs}
+                          activeTab={activeTab}
+                          onSelectTab={handleSelectTab}
+                          onCloseTab={handleCloseTab}
+                          activeFile={activeTab !== 'preview' ? activeTab : null}
+                          modifiedFiles={modifiedFiles}
+                          isDragging={isDragging}
+                        />
+                      </div>
+
+                      {/* Drag handle — preview | terminal */}
+                      <DragHandle direction="row" onMouseDown={dragPreview} />
+
+                      {/* Terminal */}
+                      <div className="flex-grow flex-1 overflow-hidden min-h-[120px]">
+                        <TerminalPanel
+                          sandboxId={sandboxId}
+                        />
+                      </div>
+
+                    </div>
+
+                    {/* Drag handle — center | chat */}
+                    <DragHandle direction="col" onMouseDown={dragChat} />
+
+                    {/* Right panel */}
+                    <div
+                      className="flex-shrink-0 overflow-hidden bg-[#252526] border-l border-[#3e3e42] flex flex-col h-full"
+                      style={{ width: chatWidth }}
+                    >
+                      <AIChatPanel
+                        chatMessages={chatMessages}
+                        onSendMessage={handleSendMessage}
+                        isAiLoading={isAiLoading}
+                        aiLogs={aiLogs}
+                      />
+                    </div>
+
+                  </div>
+
+                  {/* Footer status bar */}
+                  <footer className="h-6 bg-[#252526] border-t border-[#3e3e42] text-[#858585] font-mono text-[10px] font-semibold flex items-center justify-between px-4 z-40 select-none">
+                    <div className="flex items-center gap-4">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#4ec9b0]"></span>
+                        Host: codespace.localhost
+                      </span>
+                    </div>
+                    <span>UTF-8 • Line endings: LF</span>
+                  </footer>
+                </div>
+              )
+            }
           />
-        </div>
-
-        {/* Drag handle — explorer | center */}
-        <DragHandle direction="col" onMouseDown={dragExplorer} />
-
-        {/* Center column */}
-        <div ref={centerRef} className="flex flex-col flex-1 min-w-0 overflow-hidden bg-[#1e1e1e]">
-          
-          {/* Editor / Preview tabs */}
-          <div
-            className="flex-shrink-0 overflow-hidden border-b border-[#3e3e42]"
-            style={{ height: previewHeight }}
-          >
-            <PreviewPanel
-              key={`${previewKey}-${activeTab}`}
-              previewUrl={previewUrl}
-              fileContents={fileContents}
-              openTabs={openTabs}
-              activeTab={activeTab}
-              onSelectTab={handleSelectTab}
-              onCloseTab={handleCloseTab}
-              activeFile={activeTab !== 'preview' ? activeTab : null}
-              modifiedFiles={modifiedFiles}
-              isDragging={isDragging}
-            />
-          </div>
-
-          {/* Drag handle — preview | terminal */}
-          <DragHandle direction="row" onMouseDown={dragPreview} />
-
-          {/* Terminal */}
-          <div className="flex-grow flex-1 overflow-hidden min-h-[120px]">
-            <TerminalPanel
-              sandboxId={sandboxId}
-            />
-          </div>
-
-        </div>
-
-        {/* Drag handle — center | chat */}
-        <DragHandle direction="col" onMouseDown={dragChat} />
-
-        {/* Right panel */}
-        <div
-          className="flex-shrink-0 overflow-hidden bg-[#252526] border-l border-[#3e3e42] flex flex-col h-full"
-          style={{ width: chatWidth }}
-        >
-          <AIChatPanel
-            chatMessages={chatMessages}
-            onSendMessage={handleSendMessage}
-            isAiLoading={isAiLoading}
-            aiLogs={aiLogs}
-          />
-        </div>
-
-      </div>
-
-      {/* Footer status bar */}
-      <footer className="h-6 bg-[#252526] border-t border-[#3e3e42] text-[#858585] font-mono text-[10px] font-semibold flex items-center justify-between px-4 z-40 select-none">
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#4ec9b0]"></span>
-            Host: codespace.localhost
-          </span>
-        </div>
-        <span>UTF-8 • Line endings: LF</span>
-      </footer>
-    </div>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </>
+      )}
+    </Routes>
   );
 }

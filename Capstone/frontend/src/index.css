@@ -59,6 +59,7 @@
 
 /* Blink animation */
 @keyframes blink {
+
   0%,
   100% {
     opacity: 1;
@@ -192,4 +193,164 @@
 
 .hljs-attribute {
   color: #9cdcfe;
+}
+
+/* Solid base background for login page */
+.login-bg {
+  background-color: #121214;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle repeating dot grid mask */
+.bg-dot-grid {
+  background-size: 24px 24px;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
+@keyframes dot-grid-pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-dot-grid {
+  animation: dot-grid-pulse 8s infinite ease-in-out;
+}
+
+/* Glassmorphic Auth Card */
+.auth-card {
+  background: rgba(30, 30, 30, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  border-radius: 12px;
+}
+
+/* Page entrance: Card fades in + slides up from 30px below */
+@keyframes card-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-card-entrance {
+  animation: card-entrance 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Icon glow pulse: Soft breathing box-shadow */
+@keyframes icon-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(86, 156, 214, 0);
+  }
+  50% {
+    box-shadow: 0 0 16px 2px rgba(86, 156, 214, 0.4);
+  }
+}
+
+.animate-icon-glow {
+  animation: icon-glow-pulse 2s infinite ease-in-out;
+}
+
+/* Button border shimmer: Solid border-color keyframe cycling between #569cd6 and #4ec9b0 */
+@keyframes border-shimmer {
+  0%, 100% {
+    border-color: #569cd6;
+  }
+  50% {
+    border-color: #4ec9b0;
+  }
+}
+
+.animate-border-shimmer {
+  animation: border-shimmer 3s infinite ease-in-out;
+}
+
+/* Error state: Red border flash and horizontal shake */
+@keyframes form-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-6px);
+  }
+  40%, 80% {
+    transform: translateX(6px);
+  }
+}
+
+.animate-shake {
+  animation: form-shake 300ms ease-in-out;
+}
+
+.border-error-flash {
+  border-color: #f14c4c !important;
+}
+
+/* Success state: Brief teal border pulse on the card */
+@keyframes card-success-pulse {
+  0% {
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  }
+  50% {
+    border-color: #4ec9b0;
+    box-shadow: 0 16px 48px rgba(78, 201, 176, 0.35);
+  }
+  100% {
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  }
+}
+
+.animate-success-pulse {
+  animation: card-success-pulse 800ms ease-in-out forwards;
+}
+
+/* Floating labels in inputs */
+.form-input-container {
+  position: relative;
+}
+
+.form-input-field {
+  background-color: #252526;
+  border: 1px solid #3e3e42;
+  border-radius: 8px;
+  color: #d4d4d4;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input-field:focus {
+  outline: none;
+  border-color: #569cd6;
+  box-shadow: 0 0 0 2px rgba(86, 156, 214, 0.2);
+}
+
+.form-label {
+  position: absolute;
+  left: 40px; /* offset for icons */
+  top: 50%;
+  transform: translateY(-50%);
+  color: #858585;
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+.form-input-field:focus~.form-label,
+.form-input-field:not(:placeholder-shown)~.form-label {
+  top: 0;
+  transform: translateY(-50%) scale(0.85);
+  left: 10px;
+  padding: 0 6px;
+  background-color: #1e1e1e; /* Match Card Background */
+  color: #569cd6;
 }

@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { logoutUser } from '../store/authSlice';
 import { Copy, Check, Plus } from 'lucide-react';
 
 export default function TopNav({ sandboxId, onResetSandbox, connectionStatus }) {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
   const [copied, setCopied] = useState(false);
 
   const copyId = () => {
@@ -65,8 +69,8 @@ export default function TopNav({ sandboxId, onResetSandbox, connectionStatus }) 
         )}
       </div>
 
-      {/* Right: + New button */}
-      <div className="flex items-center gap-3">
+      {/* Right: + New button & User Profile */}
+      <div className="flex items-center gap-4">
         <button
           onClick={onResetSandbox}
           className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#0e639c] hover:bg-[#1177bb] text-[#d4d4d4] font-mono text-xs font-bold transition-all duration-200 ease-in-out active:scale-95 cursor-pointer shadow-sm focus:outline-none focus:ring-1 focus:ring-[#007fd4]"
@@ -75,6 +79,34 @@ export default function TopNav({ sandboxId, onResetSandbox, connectionStatus }) 
           <Plus className="w-4 h-4 stroke-[3]" />
           <span>New</span>
         </button>
+
+        {user && (
+          <div className="flex items-center gap-2 border-l border-[#3e3e42] pl-4 font-mono">
+            {user.avtar ? (
+              <img
+                src={user.avtar}
+                alt={user.name}
+                className="w-7 h-7 rounded-full object-cover border border-[#3e3e42]"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}`;
+                }}
+              />
+            ) : (
+              <div className="w-7 h-7 rounded-full bg-[#2a2d2e] border border-[#3e3e42] flex items-center justify-center text-[#569cd6] text-[10px] font-bold font-mono">
+                {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+              </div>
+            )}
+            <span className="hidden sm:inline text-[11px] text-[#858585] max-w-[100px] truncate">{user.name}</span>
+            <button
+              onClick={() => dispatch(logoutUser())}
+              className="text-[10px] font-semibold text-[#858585] hover:text-[#f44747] transition-colors duration-150 cursor-pointer ml-1"
+              title="Sign Out"
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );
