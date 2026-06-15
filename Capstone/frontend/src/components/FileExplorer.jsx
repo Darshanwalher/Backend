@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Folder, FolderOpen, FileCode, FolderTree } from 'lucide-react';
+import { useFileSystem } from '../context/FileSystemContext';
 
 function buildFileTree(files) {
   const root = { name: 'Root', isFolder: true, children: {} };
@@ -23,7 +24,8 @@ function buildFileTree(files) {
   return root;
 }
 
-export default function FileExplorer({ files, activeFile, onSelectFile, modifiedFiles = [] }) {
+export default function FileExplorer() {
+  const { files, activeTab: activeFile, handleSelectFile: onSelectFile, modifiedFiles } = useFileSystem();
   const [openFolders, setOpenFolders] = useState({ '/src': true, '/public': true });
 
   const toggleFolder = (path) => {

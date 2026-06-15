@@ -4,8 +4,10 @@ import { FitAddon } from 'xterm-addon-fit';
 import { io } from 'socket.io-client';
 import { Terminal as TermIcon } from 'lucide-react';
 import 'xterm/css/xterm.css';
+import { useSandbox } from '../context/SandboxContext';
 
-export default function TerminalPanel({ sandboxId }) {
+export default function TerminalPanel() {
+  const { sandboxId } = useSandbox();
   const terminalRef = useRef(null);
   const xtermRef = useRef(null);
   const socketRef = useRef(null);

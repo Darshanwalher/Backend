@@ -4,6 +4,7 @@ import {
   AlertCircle, ChevronRight, ChevronDown, Copy, Check, 
   History, FileText, X 
 } from 'lucide-react';
+import { useAIChat } from '../context/AIChatContext';
 
 // --- UTILITIES FOR PARSING SSE LOGS ---
 const parseLogs = (logs) => {
@@ -429,12 +430,9 @@ const SUGGESTIONS = [
 ];
 
 // --- MAIN COMPONENT ---
-export default function AIChatPanel({
-  chatMessages,
-  onSendMessage,
-  isAiLoading,
-  aiLogs
-}) {
+export default function AIChatPanel() {
+  const { chatMessages, handleSendMessage: onSendMessage, isAiLoading, aiLogs } = useAIChat();
+
   const [input, setInput] = useState('');
   const [logsTab, setLogsTab] = useState('timeline'); // 'timeline' | 'raw'
   const [expandedLogsIndex, setExpandedLogsIndex] = useState(null);

@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../store/authSlice';
 import { Copy, Check, Plus, Cpu } from 'lucide-react';
+import { useSandbox } from '../context/SandboxContext';
 
-export default function TopNav({ sandboxId, onResetSandbox, connectionStatus }) {
+export default function TopNav() {
+  const { sandboxId, handleResetSandbox: onResetSandbox, connectionStatus } = useSandbox();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [copied, setCopied] = useState(false);

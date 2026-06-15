@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { RefreshCw, ExternalLink, Globe, Eye, FileCode, X, ArrowLeft, ArrowRight } from 'lucide-react';
 import Editor from '@monaco-editor/react';
+import { useSandbox } from '../context/SandboxContext';
+import { useFileSystem } from '../context/FileSystemContext';
 
 function splitHighlightedHtml(html) {
   const lines = html.split('\n');
@@ -41,20 +43,16 @@ const getEditorLanguage = (filename) => {
   return 'plaintext';
 };
 
-export default function PreviewPanel({
-  previewUrl,
-  fileContents,
-  openTabs,
-  activeTab,
-  onSelectTab,
-  onCloseTab,
-  activeFile,
-  modifiedFiles = [],
-  unsavedChanges = {},
-  onUpdateFileContent,
-  onSaveFile,
-  isDragging
-}) {
+export default function PreviewPanel({ isDragging }) {
+  const { previewUrl } = useSandbox();
+  const { 
+    fileContents, openTabs, activeTab, setActiveTab: onSelectTab, handleCloseTab: onCloseTab, 
+    modifiedFiles, unsavedChanges, handleUpdateFileContent: onUpdateFileContent, 
+    handleSaveFile: onSaveFile, isLoadingFiles
+  } = useFileSystem();
+  
+  const activeFile = activeTab !== 'preview' ? activeTab : null;
+
   const [iframeKey, setIframeKey] = useState(0);
   const [urlBar, setUrlBar] = useState('');
   const [hljsReady, setHljsReady] = useState(false);
@@ -258,7 +256,14 @@ export default function PreviewPanel({
           <div className="flex-grow flex flex-col h-full bg-[#1e1e1e] overflow-hidden">
             {/* Header path details & Save actions */}
             <div className="h-8 px-4 bg-[#252526] border-b border-[#3e3e42] flex items-center justify-between shrink-0 font-mono text-[10px] text-[#858585] select-none">
-              <span>Path: {activeTab}</span>
+              <div className="flex items-center gap-2">
+                <span>Path: {activeTab}</span>
+                {isLoadingFiles && (
+                  <span className="flex items-center gap-1 text-[#4ec9b0] animate-pulse">
+                     Loading...
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-3">
                 {unsavedChanges[activeTab] !== undefined && (
                   <button

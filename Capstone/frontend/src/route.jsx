@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
@@ -9,6 +9,8 @@ import FileExplorer from './components/FileExplorer';
 import PreviewPanel from './components/PreviewPanel';
 import TerminalPanel from './components/TerminalPanel';
 import AIChatPanel from './components/AIChatPanel';
+import { useSandbox } from './context/SandboxContext';
+import { useLayoutDrag, clamp } from './hooks/useLayoutDrag';
 
 function DragHandle({ direction, onMouseDown }) {
   const isCol = direction === 'col';
@@ -43,40 +45,39 @@ function DragHandle({ direction, onMouseDown }) {
   );
 }
 
-export default function AppRoutes({
-  isAuthenticated,
-  sandboxState,
-  sandboxId,
-  previewUrl,
-  connectionStatus,
-  files,
-  fileContents,
-  openTabs,
-  activeTab,
-  modifiedFiles,
-  unsavedChanges,
-  onUpdateFileContent,
-  onSaveFile,
-  explorerWidth,
-  chatWidth,
-  previewHeight,
-  isDragging,
-  chatMessages,
-  isAiLoading,
-  aiLogs,
-  previewKey,
-  dragExplorer,
-  dragChat,
-  dragPreview,
-  handleCreateSandbox,
-  handleProvisioningComplete,
-  handleSelectFile,
-  handleSelectTab,
-  handleCloseTab,
-  handleSendMessage,
-  handleResetSandbox,
-  centerRef
-}) {
+export default function AppRoutes({ isAuthenticated }) {
+  const { sandboxState, sandboxId, handleCreateSandbox, handleProvisioningComplete } = useSandbox();
+
+  const [explorerWidth, setExplorerWidth] = useState(220);
+  const [chatWidth, setChatWidth] = useState(340);
+  const [previewHeight, setPreviewHeight] = useState(260);
+  const centerRef = useRef(null);
+
+  useEffect(() => {
+    if (sandboxState === 'dashboard' && centerRef.current) {
+      const rect = centerRef.current.getBoundingClientRect();
+      setPreviewHeight(Math.round(rect.height * 0.6));
+    }
+  }, [sandboxState]);
+
+  const { isDragging: isDraggingExplorer, onMouseDown: dragExplorer } = useLayoutDrag((delta) =>
+    setExplorerWidth(w => clamp(w + delta, 140, 420))
+  );
+  const { isDragging: isDraggingChat, onMouseDown: dragChat } = useLayoutDrag((delta) =>
+    setChatWidth(w => clamp(w - delta, 260, 540))
+  );
+  const { isDragging: isDraggingPreview, onMouseDown: dragPreview } = useLayoutDrag((delta) =>
+    setPreviewHeight(h => {
+      if (centerRef.current) {
+        const rect = centerRef.current.getBoundingClientRect();
+        return clamp(h + delta, 120, rect.height - 120);
+      }
+      return clamp(h + delta, 120, 600);
+    })
+  );
+
+  const isDragging = isDraggingExplorer || isDraggingChat || isDraggingPreview;
+
   return (
     <Routes>
       {!isAuthenticated ? (
@@ -101,88 +102,43 @@ export default function AppRoutes({
                   className="flex flex-col h-screen w-screen overflow-hidden bg-[#1e1e1e] text-[#d4d4d4]"
                   style={{ userSelect: isDragging ? 'none' : 'auto' }}
                 >
-                  {/* Top Nav (48px height) */}
-                  <TopNav
-                    sandboxId={sandboxId}
-                    onResetSandbox={handleResetSandbox}
-                    connectionStatus={connectionStatus}
-                  />
+                  <TopNav />
 
-                  {/* Main split resizable space */}
                   <div className="flex flex-1 overflow-hidden">
-
-                    {/* Left panel */}
                     <div
                       className="flex-shrink-0 overflow-hidden bg-[#252526] border-r border-[#3e3e42] flex flex-col h-full"
                       style={{ width: explorerWidth }}
                     >
-                      <FileExplorer
-                        files={files}
-                        activeFile={activeTab}
-                        onSelectFile={handleSelectFile}
-                        modifiedFiles={modifiedFiles}
-                      />
+                      <FileExplorer />
                     </div>
 
-                    {/* Drag handle — explorer | center */}
                     <DragHandle direction="col" onMouseDown={dragExplorer} />
 
-                    {/* Center column */}
                     <div ref={centerRef} className="flex flex-col flex-1 min-w-0 overflow-hidden bg-[#1e1e1e]">
-
-                      {/* Editor / Preview tabs */}
                       <div
                         className="flex-shrink-0 overflow-hidden border-b border-[#3e3e42]"
                         style={{ height: previewHeight }}
                       >
-                        <PreviewPanel
-                          key={`${previewKey}-${activeTab}`}
-                          previewUrl={previewUrl}
-                          fileContents={fileContents}
-                          openTabs={openTabs}
-                          activeTab={activeTab}
-                          onSelectTab={handleSelectTab}
-                          onCloseTab={handleCloseTab}
-                          activeFile={activeTab !== 'preview' ? activeTab : null}
-                          modifiedFiles={modifiedFiles}
-                          unsavedChanges={unsavedChanges}
-                          onUpdateFileContent={onUpdateFileContent}
-                          onSaveFile={onSaveFile}
-                          isDragging={isDragging}
-                        />
+                        <PreviewPanel isDragging={isDragging} />
                       </div>
 
-                      {/* Drag handle — preview | terminal */}
                       <DragHandle direction="row" onMouseDown={dragPreview} />
 
-                      {/* Terminal */}
                       <div className="flex-grow flex-1 overflow-hidden min-h-[120px]">
-                        <TerminalPanel
-                          sandboxId={sandboxId}
-                        />
+                        <TerminalPanel />
                       </div>
-
                     </div>
 
-                    {/* Drag handle — center | chat */}
                     <DragHandle direction="col" onMouseDown={dragChat} />
 
-                    {/* Right panel */}
                     <div
                       className="flex-shrink-0 overflow-hidden bg-[#252526] border-l border-[#3e3e42] flex flex-col h-full"
                       style={{ width: chatWidth }}
                     >
-                      <AIChatPanel
-                        chatMessages={chatMessages}
-                        onSendMessage={handleSendMessage}
-                        isAiLoading={isAiLoading}
-                        aiLogs={aiLogs}
-                      />
+                      <AIChatPanel />
                     </div>
-
                   </div>
 
-                  {/* Footer status bar */}
                   <footer className="h-6 bg-[#252526] border-t border-[#3e3e42] text-[#858585] font-mono text-[10px] font-semibold flex items-center justify-between px-4 z-40 select-none">
                     <div className="flex items-center gap-4">
                       <span className="flex items-center gap-1.5">
