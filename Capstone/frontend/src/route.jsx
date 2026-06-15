@@ -54,6 +54,9 @@ export default function AppRoutes({
   openTabs,
   activeTab,
   modifiedFiles,
+  unsavedChanges,
+  onUpdateFileContent,
+  onSaveFile,
   explorerWidth,
   chatWidth,
   previewHeight,
@@ -142,6 +145,9 @@ export default function AppRoutes({
                           onCloseTab={handleCloseTab}
                           activeFile={activeTab !== 'preview' ? activeTab : null}
                           modifiedFiles={modifiedFiles}
+                          unsavedChanges={unsavedChanges}
+                          onUpdateFileContent={onUpdateFileContent}
+                          onSaveFile={onSaveFile}
                           isDragging={isDragging}
                         />
                       </div>

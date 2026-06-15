@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { RefreshCw, ExternalLink, Globe, Eye, FileCode, X, ArrowLeft, ArrowRight } from 'lucide-react';
+import Editor from '@monaco-editor/react';
 
 function splitHighlightedHtml(html) {
   const lines = html.split('\n');
@@ -30,6 +31,16 @@ function splitHighlightedHtml(html) {
   return result;
 }
 
+const getEditorLanguage = (filename) => {
+  if (!filename) return 'plaintext';
+  if (filename.endsWith('.jsx') || filename.endsWith('.js')) return 'javascript';
+  if (filename.endsWith('.json')) return 'json';
+  if (filename.endsWith('.css')) return 'css';
+  if (filename.endsWith('.html')) return 'html';
+  if (filename.endsWith('.md')) return 'markdown';
+  return 'plaintext';
+};
+
 export default function PreviewPanel({
   previewUrl,
   fileContents,
@@ -39,12 +50,23 @@ export default function PreviewPanel({
   onCloseTab,
   activeFile,
   modifiedFiles = [],
+  unsavedChanges = {},
+  onUpdateFileContent,
+  onSaveFile,
   isDragging
 }) {
   const [iframeKey, setIframeKey] = useState(0);
   const [urlBar, setUrlBar] = useState('');
   const [hljsReady, setHljsReady] = useState(false);
   const [activeLine, setActiveLine] = useState(null);
+
+  const saveFileRef = useRef(onSaveFile);
+  const activeTabRef = useRef(activeTab);
+
+  useEffect(() => {
+    saveFileRef.current = onSaveFile;
+    activeTabRef.current = activeTab;
+  });
 
   useEffect(() => {
     if (window.hljs) {
@@ -126,6 +148,7 @@ export default function PreviewPanel({
             const isActive = tabPath === activeTab;
             const filename = tabPath.split('/').pop();
             const isTabModified = modifiedFiles.includes(tabPath);
+            const hasUnsaved = unsavedChanges[tabPath] !== undefined;
             return (
               <div
                 key={tabPath}
@@ -139,7 +162,10 @@ export default function PreviewPanel({
                 <FileCode className={`w-3.5 h-3.5 ${isActive ? 'text-[#4ec9b0]' : getFileTabColor(filename)}`} />
                 <span className={isActive ? 'text-[#d4d4d4]' : 'text-[#858585]'}>{filename}</span>
                 {isTabModified && (
-                  <span className="text-[#e2c08d] text-[10px] pl-0.5" title="Modified by AI">●</span>
+                  <span className="text-[#e2c08d] text-[10px] pl-0.5 font-bold" title="Modified by AI">●</span>
+                )}
+                {hasUnsaved && (
+                  <span className="text-[#569cd6] text-[10px] pl-0.5 animate-pulse font-bold" title="Unsaved changes">●</span>
                 )}
                 <button
                   onClick={(e) => {
@@ -216,7 +242,6 @@ export default function PreviewPanel({
                   src={previewUrl}
                   title="Sandbox Live Preview"
                   style={{ width: '100%', height: '100%', border: 'none' }}
-                  sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
                 />
                 {isDragging && (
                   <div style={{
@@ -229,40 +254,52 @@ export default function PreviewPanel({
             </div>
           </div>
         ) : (
-          /* Read-only Code View Tab Content */
+          /* Interactive Code Editor Tab Content */
           <div className="flex-grow flex flex-col h-full bg-[#1e1e1e] overflow-hidden">
-            {/* Header path details */}
-            <div className="h-8 px-4 bg-[#252526] border-b border-[#3e3e42] flex items-center justify-between shrink-0 font-mono text-[10px] text-[#858585]">
+            {/* Header path details & Save actions */}
+            <div className="h-8 px-4 bg-[#252526] border-b border-[#3e3e42] flex items-center justify-between shrink-0 font-mono text-[10px] text-[#858585] select-none">
               <span>Path: {activeTab}</span>
-              <span className="uppercase text-[#858585] text-[9px] tracking-wider font-semibold bg-[#1e1e1e] px-1.5 py-0.5 rounded border border-[#3e3e42]">
-                Syntax Highlighted (Read-Only)
-              </span>
+              <div className="flex items-center gap-3">
+                {unsavedChanges[activeTab] !== undefined && (
+                  <button
+                    onClick={() => onSaveFile(activeTab)}
+                    className="px-2 py-0.5 bg-[#007fd4] hover:bg-[#1f8ad2] text-white rounded font-sans text-[10px] font-semibold flex items-center gap-1 transition-colors cursor-pointer focus:outline-none"
+                  >
+                    Save Changes (Ctrl+S)
+                  </button>
+                )}
+                <span className="uppercase text-[#858585] text-[9px] tracking-wider font-semibold bg-[#1e1e1e] px-1.5 py-0.5 rounded border border-[#3e3e42]">
+                  Monaco Editor
+                </span>
+              </div>
             </div>
 
-            {/* Syntax Highlighted Viewport */}
-            <div className="flex-grow overflow-auto custom-scrollbar bg-[#1e1e1e] font-mono text-[13px] leading-[1.6] py-3 text-[#d4d4d4] tab-size-2 select-text h-full">
-              {highlightedLines.map((lineHtml, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => setActiveLine(idx)}
-                  className={`flex items-start w-full min-w-max leading-[1.6] hover:bg-[#252526]/50 cursor-text select-text ${
-                    activeLine === idx ? 'bg-[#2a2d2e]' : ''
-                  }`}
-                >
-                  {/* Line Number Gutter */}
-                  <span className="w-10 pr-4 text-right text-[#858585] select-none font-mono text-[13px] flex-shrink-0 border-r border-[#3e3e42]/20">
-                    {idx + 1}
-                  </span>
-                  
-                  {/* Highlighted Code Line */}
-                  <pre className="pl-4 font-mono text-[13px] whitespace-pre select-text flex-1 hljs m-0 p-0 border-0 outline-none">
-                    <code
-                      className="font-mono text-[13px] select-text"
-                      dangerouslySetInnerHTML={{ __html: lineHtml || '&nbsp;' }}
-                    />
-                  </pre>
-                </div>
-              ))}
+            {/* Monaco Editor Container */}
+            <div className="flex-grow h-full bg-[#1e1e1e] overflow-hidden relative">
+              <Editor
+                height="100%"
+                theme="vs-dark"
+                language={getEditorLanguage(activeTab)}
+                value={unsavedChanges[activeTab] !== undefined ? unsavedChanges[activeTab] : activeFileContent}
+                onChange={(val) => onUpdateFileContent(activeTab, val || '')}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 13,
+                  tabSize: 2,
+                  automaticLayout: true,
+                  scrollBeyondLastLine: false,
+                }}
+                onMount={(editor, monaco) => {
+                  editor.addCommand(
+                    monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
+                    () => {
+                      if (saveFileRef.current && activeTabRef.current) {
+                        saveFileRef.current(activeTabRef.current);
+                      }
+                    }
+                  );
+                }}
+              />
             </div>
           </div>
         )}

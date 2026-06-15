@@ -47,6 +47,56 @@ export default function App() {
   });
   const [activeTab, setActiveTab] = useState(() => localStorage.getItem('activeTab') || 'preview');
   const [modifiedFiles, setModifiedFiles] = useState([]); // Paths of files updated by AI
+  const [unsavedChanges, setUnsavedChanges] = useState({}); // { [filePath]: content }
+
+  const handleUpdateFileContent = (filePath, newContent) => {
+    setUnsavedChanges(prev => ({
+      ...prev,
+      [filePath]: newContent
+    }));
+  };
+
+  const handleSaveFile = async (filePath) => {
+    const contentToSave = unsavedChanges[filePath];
+    if (contentToSave === undefined) return;
+
+    try {
+      const response = await fetch(`http://${sandboxId}.agent.localhost/update-files`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          updates: [
+            {
+              file: filePath,
+              content: contentToSave
+            }
+          ]
+        })
+      });
+
+      if (response.ok) {
+        setFileContents(prev => ({
+          ...prev,
+          [filePath]: contentToSave
+        }));
+
+        setUnsavedChanges(prev => {
+          const next = { ...prev };
+          delete next[filePath];
+          return next;
+        });
+
+        // Trigger a preview refresh by incrementing key
+        setPreviewKey(prev => prev + 1);
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        alert(`Failed to save file: ${errData.message || response.statusText}`);
+      }
+    } catch (err) {
+      console.error(`Error saving file ${filePath}:`, err);
+      alert(`Error saving file: ${err.message}`);
+    }
+  };
 
   // Resizable panel widths & height states
   const [explorerWidth, setExplorerWidth] = useState(220);
@@ -370,6 +420,7 @@ export default function App() {
       setActiveTab('preview');
       setFileContents({});
       setModifiedFiles([]);
+      setUnsavedChanges({});
       setChatMessages([
         { role: 'assistant', content: 'Sandbox environment created successfully. Ask me to make changes to your codebase!' }
       ]);
@@ -418,6 +469,9 @@ export default function App() {
       openTabs={openTabs}
       activeTab={activeTab}
       modifiedFiles={modifiedFiles}
+      unsavedChanges={unsavedChanges}
+      onUpdateFileContent={handleUpdateFileContent}
+      onSaveFile={handleSaveFile}
       explorerWidth={explorerWidth}
       chatWidth={chatWidth}
       previewHeight={previewHeight}
