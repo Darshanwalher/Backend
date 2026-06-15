@@ -120,6 +120,12 @@ const authSlice = createSlice({
         if (action.payload && action.payload !== 'Authentication token is missing') {
           state.error = action.payload;
         }
+        localStorage.removeItem('sandboxState');
+        localStorage.removeItem('sandboxId');
+        localStorage.removeItem('previewUrl');
+        localStorage.removeItem('openTabs');
+        localStorage.removeItem('activeTab');
+        localStorage.removeItem('chatMessages');
       })
       // loginUser
       .addCase(loginUser.pending, (state) => {
@@ -158,6 +164,12 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.error = null;
+        localStorage.removeItem('sandboxState');
+        localStorage.removeItem('sandboxId');
+        localStorage.removeItem('previewUrl');
+        localStorage.removeItem('openTabs');
+        localStorage.removeItem('activeTab');
+        localStorage.removeItem('chatMessages');
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.status = 'failed';

@@ -48,6 +48,7 @@ export default function AppRoutes({
   sandboxState,
   sandboxId,
   previewUrl,
+  connectionStatus,
   files,
   fileContents,
   openTabs,
@@ -101,6 +102,7 @@ export default function AppRoutes({
                   <TopNav
                     sandboxId={sandboxId}
                     onResetSandbox={handleResetSandbox}
+                    connectionStatus={connectionStatus}
                   />
 
                   {/* Main split resizable space */}

@@ -19,19 +19,33 @@ export default function App() {
   const dispatch = useDispatch();
   const { isAuthenticated, status, user } = useSelector((state) => state.auth);
 
-  const [sandboxState, setSandboxState] = useState('welcome'); // 'welcome' | 'provisioning' | 'dashboard'
-  const [sandboxId, setSandboxId] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [connectionStatus, setConnectionStatus] = useState('disconnected');
+  const [initialChecked, setInitialChecked] = useState(false);
+
+  const [sandboxState, setSandboxState] = useState(() => localStorage.getItem('sandboxState') || 'welcome'); // 'welcome' | 'provisioning' | 'dashboard'
+  const [sandboxId, setSandboxId] = useState(() => localStorage.getItem('sandboxId') || null);
+  const [previewUrl, setPreviewUrl] = useState(() => localStorage.getItem('previewUrl') || null);
+  const [connectionStatus, setConnectionStatus] = useState(() => {
+    const savedState = localStorage.getItem('sandboxState');
+    return savedState === 'dashboard' ? 'connected' : 'disconnected';
+  });
 
   useEffect(() => {
-    dispatch(fetchCurrentUser());
+    dispatch(fetchCurrentUser()).finally(() => {
+      setInitialChecked(true);
+    });
   }, [dispatch]);
 
   const [files, setFiles] = useState([]);
   const [fileContents, setFileContents] = useState({});
-  const [openTabs, setOpenTabs] = useState([]);
-  const [activeTab, setActiveTab] = useState('preview');
+  const [openTabs, setOpenTabs] = useState(() => {
+    try {
+      const stored = localStorage.getItem('openTabs');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('activeTab') || 'preview');
   const [modifiedFiles, setModifiedFiles] = useState([]); // Paths of files updated by AI
 
   // Resizable panel widths & height states
@@ -42,9 +56,18 @@ export default function App() {
 
   const centerRef = useRef(null);
 
-  const [chatMessages, setChatMessages] = useState([
-    { role: 'assistant', content: 'Sandbox environment created successfully. Ask me to make changes to your codebase!' }
-  ]);
+  const [chatMessages, setChatMessages] = useState(() => {
+    try {
+      const stored = localStorage.getItem('chatMessages');
+      return stored ? JSON.parse(stored) : [
+        { role: 'assistant', content: 'Sandbox environment created successfully. Ask me to make changes to your codebase!' }
+      ];
+    } catch {
+      return [
+        { role: 'assistant', content: 'Sandbox environment created successfully. Ask me to make changes to your codebase!' }
+      ];
+    }
+  });
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiLogs, setAiLogs] = useState([]);
 
@@ -57,6 +80,47 @@ export default function App() {
       setPreviewHeight(Math.round(rect.height * 0.6));
     }
   }, [sandboxState]);
+
+  // Synchronize sandbox state and workspace to localStorage
+  useEffect(() => {
+    if (sandboxState) {
+      localStorage.setItem('sandboxState', sandboxState);
+    } else {
+      localStorage.removeItem('sandboxState');
+    }
+  }, [sandboxState]);
+
+  useEffect(() => {
+    if (sandboxId) {
+      localStorage.setItem('sandboxId', sandboxId);
+    } else {
+      localStorage.removeItem('sandboxId');
+    }
+  }, [sandboxId]);
+
+  useEffect(() => {
+    if (previewUrl) {
+      localStorage.setItem('previewUrl', previewUrl);
+    } else {
+      localStorage.removeItem('previewUrl');
+    }
+  }, [previewUrl]);
+
+  useEffect(() => {
+    localStorage.setItem('openTabs', JSON.stringify(openTabs));
+  }, [openTabs]);
+
+  useEffect(() => {
+    if (activeTab) {
+      localStorage.setItem('activeTab', activeTab);
+    } else {
+      localStorage.removeItem('activeTab');
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
+  }, [chatMessages]);
 
   // Hook layout resizing
   const useDrag = useCallback((onDrag) => {
@@ -314,7 +378,7 @@ export default function App() {
     }
   };
 
-  if (status === 'loading' && !user) {
+  if (!initialChecked) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-[#1e1e1e] font-mono select-none">
         <div className="text-center space-y-4">
@@ -348,6 +412,7 @@ export default function App() {
       sandboxState={sandboxState}
       sandboxId={sandboxId}
       previewUrl={previewUrl}
+      connectionStatus={connectionStatus}
       files={files}
       fileContents={fileContents}
       openTabs={openTabs}
