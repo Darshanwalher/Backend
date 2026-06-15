@@ -1,0 +1,3 @@
+# Force LF line endings for all YAML files to prevent Skaffold parsing errors on Windows
+*.yml text eol=lf
+*.yaml text eol=lf
