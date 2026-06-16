@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import { authtenticateSeller } from '../middleware/auth.middleware.js';
-import { addProductVariant, createProduct,deleteProduct,deleteProductVariant,getAllProducts,getProductDetails,getSellerProducts, updateProduct, updateProductVariant } from '../controllers/product.controller.js';
+import { addProductVariant, createProduct,deleteProduct,deleteProductVariant,getAllProducts,getProductDetails,getSellerProducts, updateProduct, updateProductVariant, searchProduct } from '../controllers/product.controller.js';
 import { createProductValidator } from '../validator/product.validator.js';
 
 import multer from 'multer';
@@ -34,6 +34,13 @@ ProductRouter.get("/seller",authtenticateSeller,getSellerProducts)
  * @access Public
  */
 ProductRouter.get("/",getAllProducts)
+
+/**
+ * @route GET /api/products/search
+ * @description Search and filter products
+ * @access Public
+ */
+ProductRouter.get("/search", searchProduct)
 
 /** 
  * @route GET /api/products/detail/:id

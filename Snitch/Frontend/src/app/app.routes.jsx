@@ -9,11 +9,16 @@ import ProductDetail from "../features/products/pages/ProductDetail.jsx";
 import SellerProductDetail from "../features/products/pages/SellerProductDetail.jsx";
 import Cart from "../features/cart/pages/Cart.jsx";
 import OrderSuccess from "../features/cart/pages/OrderSuccess.jsx";
+import { SearchProducts } from "../features/products/pages/SearchProducts.jsx";
 
 export const router = createBrowserRouter([
     {
         path: "/",
         element: <Home />,
+    },
+    {
+        path: "/search",
+        element: <SearchProducts />,
     },
     {
         path: "/register",

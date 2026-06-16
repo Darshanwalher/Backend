@@ -307,3 +307,90 @@ export const updateProduct = async (req, res) => {
         res.status(500).json({ message: "Failed to update product. Please try again." });
     }
 };
+
+export const searchProduct = async (req, res) => {
+    try {
+        const { q, minPrice, maxPrice, size, color, sort } = req.query;
+        const conditions = [];
+
+        // 1. Text query: title, description, or variant attributes (color, size)
+        if (q) {
+            conditions.push({
+                $or: [
+                    { title: { $regex: q, $options: "i" } },
+                    { description: { $regex: q, $options: "i" } },
+                    { "variants.attributes.color": { $regex: q, $options: "i" } },
+                    { "variants.attributes.size": { $regex: q, $options: "i" } }
+                ]
+            });
+        }
+
+        // 2. Price range filtering (base product price or variant-level price)
+        const hasMinPrice = minPrice !== undefined && minPrice !== "";
+        const hasMaxPrice = maxPrice !== undefined && maxPrice !== "";
+        if (hasMinPrice || hasMaxPrice) {
+            const priceQuery = {};
+            if (hasMinPrice) priceQuery.$gte = Number(minPrice);
+            if (hasMaxPrice) priceQuery.$lte = Number(maxPrice);
+            
+            conditions.push({
+                $or: [
+                    { "price.amount": priceQuery },
+                    { "variants.price.amount": priceQuery }
+                ]
+            });
+        }
+
+        // 3. Size filtering (attributes.size) - handle potential brackets query format from Axios
+        const sizeParam = size || req.query["size[]"];
+        if (sizeParam) {
+            const sizeArray = Array.isArray(sizeParam) ? sizeParam : [sizeParam];
+            conditions.push({
+                $or: sizeArray.map(s => ({
+                    "variants.attributes.size": { $regex: new RegExp(`^${s}$`, "i") }
+                }))
+            });
+        }
+
+        // 4. Color filtering (attributes.color) - handle potential brackets query format from Axios
+        const colorParam = color || req.query["color[]"];
+        if (colorParam) {
+            const colorArray = Array.isArray(colorParam) ? colorParam : [colorParam];
+            conditions.push({
+                $or: colorArray.map(c => ({
+                    "variants.attributes.color": { $regex: new RegExp(`^${c}$`, "i") }
+                }))
+            });
+        }
+
+        // Combine all conditions using $and (if any exist)
+        const query = conditions.length > 0 ? { $and: conditions } : {};
+
+        let queryBuilder = productModel.find(query);
+
+        // Sorting
+        if (sort) {
+            if (sort === "price_asc") {
+                queryBuilder = queryBuilder.sort({ "price.amount": 1 });
+            } else if (sort === "price_desc") {
+                queryBuilder = queryBuilder.sort({ "price.amount": -1 });
+            } else if (sort === "newest") {
+                queryBuilder = queryBuilder.sort({ createdAt: -1 });
+            }
+        } else {
+            queryBuilder = queryBuilder.sort({ createdAt: -1 });
+        }
+
+        const products = await queryBuilder;
+
+        return res.status(200).json({
+            message: "Products searched successfully.",
+            success: true,
+            products
+        });
+    } catch (error) {
+        console.error("[searchProduct]", error);
+        res.status(500).json({ message: "Failed to search products. Please try again." });
+    }
+};
+

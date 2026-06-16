@@ -4,6 +4,7 @@ import {
     createProduct,
     deleteProduct,
     getAllProducts,
+    searchProducts,
     getProductById,
     getSellerProducts,
     deleteProductVariant,
@@ -72,6 +73,22 @@ export const useProduct = () => {
             dispatch(setProducts(data.products));
         } catch (error) {
             const message = extractMessage(error, "Failed to fetch products.");
+            dispatch(setError(message));
+            throw error;
+        } finally {
+            dispatch(setLoading(false));
+        }
+    }
+
+    async function handleSearchProducts(params) {
+        dispatch(setLoading(true));
+        dispatch(clearError());
+        try {
+            const data = await searchProducts(params);
+            dispatch(setProducts(data.products));
+            return data.products;
+        } catch (error) {
+            const message = extractMessage(error, "Failed to search products.");
             dispatch(setError(message));
             throw error;
         } finally {
@@ -177,6 +194,7 @@ export const useProduct = () => {
         handleCreateProduct,
         handleGetSellerProducts,
         handleGetAllProducts,
+        handleSearchProducts,
         handleGetProductById,
         handleAddProductVariant,
         handleDeleteProduct,

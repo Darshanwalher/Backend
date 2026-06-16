@@ -259,21 +259,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const isActionLoading = useSelector((state) => state.product?.loading);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const profileRef = React.useRef(null);
-
   console.log(user);
-  
-  // Close dropdown when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (profileRef.current && !profileRef.current.contains(e.target)) {
-        setProfileOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   useEffect(() => {
     const fetch = async () => {
@@ -319,16 +305,11 @@ function Dashboard() {
         rightContent={
           <div className="flex items-center gap-6">
             <nav className="hidden sm:flex items-center gap-8">
-              {["Dashboard", "Orders"].map((item, i) => (
-                <button
-                  key={item}
-                  className={`text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 cursor-pointer ${
-                    i === 0 ? "text-white" : "text-zinc-600 hover:text-zinc-300"
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
+              <button
+                className="text-[11px] font-bold tracking-[0.2em] uppercase text-white transition-colors duration-300 cursor-pointer"
+              >
+                Dashboard
+              </button>
             </nav>
             <button
               onClick={() => navigate("/seller/create-product")}
@@ -338,46 +319,6 @@ function Dashboard() {
               <span className="hidden sm:inline">New Product</span>
             </button>
 
-            {/* Avatar dropdown */}
-            {user && (
-              <div ref={profileRef} className="relative">
-                <button
-                  id="profile-avatar-btn"
-                  onClick={() => setProfileOpen((o) => !o)}
-                  className="w-8 h-8 flex items-center justify-center bg-white text-black text-[11px] font-black tracking-widest uppercase shrink-0 cursor-pointer hover:bg-zinc-200 transition-colors duration-200"
-                  aria-label="Profile menu"
-                  aria-expanded={profileOpen}
-                >
-                  {(user.fullname || "U").charAt(0).toUpperCase()}
-                </button>
-
-                {profileOpen && (
-                  <div className="absolute top-[calc(100%+10px)] right-0 z-50 min-w-[180px] bg-[#0a0a0a] border border-white/[0.08] shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150">
-                    <div className="px-4 py-3 border-b border-white/[0.06]">
-                      <p className="text-[10px] text-zinc-600 font-bold tracking-[0.2em] uppercase mb-0.5">
-                        Signed in as
-                      </p>
-                      <p className="text-[12px] text-white font-bold tracking-[0.1em] uppercase truncate">
-                        {user.fullname}
-                      </p>
-                    </div>
-                    <div className="py-1">
-                      <button
-                        id="logout-menu-btn"
-                        onClick={async () => {
-                          setProfileOpen(false);
-                          await handleLogout();
-                        }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[11px] font-black tracking-[0.18em] uppercase text-zinc-500 hover:text-red-400 hover:bg-red-500/[0.06] transition-all duration-200 cursor-pointer group"
-                      >
-                        <LogOut className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform duration-200" strokeWidth={2.5} />
-                        Logout
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         }
       />
@@ -485,18 +426,9 @@ function Dashboard() {
       <div className="border-b border-white/[0.05] sticky top-16 z-20 bg-[#060606]/90 backdrop-blur-md">
         <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 h-12 flex items-center justify-between gap-4">
           <div className="flex items-center gap-6">
-            {["All", "Active", "Draft"].map((tab, i) => (
-              <button
-                key={tab}
-                className={`text-[11px] font-bold tracking-[0.18em] uppercase pb-0.5 transition-all duration-300 cursor-pointer ${
-                  i === 0
-                    ? "text-white border-b border-white"
-                    : "text-zinc-600 hover:text-zinc-300 border-b border-transparent"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
+            <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-white border-b border-white pb-0.5">
+              All Products
+            </span>
           </div>
           <span className="text-[11px] text-zinc-600 font-semibold tracking-[0.15em] tabular-nums">
             {loading ? "—" : `${products.length} item${products.length !== 1 ? "s" : ""}`}

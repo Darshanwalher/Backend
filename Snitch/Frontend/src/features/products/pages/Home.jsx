@@ -23,7 +23,7 @@ const BEBAS = "'Bebas Neue', sans-serif";
 
 const CURRENCY_SYMBOLS = { INR: "₹", USD: "$", EUR: "€", GBP: "£" };
 
-const formatPrice = (amount, currency) => {
+export const formatPrice = (amount, currency) => {
   try {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -38,7 +38,7 @@ const formatPrice = (amount, currency) => {
 /* ══════════════════════════════════════════════════════
    ProductCard
 ══════════════════════════════════════════════════════ */
-const ProductCard = ({ product, index }) => {
+export const ProductCard = ({ product, index }) => {
   const [imgIdx, setImgIdx] = useState(0);
   const [errorSet, setErrorSet] = useState(new Set());
   const [hovered, setHovered] = useState(false);
@@ -197,7 +197,7 @@ const ProductCard = ({ product, index }) => {
 /* ══════════════════════════════════════════════════════
    Skeleton Card
 ══════════════════════════════════════════════════════ */
-const SkeletonCard = () => (
+export const SkeletonCard = () => (
   <div className="flex flex-col bg-white/[0.02] border border-white/[0.04] overflow-hidden animate-pulse">
     <div className="aspect-[3/4] bg-zinc-800/50" />
     <div className="p-4 space-y-3">
@@ -313,65 +313,7 @@ export const Home = () => {
       {/* ══ NAVBAR ══ */}
       <Nav
         title="New Season"
-        rightContent={
-          <div className="flex items-center gap-3">
-            {user ? (
-              /* Logged-in: clickable avatar opens dropdown */
-              <div ref={profileRef} className="relative">
-                <button
-                  id="profile-avatar-btn"
-                  onClick={() => setProfileOpen((o) => !o)}
-                  className="w-8 h-8 flex items-center justify-center bg-white text-black text-[11px] font-black tracking-widest uppercase shrink-0 cursor-pointer hover:bg-zinc-200 transition-colors duration-200"
-                  aria-label="Profile menu"
-                  aria-expanded={profileOpen}
-                >
-                  {(user.fullname || "U").charAt(0).toUpperCase()}
-                </button>
-
-                {/* Dropdown */}
-                {profileOpen && (
-                  <div className="absolute top-[calc(100%+10px)] right-0 z-50 min-w-[180px] bg-[#0a0a0a] border border-white/[0.08] shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150">
-                    {/* User info */}
-                    <div className="px-4 py-3 border-b border-white/[0.06]">
-                      <p className="text-[10px] text-zinc-600 font-bold tracking-[0.2em] uppercase mb-0.5">
-                        Signed in as
-                      </p>
-                      <p className="text-[12px] text-white font-bold tracking-[0.1em] uppercase truncate">
-                        {user.fullname}
-                      </p>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="py-1">
-                      <button
-                        id="logout-menu-btn"
-                        onClick={async () => {
-                          setProfileOpen(false);
-                          await handleLogout();
-                          
-                        }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[11px] font-black tracking-[0.18em] uppercase text-zinc-500 hover:text-red-400 hover:bg-red-500/[0.06] transition-all duration-200 cursor-pointer group"
-                      >
-                        <LogOut className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform duration-200" strokeWidth={2.5} />
-                        Logout
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              /* Not logged in: show login icon button only */
-              <button
-                id="login-btn"
-                onClick={() => navigate("/login")}
-                className="w-9 h-9 flex items-center justify-center border border-white/[0.08] text-zinc-500 hover:text-white hover:border-white/20 transition-all duration-300 cursor-pointer"
-                aria-label="Login"
-              >
-                <User className="w-4 h-4" strokeWidth={2} />
-              </button>
-            )}
-          </div>
-        }
+        hideBack={true}
       />
 
       {/* ══ HERO ══ */}
