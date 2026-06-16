@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../store/authSlice';
-import { Copy, Check, Plus, Cpu } from 'lucide-react';
+import { Copy, Check, Plus, Cpu, FolderSync, LogOut } from 'lucide-react';
 import { useSandbox } from '../context/SandboxContext';
 
 export default function TopNav() {
@@ -126,11 +126,22 @@ export default function TopNav() {
                 <button
                   onClick={() => {
                     setDropdownOpen(false);
+                    onResetSandbox();
+                  }}
+                  className="w-full text-left px-3 py-2.5 hover:bg-[#27272a] cursor-pointer font-medium transition-colors flex items-center gap-2 border-b border-[#27272a] text-[#e4e4e7]"
+                >
+                  <FolderSync className="w-3.5 h-3.5 text-[#569cd6]" />
+                  <span>Switch Project</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setDropdownOpen(false);
                     dispatch(logoutUser());
                   }}
-                  className="w-full text-left px-3 py-2.5 text-[#f87171] hover:bg-[#27272a] cursor-pointer font-medium transition-colors"
+                  className="w-full text-left px-3 py-2.5 text-[#f87171] hover:bg-[#27272a] cursor-pointer font-medium transition-colors flex items-center gap-2"
                 >
-                  Sign Out
+                  <LogOut className="w-3.5 h-3.5 text-[#f87171]" />
+                  <span>Sign Out</span>
                 </button>
               </div>
             )}

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../store/authSlice';
-import { Play, Sparkles, Terminal, Cpu, HelpCircle, AlertCircle, Plus, Folder, Check } from 'lucide-react';
+import { Play, Sparkles, Terminal, Cpu, HelpCircle, AlertCircle, Plus, Folder, Check, Pencil, Trash2, X } from 'lucide-react';
 
 export default function WelcomeScreen({ onCreateSandbox }) {
   const dispatch = useDispatch();
@@ -14,6 +14,9 @@ export default function WelcomeScreen({ onCreateSandbox }) {
   const [loading, setLoading] = useState(false);
   const [creatingProject, setCreatingProject] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const [editingProjectId, setEditingProjectId] = useState(null);
+  const [editingTitle, setEditingTitle] = useState('');
 
   const canvasRef = useRef(null);
 
@@ -193,6 +196,78 @@ export default function WelcomeScreen({ onCreateSandbox }) {
     }
   };
 
+  const handleUpdateProjectTitle = async (projectId) => {
+    if (!editingTitle.trim()) return;
+    setErrorMsg('');
+    try {
+      const response = await fetch(`/api/sandbox/project/${projectId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ title: editingTitle.trim() })
+      });
+
+      if (response.status === 401) {
+        dispatch(logoutUser());
+        return;
+      }
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || `Failed to update project. Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const updatedProj = data.project;
+
+      // Update local state
+      setProjects(prev => prev.map(p => p._id === projectId ? { ...p, title: updatedProj.title } : p));
+      setEditingProjectId(null);
+      setEditingTitle('');
+    } catch (err) {
+      console.error('Project update failed:', err);
+      setErrorMsg(err.message || 'Could not update project.');
+    }
+  };
+
+  const handleDeleteProject = async (projectId) => {
+    if (!window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+      return;
+    }
+    setErrorMsg('');
+    try {
+      const response = await fetch(`/api/sandbox/project/${projectId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+
+      if (response.status === 401) {
+        dispatch(logoutUser());
+        return;
+      }
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || `Failed to delete project. Status: ${response.status}`);
+      }
+
+      // Remove from local state
+      setProjects(prev => prev.filter(p => p._id !== projectId));
+      
+      // If the deleted project was the selected one, select another one or reset
+      if (selectedProjectId === projectId) {
+        setSelectedProjectId(prev => {
+          const remaining = projects.filter(p => p._id !== projectId);
+          return remaining.length > 0 ? remaining[0]._id : '';
+        });
+      }
+    } catch (err) {
+      console.error('Project deletion failed:', err);
+      setErrorMsg(err.message || 'Could not delete project.');
+    }
+  };
+
   return (
     <div className="min-h-screen w-screen flex items-center justify-center p-4 sm:p-6 relative bg-[#121214] overflow-hidden select-none">
       {/* Background Canvas */}
@@ -329,25 +404,89 @@ export default function WelcomeScreen({ onCreateSandbox }) {
                 <div className="max-h-[160px] overflow-y-auto border border-[#3e3e42]/80 rounded-lg divide-y divide-[#3e3e42]/60 bg-[#1a1a1c]/40 shadow-inner">
                   {projects.map((proj) => {
                     const isSelected = selectedProjectId === proj._id;
+                    const isEditing = editingProjectId === proj._id;
                     return (
                       <button
                         key={proj._id}
                         onClick={() => {
-                          setSelectedProjectId(proj._id);
-                          handleStart(proj._id);
+                          if (!isEditing) {
+                            setSelectedProjectId(proj._id);
+                            handleStart(proj._id);
+                          }
                         }}
-                        className={`w-full flex items-center justify-between p-2.5 text-left transition-all duration-150 cursor-pointer ${
+                        className={`group w-full flex items-center justify-between p-2.5 text-left transition-all duration-150 cursor-pointer ${
                           isSelected
                             ? 'bg-[#252526] text-white font-bold'
                             : 'text-[#858585] hover:text-[#d4d4d4] hover:bg-[#202021]/50'
                         }`}
                       >
-                        <div className="flex items-center gap-2 font-mono text-[11px] min-w-0">
+                        <div className="flex items-center gap-2 font-mono text-[11px] min-w-0 flex-grow" onClick={(e) => isEditing && e.stopPropagation()}>
                           <Folder className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-[#4ec9b0]' : 'text-[#858585]'}`} />
-                          <span className="truncate">{proj.title}</span>
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              value={editingTitle}
+                              onChange={(e) => setEditingTitle(e.target.value)}
+                              className="flex-1 bg-[#252526]/80 border border-[#3e3e42] rounded px-1.5 py-0.5 text-white focus:outline-none focus:border-[#569cd6] text-[11px] font-mono"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleUpdateProjectTitle(proj._id);
+                                } else if (e.key === 'Escape') {
+                                  setEditingProjectId(null);
+                                  setEditingTitle('');
+                                }
+                              }}
+                            />
+                          ) : (
+                            <span className="truncate">{proj.title}</span>
+                          )}
                         </div>
-                        {isSelected && (
-                          <Check className="w-3.5 h-3.5 text-[#4ec9b0] shrink-0" />
+                        {isEditing ? (
+                          <div className="flex items-center gap-1.5 shrink-0 ml-2" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              onClick={() => handleUpdateProjectTitle(proj._id)}
+                              className="text-[#4ec9b0] hover:text-[#5ce9cc] p-1 transition-colors rounded hover:bg-[#2e2e30] focus:outline-none"
+                              title="Save Title"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingProjectId(null);
+                                setEditingTitle('');
+                              }}
+                              className="text-[#f14c4c] hover:text-[#ff6a6a] p-1 transition-colors rounded hover:bg-[#2e2e30] focus:outline-none"
+                              title="Cancel Rename"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                onClick={() => {
+                                  setEditingProjectId(proj._id);
+                                  setEditingTitle(proj.title);
+                                }}
+                                className="text-[#a1a1aa] hover:text-[#569cd6] p-1 transition-colors rounded hover:bg-[#202021] focus:outline-none"
+                                title="Rename Project"
+                              >
+                                <Pencil className="w-3 h-3" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteProject(proj._id)}
+                                className="text-[#a1a1aa] hover:text-[#f14c4c] p-1 transition-colors rounded hover:bg-[#202021] focus:outline-none"
+                                title="Delete Project"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                            {isSelected && (
+                              <Check className="w-3.5 h-3.5 text-[#4ec9b0] shrink-0" />
+                            )}
+                          </div>
                         )}
                       </button>
                     );

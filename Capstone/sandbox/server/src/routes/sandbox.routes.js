@@ -25,6 +25,40 @@ router.post('/project', authMiddleware, async (req, res) => {
     });
 })
 
+router.delete('/project/:id', authMiddleware, async (req, res) => {
+
+    const projectId = req.params.id;
+    const project = await projectModel.findOne({ _id: projectId, user: req.user.id });
+
+    if (!project) {
+        return res.status(404).json({ message: 'Project not found or access denied' });
+    }
+
+    await projectModel.deleteOne({ _id: projectId, user: req.user.id });
+
+    return res.status(200).json({
+        message: "Project deleted successfully"
+    });
+});
+
+router.patch('/project/:id', authMiddleware, async (req, res) => {
+
+    const projectId = req.params.id;
+    const { title } = req.body;
+    const project = await projectModel.findOne({ _id: projectId, user: req.user.id });
+
+    if (!project) {
+        return res.status(404).json({ message: 'Project not found or access denied' });
+    }
+
+    project.title = title;
+    await project.save();
+
+    return res.status(200).json({
+        message: "Project updated successfully",
+        project
+    });
+});
 
 router.post('/start',authMiddleware, async (req, res) => {
 
