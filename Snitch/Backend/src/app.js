@@ -12,6 +12,8 @@ import path from "path";
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
