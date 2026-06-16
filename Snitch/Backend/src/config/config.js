@@ -29,9 +29,13 @@ if(!process.env.RAZORPAY_KEY_SECRET){
     throw new Error("RAZORPAY_KEY_SECRET is not defined in environment variables");
 }
 
+if(!process.env.GOOGLE_REFRESH_TOKEN){
+    throw new Error("GOOGLE_REFRESH_TOKEN is not defined in environment variables");
+}
 
-
-
+if(!process.env.GOOGLE_USER){
+    throw new Error("GOOGLE_USER is not defined in environment variables");
+}
 
 export const config = {
     MONGO_URI: process.env.MONGO_URI,
@@ -41,6 +45,6 @@ export const config = {
     IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY,
     RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
     RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
-    RESEND_API_KEY: process.env.RESEND_API_KEY,
-
+    GOOGLE_REFRESH_TOKEN: process.env.GOOGLE_REFRESH_TOKEN,
+    GOOGLE_USER: process.env.GOOGLE_USER
 }
