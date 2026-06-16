@@ -1,5 +1,5 @@
 import { setUser, setLoading, setError, clearError } from "../state/auth.slice.js";
-import { register, login, getMe, logout } from "../service/auth.api.js";
+import { register, login, getMe, logout, requestPasswordReset, resetPassword } from "../service/auth.api.js";
 import { useDispatch } from "react-redux";
 
 export const useAuth = () => {
@@ -71,10 +71,42 @@ export const useAuth = () => {
         }
     };
 
+    const handleRequestReset = async ({ email }) => {
+        dispatch(setLoading(true));
+        dispatch(clearError());
+        try {
+            const data = await requestPasswordReset({ email });
+            return data;
+        } catch (error) {
+            const message = extractMessage(error, "Failed to send reset code.");
+            dispatch(setError(message));
+            throw error;
+        } finally {
+            dispatch(setLoading(false));
+        }
+    };
+
+    const handleResetPassword = async ({ email, otp, newPassword }) => {
+        dispatch(setLoading(true));
+        dispatch(clearError());
+        try {
+            const data = await resetPassword({ email, otp, newPassword });
+            return data;
+        } catch (error) {
+            const message = extractMessage(error, "Failed to reset password.");
+            dispatch(setError(message));
+            throw error;
+        } finally {
+            dispatch(setLoading(false));
+        }
+    };
+
     return {
         handleRegister,
         handleLogin,
         handleGetMe,
         handleLogout,
+        handleRequestReset,
+        handleResetPassword,
     };
 };

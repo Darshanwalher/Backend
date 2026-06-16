@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Mail, Lock, AlertCircle, X } from 'lucide-react';
+import { ArrowRight, Mail, Lock, AlertCircle, X, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from "../hook/useAuth.js";
 import { useNavigate } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
@@ -161,6 +161,15 @@ const Login = () => {
             <AuthField id="email"    name="email"    type="email"    label="Email Address" icon={<Mail className="w-4 h-4" strokeWidth={1.5} />} value={formData.email}    onChange={handleChange} required />
             <AuthField id="password" name="password" type="password" label="Password"      icon={<Lock className="w-4 h-4" strokeWidth={1.5} />} value={formData.password} onChange={handleChange} required />
 
+            <div className="flex justify-end pt-1">
+              <a
+                href="/forgot-password"
+                className="text-[12px] text-zinc-500 hover:text-white transition-colors duration-200"
+              >
+                Forgot Password?
+              </a>
+            </div>
+
             <div className="pt-2 space-y-3">
               <AuthButton loading={isLoading} label="Sign In" />
               <ContinueWithGoogle />
@@ -214,33 +223,61 @@ export const ErrorBanner = ({ message, onDismiss }) => (
   </div>
 );
 
-export const AuthField = ({ id, name, type, label, icon, value, onChange, required }) => (
-  <div className="relative group">
-    <div className="flex items-center gap-2 mb-2">
-      <span className="text-zinc-600 group-focus-within:text-zinc-300 transition-colors duration-300">{icon}</span>
-      <label
-        htmlFor={id}
-        className="text-[11px] text-zinc-500 font-bold tracking-[0.2em] uppercase transition-colors duration-300 group-focus-within:text-white cursor-text"
-      >
-        {label}
-      </label>
+export const AuthField = ({ id, name, type, label, icon, value, onChange, required }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === 'password';
+  const inputType = isPassword ? (showPassword ? 'text' : 'password') : type;
+
+  return (
+    <div className="relative group">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-zinc-600 group-focus-within:text-zinc-300 transition-colors duration-300">{icon}</span>
+        <label
+          htmlFor={id}
+          className="text-[11px] text-zinc-500 font-bold tracking-[0.2em] uppercase transition-colors duration-300 group-focus-within:text-white cursor-text"
+        >
+          {label}
+        </label>
+      </div>
+      <div className="relative flex items-center">
+        <input
+          type={inputType}
+          id={id}
+          name={name}
+          value={value}
+          onChange={onChange}
+          required={required}
+          placeholder={label}
+          className="peer w-full bg-transparent border-b border-zinc-700 focus:border-white py-2.5 pr-10 text-[14px] text-white placeholder-transparent outline-none transition-all duration-500 tracking-wide font-medium"
+          style={{ fontFamily: DM }}
+        />
+        <span className="absolute bottom-0 left-0 h-px w-0 bg-white transition-all duration-500 peer-focus:w-full" />
+        
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-2 text-zinc-500 hover:text-white transition-all duration-300 cursor-pointer p-1 focus:outline-none"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            <div className="relative w-4 h-4 overflow-hidden">
+              <span className={`absolute inset-0 transition-all duration-500 transform ${
+                showPassword ? 'rotate-0 opacity-100 scale-100' : 'rotate-45 opacity-0 scale-75'
+              }`}>
+                <Eye className="w-4 h-4" />
+              </span>
+              <span className={`absolute inset-0 transition-all duration-500 transform ${
+                !showPassword ? 'rotate-0 opacity-100 scale-100' : '-rotate-45 opacity-0 scale-75'
+              }`}>
+                <EyeOff className="w-4 h-4" />
+              </span>
+            </div>
+          </button>
+        )}
+      </div>
     </div>
-    <div className="relative">
-      <input
-        type={type}
-        id={id}
-        name={name}
-        value={value}
-        onChange={onChange}
-        required={required}
-        placeholder={label}
-        className="peer w-full bg-transparent border-b border-zinc-700 focus:border-white py-2.5 text-[14px] text-white placeholder-transparent outline-none transition-all duration-400 tracking-wide font-medium"
-        style={{ fontFamily: DM }}
-      />
-      <span className="absolute bottom-0 left-0 h-px w-0 bg-white transition-all duration-500 peer-focus:w-full" />
-    </div>
-  </div>
-);
+  );
+};
 
 export const AuthButton = ({ loading, label }) => (
   <button

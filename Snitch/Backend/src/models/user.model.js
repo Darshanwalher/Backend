@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema({
         default:"buyer"
     },
     googleId:{type:String},
+    resetOtp:{type:String, required:false},
+    resetOtpExpires:{type:Date, required:false}
     // profilePic:{type:String, required:false}
 })
 

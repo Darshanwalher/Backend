@@ -38,3 +38,13 @@ export const logout = async()=>{
     const response = await authApiInstance.get("/logout");
     return response.data;
 }
+
+export const requestPasswordReset = async ({ email }) => {
+    const response = await authApiInstance.post("/forgot-password", { email });
+    return response.data;
+}
+
+export const resetPassword = async ({ email, otp, newPassword }) => {
+    const response = await authApiInstance.post("/reset-password", { email, otp, newPassword });
+    return response.data;
+}

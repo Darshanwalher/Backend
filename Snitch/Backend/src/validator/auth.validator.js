@@ -42,3 +42,19 @@ export const validateLoginUser = [
 
     validateRequest,
 ];
+
+export const validateForgotPassword = [
+    body("email")
+        .isEmail().withMessage("Please provide a valid email address"),
+    validateRequest,
+];
+
+export const validateResetPassword = [
+    body("email")
+        .isEmail().withMessage("Please provide a valid email address"),
+    body("otp")
+        .matches(/^\d{6}$/).withMessage("OTP must be exactly 6 digits"),
+    body("newPassword")
+        .isLength({ min: 6 }).withMessage("Password must be at least 6 characters long"),
+    validateRequest,
+];
