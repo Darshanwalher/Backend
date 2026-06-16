@@ -112,6 +112,8 @@ const ProductDetail = () => {
     const [currentVariant, setCurrentVariant] = useState(null);
     const [showToast, setShowToast] = useState(false);
     const [showLoginToast, setShowLoginToast] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+    const [showErrorToast, setShowErrorToast] = useState(false);
 
     const normalizeAttributes = (attrs) => {
         const normalized = {};
@@ -458,12 +460,20 @@ const ProductDetail = () => {
                                             }, 2500);
                                             return;
                                         }
-                                        await handleAddItem({
-                                            productId: product._id,
-                                            variantId: currentVariant?._id
-                                        });
-                                        setShowToast(true);
-                                        setTimeout(() => setShowToast(false), 4000);
+                                        try {
+                                            await handleAddItem({
+                                                productId: product._id,
+                                                variantId: currentVariant?._id
+                                            });
+                                            setShowToast(true);
+                                            setTimeout(() => setShowToast(false), 4000);
+                                        } catch (error) {
+                                            console.error("Failed to add product to cart:", error);
+                                            const msg = error.response?.data?.message || error.message || "Failed to add item to bag.";
+                                            setErrorMsg(msg);
+                                            setShowErrorToast(true);
+                                            setTimeout(() => setShowErrorToast(false), 5000);
+                                        }
                                     }}
                                     id="add-to-cart-btn"
                                     className="w-full flex items-center justify-center gap-2 border border-white/20 text-white text-[10px] sm:text-[11px] font-black tracking-[0.15em] sm:tracking-[0.22em] uppercase h-12 sm:h-14 px-3 sm:px-6 hover:bg-white hover:text-black transition-all duration-300 cursor-pointer group"
@@ -671,6 +681,32 @@ const ProductDetail = () => {
                     </div>
                     <div className="flex items-center gap-1 sm:gap-2 text-[10px] text-zinc-400 font-bold tracking-[0.2em] uppercase group-hover:text-white transition-colors whitespace-nowrap">
                         Login <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+                </div>
+            )}
+
+            {/* ══ TOAST NOTIFICATION — Action Failed (Out of stock, etc.) ══ */}
+            {showErrorToast && (
+                <div
+                    className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between gap-6 px-4 py-3 sm:px-6 sm:py-4 bg-[#0a0a0a] border border-red-500/30 shadow-2xl animate-in slide-in-from-bottom-5 fade-in duration-300 cursor-pointer"
+                    style={{ minWidth: 'min(90vw, 380px)' }}
+                    onClick={() => setShowErrorToast(false)}
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-red-950/20 border border-red-500/30 flex items-center justify-center shrink-0">
+                            <span className="text-red-500 text-[13px] font-black leading-none">!</span>
+                        </div>
+                        <div className="flex flex-col gap-0.5">
+                            <span className="text-[11px] text-white font-black tracking-[0.2em] uppercase">
+                                Action Failed
+                            </span>
+                            <span className="text-[10px] text-zinc-400 font-semibold tracking-[0.05em] uppercase">
+                                {errorMsg}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="text-[10px] text-zinc-500 hover:text-white font-bold uppercase transition-colors whitespace-nowrap">
+                        Dismiss
                     </div>
                 </div>
             )}

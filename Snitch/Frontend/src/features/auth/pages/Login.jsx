@@ -99,33 +99,38 @@ const Login = () => {
       )}
 
       {/* ── LEFT — brand panel ── */}
-      <div className="hidden lg:flex lg:w-[52%] relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[52%] relative overflow-hidden select-none">
         <div
-          className="absolute inset-0 bg-[url('/snitch-aesthetic.png')] bg-cover bg-center transition-transform duration-[25s] ease-out hover:scale-105"
-          style={{ opacity: 0.75 }}
+          className="absolute inset-0 bg-[url('/snitch-aesthetic.png')] bg-cover bg-center transition-transform duration-[40s] ease-out hover:scale-105"
+          style={{ opacity: 0.65 }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#060606] via-[#060606]/30 to-transparent" />
+        {/* Technical drafting grid overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:32px_32px]" />
+        
+        <div className="absolute inset-0 bg-gradient-to-t from-[#060606] via-[#060606]/40 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#060606]" />
 
-        <div className="relative z-10 flex flex-col justify-end h-full w-full p-14 pb-16">
+        <div className="relative z-10 flex flex-col justify-end h-full w-full p-16 pb-20">
           <div className="flex items-center gap-3 mb-6">
-            <span className="text-[11px] text-zinc-400 font-semibold tracking-[0.28em] uppercase">Welcome Back</span>
-            <div className="h-px w-10 bg-zinc-600" />
+            <span className="text-[10px] text-zinc-400 font-black tracking-[0.3em] uppercase">SS 2025 drop</span>
+            <div className="h-[2px] w-8 bg-white" />
           </div>
-          <h1 className="text-[clamp(3.5rem,5.5vw,5rem)] text-white uppercase leading-[0.9] mb-4" style={{ fontFamily: BEBAS, letterSpacing: '0.04em' }}>
-            Snitch
+          <h1 className="text-[clamp(4rem,6vw,6.5rem)] text-white uppercase leading-[0.85] mb-6 font-black tracking-tight" style={{ fontFamily: BEBAS }}>
+            Snitch<br/><span className="text-zinc-500">Studio</span>
           </h1>
-          <p className="text-[14px] text-zinc-400 font-normal tracking-wide leading-[1.7] max-w-xs">
-            Redefining modern streetwear.<br />Sign in to your account.
+          <p className="text-[12px] text-zinc-400 font-bold tracking-[0.15em] leading-[1.8] max-w-sm uppercase">
+            Redefining modern street culture. Built for the bold.
           </p>
         </div>
       </div>
 
       {/* ── RIGHT — form panel ── */}
       <div className="flex-1 flex items-center justify-center p-6 sm:p-10 lg:p-14 relative overflow-y-auto">
-        <div className="absolute top-1/3 right-0 w-80 h-80 bg-zinc-800 rounded-full filter blur-[160px] opacity-10 pointer-events-none" />
+        {/* Soft background glows */}
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-white/[0.01] rounded-full filter blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-zinc-900/30 rounded-full filter blur-[100px] pointer-events-none" />
 
-        <div className="w-full max-w-sm relative z-10">
+        <div className="w-full max-w-md bg-[#09090b]/80 border border-white/[0.04] p-8 sm:p-12 shadow-[0_30px_70px_rgba(0,0,0,0.85)] backdrop-blur-md relative z-10">
 
           {/* Mobile wordmark */}
           <div className="lg:hidden mb-10">
@@ -164,7 +169,7 @@ const Login = () => {
             <div className="flex justify-end pt-1">
               <a
                 href="/forgot-password"
-                className="text-[12px] text-zinc-500 hover:text-white transition-colors duration-200"
+                className="text-[11px] text-zinc-500 hover:text-white transition-colors duration-200 tracking-wider uppercase font-bold"
               >
                 Forgot Password?
               </a>
@@ -190,7 +195,7 @@ const Login = () => {
 
 /* ══════════════════════════════════════════
    Shared — exported so Register.jsx can use them too
-══════════════════════════════════════════ */
+   ══════════════════════════════════════════ */
 
 /** Red error banner that matches the app's dark aesthetic */
 export const ErrorBanner = ({ message, onDismiss }) => (
@@ -234,7 +239,7 @@ export const AuthField = ({ id, name, type, label, icon, value, onChange, requir
         <span className="text-zinc-600 group-focus-within:text-zinc-300 transition-colors duration-300">{icon}</span>
         <label
           htmlFor={id}
-          className="text-[11px] text-zinc-500 font-bold tracking-[0.2em] uppercase transition-colors duration-300 group-focus-within:text-white cursor-text"
+          className="text-[10px] text-zinc-500 font-bold tracking-[0.2em] uppercase transition-colors duration-300 group-focus-within:text-white cursor-text"
         >
           {label}
         </label>
@@ -248,10 +253,10 @@ export const AuthField = ({ id, name, type, label, icon, value, onChange, requir
           onChange={onChange}
           required={required}
           placeholder={label}
-          className="peer w-full bg-transparent border-b border-zinc-700 focus:border-white py-2.5 pr-10 text-[14px] text-white placeholder-transparent outline-none transition-all duration-500 tracking-wide font-medium"
+          className="peer w-full bg-transparent border-b border-zinc-800 hover:border-zinc-700 focus:border-white py-2.5 pr-10 text-[14px] text-white placeholder-transparent outline-none transition-all duration-400 tracking-wide font-medium"
           style={{ fontFamily: DM }}
         />
-        <span className="absolute bottom-0 left-0 h-px w-0 bg-white transition-all duration-500 peer-focus:w-full" />
+        <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-white transition-all duration-500 peer-focus:w-full" />
         
         {isPassword && (
           <button
@@ -264,12 +269,12 @@ export const AuthField = ({ id, name, type, label, icon, value, onChange, requir
               <span className={`absolute inset-0 transition-all duration-500 transform ${
                 showPassword ? 'rotate-0 opacity-100 scale-100' : 'rotate-45 opacity-0 scale-75'
               }`}>
-                <Eye className="w-4 h-4" />
+                <Eye className="w-4 h-4" strokeWidth={2} />
               </span>
               <span className={`absolute inset-0 transition-all duration-500 transform ${
                 !showPassword ? 'rotate-0 opacity-100 scale-100' : '-rotate-45 opacity-0 scale-75'
               }`}>
-                <EyeOff className="w-4 h-4" />
+                <EyeOff className="w-4 h-4" strokeWidth={2} />
               </span>
             </div>
           </button>
@@ -286,7 +291,7 @@ export const AuthButton = ({ loading, label }) => (
     className="relative flex items-center justify-between w-full bg-white text-black font-black tracking-[0.15em] py-4 px-6 uppercase text-[11px] hover:bg-zinc-100 active:scale-[0.99] transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group overflow-hidden"
     style={{ fontFamily: DM }}
   >
-    <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-black/10 to-transparent pointer-events-none" />
+    <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-black/5 to-transparent pointer-events-none" />
     <span className="relative">{loading ? 'Signing in…' : label}</span>
     <ArrowRight className="relative w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" strokeWidth={2.5} />
   </button>

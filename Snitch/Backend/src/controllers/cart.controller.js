@@ -32,6 +32,13 @@ export const addToCart = async(req, res) => {
 
     const stock = await stockOfVariant(productId, variantId);
 
+    if (stock <= 0) {
+        return res.status(400).json({
+            message: "This product or variant is out of stock. Please wait a few days for us to restock.",
+            success: false
+        })
+    }
+
     const cart = (await cartModel.findOne({ user: req.user._id })) || ( await cartModel({ user: req.user._id }));
    
     const isProductAlreadyInCart = cart.items.some(item => item.product.toString() === productId && item.variant?.toString() === variantId);
@@ -190,6 +197,13 @@ export const incrementCartItemQuantity = async(req,res)=>{
     }
 
     const stock = await stockOfVariant(productId, variantId);
+
+    if (stock <= 0) {
+        return res.status(400).json({
+            message: "This product or variant is out of stock. Please wait a few days for us to restock.",
+            success: false
+        });
+    }
 
     const itemQuantityInCart = cart.items.find(item => item.product.toString() === productId && item.variant?.toString() === variantId)?.quantity || 0;
 
@@ -498,6 +512,67 @@ export const verifyOrderController = async(req,res)=>{
             message:"Payment verification failed",
             success:false
         })
+    }
+
+    // Perform atomic stock deduction with rollback mechanism
+    const stockDeductedItems = [];
+    try {
+        for (const item of payment.orderItems) {
+            const result = await productModel.findOneAndUpdate(
+                {
+                    _id: item.productId,
+                    "variants._id": item.variantId,
+                    "variants.stock": { $gte: item.quantity }
+                },
+                {
+                    $inc: { "variants.$.stock": -item.quantity }
+                },
+                { new: true }
+            );
+
+            if (!result) {
+                // Insufficient stock or product variant does not exist. Rollback previous items.
+                for (const rolledBackItem of stockDeductedItems) {
+                    await productModel.findOneAndUpdate(
+                        {
+                            _id: rolledBackItem.productId,
+                            "variants._id": rolledBackItem.variantId
+                        },
+                        {
+                            $inc: { "variants.$.stock": rolledBackItem.quantity }
+                        }
+                    );
+                }
+
+                payment.status = "failed";
+                await payment.save();
+
+                return res.status(400).json({
+                    message: `Product "${item.title}" is out of stock. Payment has been marked for refund.`,
+                    success: false
+                });
+            }
+
+            stockDeductedItems.push(item);
+        }
+    } catch (dbError) {
+        console.error("Database error during stock lock:", dbError);
+        // Rollback any stock we already deducted
+        for (const rolledBackItem of stockDeductedItems) {
+            await productModel.findOneAndUpdate(
+                {
+                    _id: rolledBackItem.productId,
+                    "variants._id": rolledBackItem.variantId
+                },
+                {
+                    $inc: { "variants.$.stock": rolledBackItem.quantity }
+                }
+            );
+        }
+        return res.status(500).json({
+            message: "Internal server error during stock reservation.",
+            success: false
+        });
     }
 
     payment.status = "paid"
