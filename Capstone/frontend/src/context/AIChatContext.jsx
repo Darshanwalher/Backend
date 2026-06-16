@@ -171,12 +171,23 @@ export function AIChatProvider({ children }) {
     }
   };
 
+  const clearChatMessages = () => {
+    const defaultMsg = [
+      { role: 'assistant', content: 'Sandbox environment created successfully. Ask me to make changes to your codebase!' }
+    ];
+    setChatMessages(defaultMsg);
+    localStorage.setItem('chatMessages', JSON.stringify(defaultMsg));
+    setAiLogs([]);
+    toast.success('Chat history cleared');
+  };
+
   return (
     <AIChatContext.Provider value={{
       chatMessages,
       isAiLoading,
       aiLogs,
-      handleSendMessage
+      handleSendMessage,
+      clearChatMessages
     }}>
       {children}
     </AIChatContext.Provider>

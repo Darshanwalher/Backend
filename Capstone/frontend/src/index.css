@@ -354,3 +354,137 @@
   background-color: #1e1e1e; /* Match Card Background */
   color: #569cd6;
 }
+
+/* Premium AI Chat Panel Styles */
+
+.glass-panel {
+  background: rgba(37, 37, 38, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.user-msg-gradient {
+  background: linear-gradient(135deg, rgba(9, 71, 113, 0.85) 0%, rgba(12, 89, 142, 0.75) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(12, 89, 142, 0.4);
+  box-shadow: 0 4px 12px 0 rgba(9, 71, 113, 0.15);
+}
+
+.assistant-msg-gradient {
+  background: linear-gradient(135deg, rgba(45, 45, 48, 0.8) 0%, rgba(37, 37, 38, 0.85) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(62, 62, 66, 0.35);
+  box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.25);
+}
+
+@keyframes cyber-pulse {
+  0%, 100% {
+    border-color: rgba(86, 156, 214, 0.3);
+    box-shadow: 0 0 8px 0 rgba(86, 156, 214, 0.1);
+  }
+  50% {
+    border-color: rgba(78, 201, 176, 0.6);
+    box-shadow: 0 0 12px 1px rgba(78, 201, 176, 0.25);
+  }
+}
+
+.cyber-input-glow:focus-within {
+  animation: cyber-pulse 2.5s infinite ease-in-out;
+}
+
+/* CRT Screen terminal styling */
+.terminal-crt {
+  background-color: #0c0c0f;
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal-crt::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.18) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 20;
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
+
+@keyframes pulse-halo {
+  0% {
+    transform: scale(0.9);
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(78, 201, 176, 0.5);
+  }
+  70% {
+    transform: scale(1.1);
+    opacity: 0.8;
+    box-shadow: 0 0 0 6px rgba(78, 201, 176, 0);
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(78, 201, 176, 0);
+  }
+}
+
+.animate-pulse-halo {
+  animation: pulse-halo 2s infinite ease-in-out;
+}
+
+@keyframes fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide-in {
+  animation: fade-slide-in 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.text-gradient-neon {
+  background: linear-gradient(135deg, #569cd6 0%, #4ec9b0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-purple {
+  background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Suggestion chip hover line effect */
+.suggestion-card-border {
+  background: linear-gradient(90deg, #3e3e42, #3e3e42);
+  transition: background 0.3s ease;
+}
+
+.suggestion-card-border:hover {
+  background: linear-gradient(90deg, #569cd6, #4ec9b0);
+}
+
+/* Timeline flow animations */
+@keyframes line-flow {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 16px;
+  }
+}
+
+.animate-line-flow {
+  background-image: linear-gradient(to bottom, #4ec9b0 60%, transparent 40%);
+  background-size: 2px 12px;
+  animation: line-flow 0.7s linear infinite;
+}

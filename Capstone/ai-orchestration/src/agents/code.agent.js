@@ -4,13 +4,33 @@ import { listFiles, readFiles, updateFiles } from "./tools.js";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { HTTPClient } from "@mistralai/mistralai/lib/http.js";
 
-const customFetcher = (input, init) => {
+const requestTimestamps = [];
+const MAX_REQUESTS_PER_MINUTE = 3;
+
+const customFetcher = async (input, init) => {
   const url = typeof input === 'string' ? input : (input && input.url) ? input.url : '';
   if (url && url.includes('api.mistral.ai')) {
+    while (true) {
+      const now = Date.now();
+      // Remove timestamps older than 60 seconds
+      while (requestTimestamps.length > 0 && requestTimestamps[0] < now - 60000) {
+        requestTimestamps.shift();
+      }
+
+      if (requestTimestamps.length < MAX_REQUESTS_PER_MINUTE) {
+        requestTimestamps.push(now);
+        break;
+      }
+
+      const timeToWait = requestTimestamps[0] + 60000 - now;
+      console.log(`[Rate Limiter] Mistral AI rate limit reached. Waiting ${(timeToWait / 1000).toFixed(2)}s before proceeding...`);
+      await new Promise(resolve => setTimeout(resolve, timeToWait));
+    }
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
       controller.abort(new DOMException('The operation was aborted due to timeout', 'TimeoutError'));
-    }, 120000); // 120 seconds
+    }, 240000); // 240 seconds
     
     let fetchInput = input;
     let fetchInit = { ...init, signal: controller.signal };
@@ -35,7 +55,7 @@ const model = new ChatMistralAI({
     model: "mistral-large-latest",
     apiKey: process.env.MISTRAL_API_KEY,
     temperature: 0.7,
-    timeout: 120000,
+    timeout: 240000,
     httpClient: customHttpClient,
 })
 
