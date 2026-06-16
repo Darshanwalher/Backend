@@ -11,9 +11,7 @@ const userSchema = new mongoose.Schema({
         enum:["buyer","seller"],
         default:"buyer"
     },
-    googleId:{type:String},
-    resetOtp:{type:String, required:false},
-    resetOtpExpires:{type:Date, required:false}
+    googleId:{type:String}
     // profilePic:{type:String, required:false}
 })
 

@@ -1,4 +1,5 @@
 import userModel from "../models/user.model.js";
+import otpModel from "../models/otp.model.js";
 import jwt from "jsonwebtoken";
 import { config } from "../config/config.js";
 
@@ -175,10 +176,13 @@ export const forgotPassword = async (req, res) => {
 
         // Generate a 6-digit numeric OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        user.resetOtp = otp;
-        user.resetOtpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-        await user.save();
+        // Upsert the OTP document (automatically expires in 10 minutes)
+        await otpModel.findOneAndUpdate(
+            { email },
+            { otp, createdAt: new Date() },
+            { upsert: true, new: true }
+        );
 
         // Check for RESEND_API_KEY
         const apiKey = config.RESEND_API_KEY;
@@ -294,7 +298,9 @@ export const resetPassword = async (req, res) => {
             });
         }
 
-        if (!user.resetOtp || user.resetOtp !== otp || !user.resetOtpExpires || user.resetOtpExpires < new Date()) {
+        // Verify the OTP in the database
+        const otpRecord = await otpModel.findOne({ email, otp });
+        if (!otpRecord) {
             return res.status(400).json({
                 message: "Invalid or expired OTP code"
             });
@@ -302,10 +308,10 @@ export const resetPassword = async (req, res) => {
 
         // OTP is valid! Reset password.
         user.password = newPassword;
-        user.resetOtp = undefined;
-        user.resetOtpExpires = undefined;
-
         await user.save();
+
+        // Clean up the OTP immediately after successful verification
+        await otpModel.deleteOne({ email });
 
         return res.status(200).json({
             message: "Password reset successfully. You can now log in."
