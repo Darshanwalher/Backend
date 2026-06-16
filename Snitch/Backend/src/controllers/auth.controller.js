@@ -80,7 +80,7 @@ export const register = async (req,res)=>{
                                 </p>
                                 
                                 <div style="margin-bottom: 24px;">
-                                    <a href="http://localhost:5173/login" style="background-color: #ffffff; color: #000000; padding: 12px 24px; font-size: 12px; font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; display: inline-block; border-radius: 2px;">
+                                    <a href="https://snitch-nvsg.onrender.com/login" style="background-color: #ffffff; color: #000000; padding: 12px 24px; font-size: 12px; font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; display: inline-block; border-radius: 2px;">
                                         Sign In to Account
                                     </a>
                                 </div>
@@ -170,7 +170,7 @@ export const googleCallback = async (req,res)=>{
 
     
 
-    res.redirect("http://localhost:5173/");
+    res.redirect("https://snitch-nvsg.onrender.com/");
 }
 
 export const getMe = async (req,res)=>{
@@ -289,7 +289,7 @@ export const forgotPassword = async (req, res) => {
                         <tr>
                             <td align="center" style="background-color: #050505; padding: 24px 20px; border-top: 1px solid #101010; text-align: center;">
                                 <p style="margin: 0; font-size: 9px; font-weight: 700; letter-spacing: 0.25em; color: #3f3f46; text-transform: uppercase;">
-                                    Snitch Streetwear © 2025
+                                    Snitch Streetwear © 2026
                                 </p>
                             </td>
                         </tr>

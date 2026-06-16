@@ -2,7 +2,7 @@ import React from 'react'
 
 const ContinueWithGoogle = () => {
     return (
-        <a href="/api/auth/google"
+        <a href={`https://snitch-nvsg.onrender.com/api/auth/google`}
             className="relative flex items-center justify-center w-full bg-[#0c0c0e] border border-white/10 py-3.5 px-6 uppercase text-[11px] font-black tracking-[0.15em] text-white hover:bg-white hover:text-black hover:border-white transition-all duration-300 cursor-pointer overflow-hidden group"
             style={{ fontFamily: "'DM Sans', sans-serif" }}
         >

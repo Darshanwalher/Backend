@@ -8,6 +8,7 @@ import cors from "cors";
 import passport from "passport";
 import {Strategy as GoogleStrategy} from "passport-google-oauth20";
 import {config} from "./config/config.js";
+import path from "path";
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({extended:true}));
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: "https://snitch-nvsg.onrender.com",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
 }));
