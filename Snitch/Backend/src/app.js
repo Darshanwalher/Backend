@@ -29,7 +29,8 @@ app.use(passport.initialize());
 passport.use(new GoogleStrategy({
     clientID: config.GOOGLE_CLIENT_ID,
     clientSecret: config.GOOGLE_CLIENT_SECRET,
-    callbackURL:"/api/auth/google/callback"
+    callbackURL:"/api/auth/google/callback",
+    proxy: true
 },(accessToken, refreshToken, profile, done)=>{
     return done(null,profile);
 }))
