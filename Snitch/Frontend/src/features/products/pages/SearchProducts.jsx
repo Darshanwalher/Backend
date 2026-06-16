@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
 import { useProduct } from "../hooks/useProduct.js";
@@ -63,7 +63,7 @@ const formatPrice = (amount, currency) => {
 
 /* ══════════════════════════════════════════════════════
    SearchProductCard Component
-══════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════ */
 const SearchProductCard = ({ product, index }) => {
   const [imgIdx, setImgIdx] = useState(0);
   const [errorSet, setErrorSet] = useState(new Set());
@@ -106,16 +106,16 @@ const SearchProductCard = ({ product, index }) => {
 
   return (
     <article
-      className="group relative flex flex-col bg-[#0b0b0b] border border-white/[0.04] hover:border-white/[0.14] transition-all duration-500 overflow-hidden cursor-pointer"
+      className="group relative flex flex-col bg-[#09090b]/65 border border-white/[0.04] hover:border-white/[0.12] hover:bg-[#0c0c0e]/80 hover:shadow-[0_25px_50px_rgba(0,0,0,0.7)] backdrop-blur-sm transition-all duration-500 overflow-hidden cursor-pointer"
       style={{ animationDelay: `${index * 30}ms` }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => {
         setHovered(false);
-        setImgIdx(0); // reset image index on hover out
+        setImgIdx(0);
       }}
     >
       {/* Image Area */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900/40 select-none">
+      <div className="relative aspect-[3/4] overflow-hidden bg-zinc-955/80 select-none border-b border-white/[0.03]">
         {hasImages ? (
           <>
             <img
@@ -128,25 +128,25 @@ const SearchProductCard = ({ product, index }) => {
                 );
                 handleError(origIdx >= 0 ? origIdx : safeIdx);
               }}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-[1.02] filter group-hover:brightness-[1.03]"
             />
 
-            {/* Dark overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            {/* Dark gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent opacity-40 group-hover:opacity-85 transition-opacity duration-500 pointer-events-none" />
 
             {/* Nav Arrows */}
             {validImages.length > 1 && (
               <>
                 <button
                   onClick={prev}
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/80 backdrop-blur-sm border border-white/10 text-white opacity-0 group-hover:opacity-100 hover:bg-black transition-all duration-200 cursor-pointer z-10"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/85 backdrop-blur-md border border-white/10 text-white opacity-0 group-hover:opacity-100 hover:bg-white hover:text-black transition-all duration-300 cursor-pointer z-10"
                   aria-label="Previous image"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" strokeWidth={2.5} />
                 </button>
                 <button
                   onClick={next}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/80 backdrop-blur-sm border border-white/10 text-white opacity-0 group-hover:opacity-100 hover:bg-black transition-all duration-200 cursor-pointer z-10"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/85 backdrop-blur-md border border-white/10 text-white opacity-0 group-hover:opacity-100 hover:bg-white hover:text-black transition-all duration-300 cursor-pointer z-10"
                   aria-label="Next image"
                 >
                   <ChevronRight className="w-3.5 h-3.5" strokeWidth={2.5} />
@@ -167,7 +167,7 @@ const SearchProductCard = ({ product, index }) => {
                     className={`transition-all duration-300 cursor-pointer rounded-full ${
                       i === safeIdx
                         ? "w-4 h-1 bg-white"
-                        : "w-1 h-1 bg-white/40 hover:bg-white/75"
+                        : "w-1 h-1 bg-white/30 hover:bg-white/60"
                     }`}
                     aria-label={`Image ${i + 1}`}
                   />
@@ -177,8 +177,8 @@ const SearchProductCard = ({ product, index }) => {
           </>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-3">
-            <ImageOff className="w-8 h-8 text-zinc-700" strokeWidth={1} />
-            <span className="text-[11px] text-zinc-600 font-semibold tracking-[0.2em] uppercase">
+            <ImageOff className="w-8 h-8 text-zinc-800" strokeWidth={1} />
+            <span className="text-[10px] text-zinc-700 font-bold tracking-[0.2em] uppercase">
               No image
             </span>
           </div>
@@ -186,14 +186,14 @@ const SearchProductCard = ({ product, index }) => {
 
         {/* Currency badge */}
         <div className="absolute top-3 left-3 z-10">
-          <span className="bg-black/75 backdrop-blur-md border border-white/10 text-[9px] font-black text-zinc-400 tracking-[0.22em] uppercase px-2 py-1">
+          <span className="bg-black/80 backdrop-blur-md border border-white/10 text-[9px] font-black text-zinc-400 tracking-[0.22em] uppercase px-2 py-0.5">
             {product.price?.currency || "INR"}
           </span>
         </div>
       </div>
 
       {/* Info Area */}
-      <div className="flex-1 flex flex-col p-4 gap-3 bg-[#0a0a0a]">
+      <div className="flex-1 flex flex-col p-5 gap-3 bg-transparent">
         <div className="space-y-1">
           <h2
             className="text-[14px] font-bold text-white leading-snug tracking-tight line-clamp-1 group-hover:text-zinc-200 transition-colors"
@@ -203,7 +203,7 @@ const SearchProductCard = ({ product, index }) => {
           </h2>
 
           {product.description && (
-            <p className="text-[12px] text-zinc-500 leading-normal tracking-wide line-clamp-1 font-normal">
+            <p className="text-[11px] text-zinc-500 leading-normal tracking-wide line-clamp-1 font-normal">
               {product.description}
             </p>
           )}
@@ -211,25 +211,25 @@ const SearchProductCard = ({ product, index }) => {
 
         {/* Size/Color preview details for Professional Look */}
         {(availableSizes.length > 0 || availableColors.length > 0) && (
-          <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-1">
+          <div className="flex items-center justify-between text-[10px] text-zinc-550 pt-1">
             {/* Color Swatch dots */}
             <div className="flex items-center gap-1.5">
               {availableColors.slice(0, 4).map((c) => (
                 <span
                   key={c}
-                  className="w-2 h-2 rounded-full border border-white/20 inline-block"
+                  className="w-2.5 h-2.5 rounded-full border border-white/20 inline-block transition-transform duration-350 hover:scale-110"
                   style={{ backgroundColor: COLOR_MAP[c] || "#808080" }}
                   title={c}
                 />
               ))}
               {availableColors.length > 4 && (
-                <span className="text-[9px] font-bold text-zinc-600">+{availableColors.length - 4}</span>
+                <span className="text-[9px] font-bold text-zinc-650">+{availableColors.length - 4}</span>
               )}
             </div>
 
             {/* Sizes list */}
             {availableSizes.length > 0 && (
-              <span className="font-semibold tracking-wider text-[10px] text-zinc-600 uppercase">
+              <span className="font-bold tracking-[0.15em] text-[9px] text-zinc-500 uppercase">
                 {availableSizes.slice(0, 3).join(" · ")}
                 {availableSizes.length > 3 && " +"}
               </span>
@@ -241,12 +241,12 @@ const SearchProductCard = ({ product, index }) => {
 
         <div className="flex items-end justify-between">
           <span
-            className="text-[18px] font-bold text-white tracking-tight leading-none"
+            className="text-[17px] font-bold text-white tracking-tight leading-none"
             style={{ fontFamily: DM }}
           >
             {formatPrice(product.price?.amount, product.price?.currency)}
           </span>
-          <div className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-zinc-500 group-hover:text-white group-hover:border-white/30 transition-all duration-300">
+          <div className="w-7 h-7 rounded-full border border-white/5 flex items-center justify-center text-zinc-650 group-hover:text-white group-hover:border-white/20 transition-all duration-300">
             <ArrowRight
               className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300"
               strokeWidth={2}
@@ -260,7 +260,7 @@ const SearchProductCard = ({ product, index }) => {
 
 /* ══════════════════════════════════════════════════════
    SearchProducts Page Component
-══════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════ */
 export const SearchProducts = () => {
   const navigate = useNavigate();
   const { handleSearchProducts } = useProduct();
@@ -388,9 +388,9 @@ export const SearchProducts = () => {
         <div className="flex flex-col lg:flex-row gap-10">
           
           {/* ══ DESKTOP FILTERS SIDEBAR ══ */}
-          <aside className="hidden lg:block w-72 shrink-0 space-y-6 sticky top-24 self-start max-h-[80vh] overflow-y-auto pr-2 scrollbar-none">
+          <aside className="hidden lg:block w-72 shrink-0 space-y-6 sticky top-24 self-start max-h-[80vh] overflow-y-auto pr-3 scrollbar-none bg-[#09090b]/40 border border-white/[0.04] backdrop-blur-sm p-5 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
-              <span className="text-[11px] font-black tracking-[0.25em] uppercase text-zinc-400">Filters</span>
+              <span className="text-[10px] font-black tracking-[0.25em] uppercase text-zinc-400">Filters</span>
               {hasActiveFilters && (
                 <button
                   onClick={handleResetFilters}
@@ -405,7 +405,7 @@ export const SearchProducts = () => {
             <div className="border-b border-white/[0.04] pb-5">
               <button
                 onClick={() => toggleSection("price")}
-                className="w-full flex items-center justify-between text-[11px] text-white font-black tracking-[0.2em] uppercase py-2 outline-none cursor-pointer"
+                className="w-full flex items-center justify-between text-[11px] text-white font-black tracking-[0.2em] uppercase py-2 outline-none cursor-pointer border-none bg-transparent"
               >
                 <span>Price Range</span>
                 {openSections.price ? (
@@ -416,9 +416,9 @@ export const SearchProducts = () => {
               </button>
 
               {openSections.price && (
-                <div className="mt-4 flex items-center gap-3 animate-in fade-in duration-300">
+                <div className="mt-4 flex items-center gap-3 animate-in fade-in duration-355">
                   <div className="relative flex-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-zinc-600">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-zinc-650">
                       Min
                     </span>
                     <input
@@ -426,12 +426,12 @@ export const SearchProducts = () => {
                       placeholder="0"
                       value={minPrice}
                       onChange={(e) => setMinPrice(e.target.value)}
-                      className="w-full bg-[#0a0a0a] border border-white/[0.06] focus:border-white/30 py-2.5 pl-10 pr-3 rounded-none text-xs text-white outline-none transition-colors duration-300"
+                      className="w-full bg-[#070708]/85 border border-white/[0.06] focus:border-white/30 py-2.5 pl-10 pr-3 rounded-none text-xs text-white outline-none transition-colors duration-300"
                     />
                   </div>
                   <span className="text-zinc-700 text-xs">—</span>
                   <div className="relative flex-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-zinc-600">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-zinc-655">
                       Max
                     </span>
                     <input
@@ -439,7 +439,7 @@ export const SearchProducts = () => {
                       placeholder="9999"
                       value={maxPrice}
                       onChange={(e) => setMaxPrice(e.target.value)}
-                      className="w-full bg-[#0a0a0a] border border-white/[0.06] focus:border-white/30 py-2.5 pl-10 pr-3 rounded-none text-xs text-white outline-none transition-colors duration-300"
+                      className="w-full bg-[#070708]/85 border border-white/[0.06] focus:border-white/30 py-2.5 pl-10 pr-3 rounded-none text-xs text-white outline-none transition-colors duration-300"
                     />
                   </div>
                 </div>
@@ -450,7 +450,7 @@ export const SearchProducts = () => {
             <div className="border-b border-white/[0.04] pb-5">
               <button
                 onClick={() => toggleSection("size")}
-                className="w-full flex items-center justify-between text-[11px] text-white font-black tracking-[0.2em] uppercase py-2 outline-none cursor-pointer"
+                className="w-full flex items-center justify-between text-[11px] text-white font-black tracking-[0.2em] uppercase py-2 outline-none cursor-pointer border-none bg-transparent"
               >
                 <span>Sizes</span>
                 {openSections.size ? (
@@ -461,7 +461,7 @@ export const SearchProducts = () => {
               </button>
 
               {openSections.size && (
-                <div className="grid grid-cols-3 gap-2 mt-4 animate-in fade-in duration-300">
+                <div className="grid grid-cols-3 gap-2 mt-4 animate-in fade-in duration-355">
                   {AVAILABLE_SIZES.map((size) => {
                     const isSelected = selectedSizes.includes(size);
                     return (
@@ -486,7 +486,7 @@ export const SearchProducts = () => {
             <div className="border-b border-white/[0.04] pb-5">
               <button
                 onClick={() => toggleSection("color")}
-                className="w-full flex items-center justify-between text-[11px] text-white font-black tracking-[0.2em] uppercase py-2 outline-none cursor-pointer"
+                className="w-full flex items-center justify-between text-[11px] text-white font-black tracking-[0.2em] uppercase py-2 outline-none cursor-pointer border-none bg-transparent"
               >
                 <span>Colors</span>
                 {openSections.color ? (
@@ -497,7 +497,7 @@ export const SearchProducts = () => {
               </button>
 
               {openSections.color && (
-                <div className="flex flex-wrap gap-3 mt-4 animate-in fade-in duration-300">
+                <div className="flex flex-wrap gap-3 mt-4 animate-in fade-in duration-355">
                   {AVAILABLE_COLORS.map((color) => {
                     const isSelected = selectedColors.includes(color);
                     const colorCode = COLOR_MAP[color] || "#808080";
@@ -523,7 +523,6 @@ export const SearchProducts = () => {
                             strokeWidth={3}
                           />
                         )}
-                        {/* Tooltip on Hover */}
                         <span className="absolute bottom-full mb-2 opacity-0 group-hover/color:opacity-100 bg-black border border-white/10 px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase text-zinc-300 pointer-events-none transition-opacity duration-300 z-50 whitespace-nowrap">
                           {color}
                         </span>
@@ -548,7 +547,7 @@ export const SearchProducts = () => {
                   placeholder="Search products by keywords, colors, sizes..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-[#0a0a0a] border border-white/[0.06] focus:border-white/30 py-3.5 pl-12 pr-10 text-[14px] text-white placeholder-zinc-600 outline-none transition-all duration-300 rounded-none"
+                  className="w-full bg-[#09090b]/60 border border-white/[0.04] focus:border-white/20 py-4 pl-12 pr-10 text-[14px] text-white placeholder-zinc-650 outline-none transition-all duration-400 rounded-none backdrop-blur-sm shadow-xl"
                 />
                 {searchTerm && (
                   <button
@@ -556,7 +555,7 @@ export const SearchProducts = () => {
                       setSearchTerm("");
                       setQ("");
                     }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors cursor-pointer"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors cursor-pointer border-none bg-transparent"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -610,7 +609,7 @@ export const SearchProducts = () => {
             {/* Active filters summary */}
             {hasActiveFilters && (
               <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-[10px] text-zinc-600 font-bold tracking-[0.15em] uppercase mr-2">
+                <span className="text-[10px] text-zinc-650 font-bold tracking-[0.15em] uppercase mr-2">
                   Active Criteria:
                 </span>
                 {q.trim() && (
@@ -720,13 +719,13 @@ export const SearchProducts = () => {
 
       {/* ══ MOBILE FILTERS DRAWER/OVERLAY ══ */}
       {showMobileFilters && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="w-full max-w-sm bg-[#0a0a0a] border-l border-white/[0.08] h-full flex flex-col p-6 space-y-6 overflow-y-auto animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/70 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="w-full max-w-sm bg-[#0a0a0a]/95 border-l border-white/[0.08] backdrop-blur-md h-full flex flex-col p-6 space-y-6 overflow-y-auto animate-in slide-in-from-right duration-300">
             <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
               <span className="text-[12px] font-black tracking-[0.25em] uppercase text-zinc-400">Filters</span>
               <button
                 onClick={() => setShowMobileFilters(false)}
-                className="text-zinc-500 hover:text-white p-1 cursor-pointer"
+                className="text-zinc-500 hover:text-white p-1 cursor-pointer border-none bg-transparent"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -829,3 +828,5 @@ export const SearchProducts = () => {
     </div>
   );
 };
+
+export default SearchProducts;

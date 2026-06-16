@@ -112,7 +112,7 @@ const Login = () => {
 
         <div className="relative z-10 flex flex-col justify-end h-full w-full p-16 pb-20">
           <div className="flex items-center gap-3 mb-6">
-            <span className="text-[10px] text-zinc-400 font-black tracking-[0.3em] uppercase">SS 2025 drop</span>
+            <span className="text-[10px] text-zinc-400 font-black tracking-[0.3em] uppercase">SS 2026 drop</span>
             <div className="h-[2px] w-8 bg-white" />
           </div>
           <h1 className="text-[clamp(4rem,6vw,6.5rem)] text-white uppercase leading-[0.85] mb-6 font-black tracking-tight" style={{ fontFamily: BEBAS }}>

@@ -2,8 +2,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useProduct } from '../hooks/useProduct';
 import { useParams, useNavigate } from 'react-router';
-import { ArrowLeft, Plus, Image as ImageIcon, Box, Trash2, Edit3, Save, X, ImageOff, UploadCloud, Tag, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Plus, Image as ImageIcon, Box, Trash2, Edit3, X, ImageOff, UploadCloud, Tag, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import Nav from '../../Shared/Components/Nav';
+
 const CURRENCY_OPTIONS = [
     { code: "USD", symbol: "$", name: "US Dollar", flag: "🇺🇸" },
     { code: "INR", symbol: "₹", name: "Indian Rupee", flag: "🇮🇳" },
@@ -13,7 +14,7 @@ const CURRENCY_OPTIONS = [
 
 /* ═══════════════════════════════════════════════════════
    Helpers
-═══════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════ */
 const formatPrice = (amount, currency = "INR") => {
     try {
         return new Intl.NumberFormat("en-IN", {
@@ -34,9 +35,9 @@ const formatDate = (iso) => {
 
 /* ═══════════════════════════════════════════════════════
    SellerProductDetail
-═══════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════ */
 const SellerProductDetail = () => {
-    const { handleGetProductById, handleAddProductVariant, handleDeleteProduct, handleDeleteProductVariant,handleUpdateProductVariant,handleUpdateProduct } = useProduct();
+    const { handleGetProductById, handleAddProductVariant, handleDeleteProduct, handleDeleteProductVariant, handleUpdateProductVariant, handleUpdateProduct } = useProduct();
     const { productId } = useParams();
     const navigate = useNavigate();
 
@@ -217,7 +218,6 @@ const SellerProductDetail = () => {
         setCustomSize('');
     };
 
-
     const processFiles = (files) => {
         if (!files || files.length === 0) return;
 
@@ -255,12 +255,6 @@ const SellerProductDetail = () => {
         if (e.dataTransfer.files) {
             processFiles(Array.from(e.dataTransfer.files));
         }
-    };
-
-    // Handle deleting a variant
-    const handleDeleteVariant = (index) => {
-        const updatedVariants = variants.filter((_, i) => i !== index);
-        setVariants(updatedVariants);
     };
 
     const handleEditProductClick = () => {
@@ -326,13 +320,13 @@ const SellerProductDetail = () => {
             {/* Header */}
             <Nav title="Product Details" homeRoute="/seller/dashboard" />
 
-            <main className="max-w-screen-xl mx-auto px-6 pt-24 space-y-12">
+            <main className="max-w-screen-xl mx-auto px-6 pt-24 space-y-12 relative z-10">
 
                 {/* ═══════════════════════════════════════════════════════
                    Product Summary
                 ═══════════════════════════════════════════════════════ */}
-                <section className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-0 bg-[#0a0a0a] border border-white/[0.08] overflow-hidden group hover:border-white/[0.15] transition-colors duration-500">
-                    <div className="aspect-[4/5] bg-[#0f0f0f] relative flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/[0.08]">
+                <section className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-0 bg-[#09090b]/65 border border-white/[0.04] backdrop-blur-sm hover:border-white/[0.12] transition-all duration-500 overflow-hidden group">
+                    <div className="aspect-[4/5] bg-[#0f0f0f] relative flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/[0.06]">
                         {product.images && product.images.length > 0 ? (
                             <img
                                 src={product.images[0].url}
@@ -352,7 +346,7 @@ const SellerProductDetail = () => {
                         <div className="absolute top-6 right-6 lg:top-12 lg:right-12 flex items-center gap-3">
                             <button
                                 onClick={handleEditProductClick}
-                                className="w-10 h-10 flex items-center justify-center border border-white/[0.08] text-zinc-600 hover:text-white hover:border-white/30 hover:bg-white/10 transition-all duration-300 cursor-pointer"
+                                className="w-10 h-10 flex items-center justify-center border border-white/[0.06] backdrop-blur-sm text-zinc-550 hover:text-white hover:border-white/20 hover:bg-white/5 transition-all duration-300 cursor-pointer"
                                 aria-label="Edit Product"
                                 title="Edit Product"
                             >
@@ -360,7 +354,7 @@ const SellerProductDetail = () => {
                             </button>
                             <button
                                 onClick={() => setShowDeleteConfirm(true)}
-                                className="w-10 h-10 flex items-center justify-center border border-white/[0.08] text-zinc-600 hover:text-red-500 hover:border-red-500/30 hover:bg-red-500/10 transition-all duration-300 cursor-pointer"
+                                className="w-10 h-10 flex items-center justify-center border border-white/[0.06] backdrop-blur-sm text-zinc-550 hover:text-red-500 hover:border-red-500/30 hover:bg-red-500/5 transition-all duration-300 cursor-pointer"
                                 aria-label="Delete Product"
                                 title="Delete Product"
                             >
@@ -431,7 +425,7 @@ const SellerProductDetail = () => {
 
                     {/* Add/Edit Variant Form */}
                     {showAddForm && (
-                        <form onSubmit={handleSaveVariant} className="bg-[#0a0a0a] border border-white/[0.08] p-5 sm:p-8 md:p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 animate-in slide-in-from-top-8 fade-in duration-500 relative overflow-hidden">
+                        <form onSubmit={handleSaveVariant} className="bg-[#09090b]/65 border border-white/[0.04] backdrop-blur-sm p-5 sm:p-8 md:p-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 animate-in slide-in-from-top-8 fade-in duration-500 relative overflow-hidden">
                             {/* Decorative background glow */}
                             <div className="absolute top-0 left-1/4 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
@@ -445,14 +439,14 @@ const SellerProductDetail = () => {
                             {/* Dynamic Images */}
                             <div className="space-y-3 lg:col-span-3">
                                 <div className="flex items-center justify-between">
-                                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Images (Up to 7)</label>
-                                    <span className="text-[10px] text-zinc-600 font-bold tracking-widest">
+                                    <label className="text-[10px] font-bold text-zinc-550 uppercase tracking-widest">Images (Up to 7)</label>
+                                    <span className="text-[10px] text-zinc-500 font-bold tracking-widest">
                                         {newVariant.images.length} / 7
                                     </span>
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mt-2">
                                     {newVariant.images.map((img, idx) => (
-                                        <div key={idx} className="relative aspect-[4/5] bg-zinc-900 border border-white/[0.1] rounded-md overflow-hidden group shadow-lg">
+                                        <div key={idx} className="relative aspect-[4/5] bg-zinc-950 border border-white/[0.08] overflow-hidden group shadow-lg">
                                             <img src={img.previewUrl} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                             <button
@@ -474,7 +468,7 @@ const SellerProductDetail = () => {
                                             onDrop={handleDrop}
                                             className={`relative aspect-[4/5] flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-md transition-all duration-300 cursor-pointer group overflow-hidden ${isDragging
                                                 ? "border-white bg-white/[0.05] scale-105"
-                                                : "bg-[#0a0a0a] border-white/[0.1] hover:border-white/[0.4] hover:bg-white/[0.02]"
+                                                : "bg-[#09090b]/35 border-white/[0.08] hover:border-white/[0.22] hover:bg-white/[0.02]"
                                                 }`}
                                         >
                                             <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -509,9 +503,9 @@ const SellerProductDetail = () => {
                                         required
                                         value={newVariant.stock}
                                         onChange={(e) => setNewVariant({ ...newVariant, stock: e.target.value })}
-                                        className="w-full bg-[#0a0a0a] border border-white/[0.1] rounded-md text-white text-[16px] font-bold px-5 py-4 outline-none focus:border-white/40 focus:ring-1 focus:ring-white/40 transition-all duration-300 shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        className="w-full bg-[#09090b]/45 border border-white/[0.06] rounded-md text-white text-[15px] font-bold px-5 py-4 outline-none focus:border-white/20 focus:bg-[#0c0c0e]/85 transition-all duration-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                     />
-                                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] group-focus-within:text-white transition-colors">Units</span>
+                                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] group-focus-within:text-white transition-colors">Units</span>
                                 </div>
                             </div>
 
@@ -519,7 +513,7 @@ const SellerProductDetail = () => {
                             <div className="space-y-3 lg:col-span-2">
                                 <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em] flex items-center gap-2">
                                     <Tag className="w-3.5 h-3.5" />
-                                    Price Override <span className="text-zinc-600 font-normal ml-1">(Optional)</span>
+                                    Price Override <span className="text-zinc-550 font-normal ml-1">(Optional)</span>
                                 </label>
                                 <div className="flex flex-col sm:flex-row gap-3 lg:w-2/3">
                                     <div className="relative flex-1 group">
@@ -529,7 +523,7 @@ const SellerProductDetail = () => {
                                             placeholder={product?.price?.amount}
                                             value={newVariant.price.amount}
                                             onChange={(e) => setNewVariant({ ...newVariant, price: { ...newVariant.price, amount: e.target.value } })}
-                                            className="w-full bg-[#0a0a0a] border border-white/[0.1] rounded-md text-white text-[16px] font-bold pl-5 pr-12 py-4 outline-none focus:border-white/40 focus:ring-1 focus:ring-white/40 transition-all duration-300 placeholder:text-zinc-700 shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            className="w-full bg-[#09090b]/45 border border-white/[0.06] rounded-md text-white text-[15px] font-bold pl-5 pr-12 py-4 outline-none focus:border-white/20 focus:bg-[#0c0c0e]/85 transition-all duration-300 placeholder:text-zinc-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         />
                                     </div>
                                     <div className="w-full sm:w-[180px] h-[56px] sm:h-auto">
@@ -551,7 +545,7 @@ const SellerProductDetail = () => {
                                     placeholder="e.g. Red, Navy Blue, Charcoal..."
                                     value={variantColor}
                                     onChange={(e) => setVariantColor(e.target.value)}
-                                    className="w-full sm:w-80 bg-[#0f0f0f] border border-white/[0.1] text-white text-[14px] px-5 py-3.5 outline-none focus:border-white/50 transition-colors placeholder:text-zinc-700"
+                                    className="w-full sm:w-80 bg-[#09090b]/45 border border-white/[0.06] text-white text-[14px] px-5 py-3.5 outline-none focus:border-white/20 focus:bg-[#0c0c0e]/85 transition-colors placeholder:text-zinc-700"
                                 />
                             </div>
 
@@ -561,7 +555,7 @@ const SellerProductDetail = () => {
                                     <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.15em]">
                                         Step 2 — Sizes available in this color <span className="text-red-400/80 ml-1">*Required</span>
                                     </label>
-                                    <p className="text-[10px] text-zinc-600 mt-1">
+                                    <p className="text-[10px] text-zinc-650 mt-1">
                                         {editingVariantId ? "Select size." : "Click to select. Each size becomes a separate variant."}
                                     </p>
                                 </div>
@@ -576,7 +570,7 @@ const SellerProductDetail = () => {
                                             className={`h-10 px-4 text-[11px] font-black tracking-[0.15em] uppercase border transition-all duration-200 cursor-pointer ${
                                                 variantSizes.includes(size)
                                                     ? 'border-white bg-white text-black'
-                                                    : 'border-white/[0.15] text-zinc-500 hover:border-white/40 hover:text-white'
+                                                    : 'border-white/[0.1] text-zinc-550 hover:border-white/30 hover:text-white'
                                             }`}
                                         >
                                             {size}
@@ -592,7 +586,7 @@ const SellerProductDetail = () => {
                                         value={customSize}
                                         onChange={(e) => setCustomSize(e.target.value)}
                                         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomSize(); } }}
-                                        className="w-56 bg-[#0f0f0f] border border-white/[0.1] text-white text-[12px] px-4 py-2.5 outline-none focus:border-white/50 transition-colors placeholder:text-zinc-700"
+                                        className="w-56 bg-[#09090b]/45 border border-white/[0.06] text-white text-[12px] px-4 py-2.5 outline-none focus:border-white/20 focus:bg-[#0c0c0e]/85 transition-colors placeholder:text-zinc-700"
                                     />
                                     <button
                                         type="button"
@@ -610,9 +604,9 @@ const SellerProductDetail = () => {
                                         {variantSizes.map(size => (
                                             <div key={size} className="flex items-center gap-1 bg-white/[0.06] border border-white/10 px-3 py-1 text-[11px] font-bold text-white uppercase tracking-wider">
                                                 <span className="text-zinc-500">{variantColor || '?'}</span>
-                                                <span className="text-zinc-600 mx-1">/</span>
+                                                <span className="text-zinc-700 mx-1">/</span>
                                                 <span>{size}</span>
-                                                <button type="button" onClick={() => toggleSize(size)} className="ml-1.5 text-zinc-600 hover:text-red-400 transition-colors cursor-pointer">×</button>
+                                                <button type="button" onClick={() => toggleSize(size)} className="ml-1.5 text-zinc-550 hover:text-red-405 transition-colors cursor-pointer">×</button>
                                             </div>
                                         ))}
                                     </div>
@@ -632,20 +626,18 @@ const SellerProductDetail = () => {
                         </form>
                     )}
 
-
-
                     {/* Variants List */}
                     {variants.length === 0 ? (
-                        <div className="border border-dashed border-white/[0.1] py-24 flex flex-col items-center justify-center gap-6 bg-[#0a0a0a] hover:bg-white/[0.02] transition-colors duration-500">
-                            <div className="w-16 h-16 border border-white/[0.1] flex items-center justify-center rounded-full bg-black">
-                                <Box className="w-6 h-6 text-zinc-600" />
+                        <div className="border border-dashed border-white/[0.08] py-24 flex flex-col items-center justify-center gap-6 bg-[#09090b]/45 hover:bg-white/[0.02] transition-colors duration-500">
+                            <div className="w-16 h-16 border border-white/[0.08] flex items-center justify-center rounded-full bg-black">
+                                <Box className="w-6 h-6 text-zinc-650" />
                             </div>
-                            <p className="text-[13px] text-zinc-400 tracking-[0.3em] uppercase font-bold">No variants configured</p>
+                            <p className="text-[13px] text-zinc-450 tracking-[0.3em] uppercase font-bold">No variants configured</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 gap-6">
                             {variants.map((variant, idx) => (
-                                <div key={variant._id || idx} className="flex flex-col md:flex-row gap-6 p-5 sm:p-6 bg-[#0a0a0a] border border-white/[0.05] hover:border-white/[0.2] transition-all duration-500 group shadow-lg">
+                                <div key={variant._id || idx} className="flex flex-col md:flex-row gap-6 p-5 sm:p-6 bg-[#09090b]/65 border border-white/[0.04] backdrop-blur-sm hover:border-white/[0.12] hover:bg-[#0c0c0e]/80 transition-all duration-550 group shadow-lg">
 
                                     {/* Image & Attributes */}
                                     <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start flex-1 min-w-0">
@@ -667,13 +659,13 @@ const SellerProductDetail = () => {
                                                         : [];
                                                     return entries.length > 0 ? (
                                                         entries.map(([key, val]) => (
-                                                            <div key={key} className="flex items-center bg-[#141414] border border-white/[0.08] text-[11px] font-bold uppercase tracking-widest rounded-sm overflow-hidden">
-                                                                <span className="px-3 py-1.5 text-zinc-500 bg-black/40">{key}</span>
+                                                            <div key={key} className="flex items-center bg-[#141414]/80 border border-white/[0.06] text-[11px] font-bold uppercase tracking-widest rounded-sm overflow-hidden">
+                                                                <span className="px-3 py-1.5 text-zinc-550 bg-black/40">{key}</span>
                                                                 <span className="px-3 py-1.5 text-white">{String(val)}</span>
                                                             </div>
                                                         ))
                                                     ) : (
-                                                        <span className="text-[11px] text-zinc-500 italic">No attributes defined</span>
+                                                        <span className="text-[11px] text-zinc-650 italic">No attributes defined</span>
                                                     );
                                                 })()}
 
@@ -686,7 +678,7 @@ const SellerProductDetail = () => {
 
                                         {/* Price */}
                                         <div className="flex flex-row sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-1 sm:pl-6 sm:border-l border-white/[0.05] min-w-[120px]">
-                                            <span className="text-[10px] text-zinc-600 font-bold tracking-[0.2em] uppercase">Price</span>
+                                            <span className="text-[10px] text-zinc-550 font-bold tracking-[0.2em] uppercase">Price</span>
                                             <span className="text-[18px] font-black text-white">
                                                 {formatPrice(variant.price?.amount, variant.price?.currency)}
                                             </span>
@@ -694,7 +686,7 @@ const SellerProductDetail = () => {
 
                                         {/* Stock Management */}
                                         <div className="flex flex-row sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-2 sm:pl-6 sm:border-l border-white/[0.05] min-w-[150px]">
-                                            <span className="text-[10px] text-zinc-600 font-bold tracking-[0.2em] uppercase">Stock</span>
+                                            <span className="text-[10px] text-zinc-550 font-bold tracking-[0.2em] uppercase">Stock</span>
                                             <div className="flex items-center gap-4">
                                                 <span className={`text-[20px] font-black tracking-tight ${variant.stock > 0 ? "text-green-400" : "text-red-400"}`}>
                                                     {variant.stock} <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] ml-1.5 hidden sm:inline-block">units</span>
@@ -706,7 +698,7 @@ const SellerProductDetail = () => {
                                         <div className="flex flex-row sm:flex-col justify-end sm:justify-start items-center sm:items-start gap-2 sm:pl-6 sm:border-l border-white/[0.05]">
                                             <button
                                                 onClick={() => handleEditVariant(variant)}
-                                                className="w-10 h-10 flex items-center justify-center border border-white/[0.08] text-zinc-600 hover:text-white hover:border-white/30 hover:bg-white/10 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(0,0,0,0.5)] sm:opacity-0 group-hover:opacity-100"
+                                                className="w-10 h-10 flex items-center justify-center border border-white/[0.06] text-zinc-650 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(0,0,0,0.5)] sm:opacity-0 group-hover:opacity-100"
                                                 aria-label="Edit Variant"
                                                 title="Edit Variant"
                                             >
@@ -714,7 +706,7 @@ const SellerProductDetail = () => {
                                             </button>
                                             <button
                                                 onClick={() => setVariantToDelete({ id: variant._id, index: idx })}
-                                                className="w-10 h-10 flex items-center justify-center border border-white/[0.08] text-zinc-600 hover:text-red-500 hover:border-red-500/30 hover:bg-red-500/10 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(0,0,0,0.5)] sm:opacity-0 group-hover:opacity-100"
+                                                className="w-10 h-10 flex items-center justify-center border border-white/[0.06] text-zinc-650 hover:text-red-500 hover:border-red-500/30 hover:bg-red-550/10 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(0,0,0,0.5)] sm:opacity-0 group-hover:opacity-100"
                                                 aria-label="Delete Variant"
                                                 title="Delete Variant"
                                             >
@@ -731,8 +723,8 @@ const SellerProductDetail = () => {
 
             {/* ══ EDIT PRODUCT MODAL ══ */}
             {showEditProductModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                    <div className="bg-[#0a0a0a] border border-white/10 p-6 sm:p-8 max-w-2xl w-full shadow-2xl flex flex-col gap-6 max-h-[90vh] overflow-y-auto">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
+                    <div className="bg-[#09090b]/90 border border-white/[0.08] p-6 sm:p-8 max-w-2xl w-full shadow-2xl flex flex-col gap-6 max-h-[90vh] overflow-y-auto backdrop-blur-xl">
                         <div className="flex justify-between items-center border-b border-white/[0.05] pb-4">
                             <h3 className="text-[clamp(1.5rem,3vw,2rem)] text-white uppercase leading-[1.1] tracking-widest" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
                                 Edit Product
@@ -749,7 +741,7 @@ const SellerProductDetail = () => {
                                     required
                                     value={editProductData.title}
                                     onChange={(e) => setEditProductData({...editProductData, title: e.target.value})}
-                                    className="w-full bg-[#0f0f0f] border border-white/[0.1] text-white text-[14px] px-4 py-3 outline-none focus:border-white/50 transition-colors"
+                                    className="w-full bg-[#09090b]/45 border border-white/[0.06] text-white text-[14px] px-4 py-3 outline-none focus:border-white/50 transition-colors"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -759,7 +751,7 @@ const SellerProductDetail = () => {
                                     rows={4}
                                     value={editProductData.description}
                                     onChange={(e) => setEditProductData({...editProductData, description: e.target.value})}
-                                    className="w-full bg-[#0f0f0f] border border-white/[0.1] text-white text-[14px] px-4 py-3 outline-none focus:border-white/50 transition-colors resize-none"
+                                    className="w-full bg-[#09090b]/45 border border-white/[0.06] text-white text-[14px] px-4 py-3 outline-none focus:border-white/50 transition-colors resize-none"
                                 />
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -772,7 +764,7 @@ const SellerProductDetail = () => {
                                         step="0.01"
                                         value={editProductData.priceAmount}
                                         onChange={(e) => setEditProductData({...editProductData, priceAmount: e.target.value})}
-                                        className="w-full bg-[#0f0f0f] border border-white/[0.1] text-white text-[14px] px-4 py-3 outline-none focus:border-white/50 transition-colors"
+                                        className="w-full bg-[#09090b]/45 border border-white/[0.06] text-white text-[14px] px-4 py-3 outline-none focus:border-white/50 transition-colors"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -780,10 +772,10 @@ const SellerProductDetail = () => {
                                     <select
                                         value={editProductData.priceCurrency}
                                         onChange={(e) => setEditProductData({...editProductData, priceCurrency: e.target.value})}
-                                        className="w-full bg-[#0f0f0f] border border-white/[0.1] text-white text-[14px] px-4 py-3 outline-none focus:border-white/50 transition-colors appearance-none cursor-pointer"
+                                        className="w-full bg-[#09090b]/45 border border-white/[0.06] text-white text-[14px] px-4 py-3 outline-none focus:border-white/50 transition-colors appearance-none cursor-pointer"
                                     >
                                         {CURRENCY_OPTIONS.map(opt => (
-                                            <option key={opt.code} value={opt.code}>{opt.flag} {opt.code}</option>
+                                            <option key={opt.code} className="bg-zinc-950 text-white" value={opt.code}>{opt.flag} {opt.code}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -810,10 +802,10 @@ const SellerProductDetail = () => {
 
             {/* ══ DELETE CONFIRMATION MODAL ══ */}
             {showDeleteConfirm && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                    <div className="bg-[#0a0a0a] border border-white/10 p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col gap-6">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
+                    <div className="bg-[#09090b]/95 border border-red-500/[0.15] p-6 sm:p-8 max-w-md w-full shadow-[0_30px_70px_rgba(239,68,68,0.08)] flex flex-col gap-6 backdrop-blur-xl">
                         <div className="flex flex-col gap-4">
-                            <h3 className="text-[clamp(1.5rem,3vw,2rem)] text-white uppercase leading-[1.1] tracking-widest mb-1" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                            <h3 className="text-[clamp(1.5rem,3vw,2rem)] text-white uppercase leading-[1.1] tracking-widest mb-1 text-red-500" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
                                 Delete Product
                             </h3>
                             <p className="text-[13px] text-zinc-400 font-normal leading-[1.6]">
@@ -823,7 +815,7 @@ const SellerProductDetail = () => {
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowDeleteConfirm(false)}
-                                className="flex-1 py-3 border border-white/20 text-white text-[12px] font-bold tracking-widest uppercase hover:bg-white hover:text-black transition-colors"
+                                className="flex-1 py-3 border border-white/20 text-white text-[12px] font-bold tracking-widest uppercase hover:bg-white hover:text-black transition-colors cursor-pointer"
                             >
                                 Cancel
                             </button>
@@ -837,7 +829,7 @@ const SellerProductDetail = () => {
                                         console.error("Failed to delete product:", error);
                                     }
                                 }}
-                                className="flex-1 bg-red-600/90 text-white text-[10px] sm:text-[11px] font-black tracking-[0.15em] sm:tracking-[0.2em] uppercase h-12 hover:bg-red-600 transition-all duration-300 cursor-pointer"
+                                className="flex-1 bg-red-650 text-white text-[11px] font-black tracking-[0.2em] uppercase h-12 hover:bg-red-600 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(239,68,68,0.15)] active:scale-[0.98]"
                             >
                                 Delete
                             </button>
@@ -848,10 +840,10 @@ const SellerProductDetail = () => {
 
             {/* ══ DELETE VARIANT CONFIRMATION MODAL ══ */}
             {variantToDelete && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                    <div className="bg-[#0a0a0a] border border-white/10 p-6 sm:p-8 max-w-md w-full shadow-2xl flex flex-col gap-6">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
+                    <div className="bg-[#09090b]/95 border border-red-500/[0.15] p-6 sm:p-8 max-w-md w-full shadow-[0_30px_70px_rgba(239,68,68,0.08)] flex flex-col gap-6 backdrop-blur-xl">
                         <div className="flex flex-col gap-4">
-                            <h3 className="text-[clamp(1.5rem,3vw,2rem)] text-white uppercase leading-[1.1] tracking-widest mb-1" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+                            <h3 className="text-[clamp(1.5rem,3vw,2rem)] text-white uppercase leading-[1.1] tracking-widest mb-1 text-red-500" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
                                 Delete Variant
                             </h3>
                             <p className="text-[13px] text-zinc-400 font-normal leading-[1.6]">
@@ -878,7 +870,7 @@ const SellerProductDetail = () => {
                                         console.error("Failed to delete variant:", error);
                                     }
                                 }}
-                                className="flex-1 bg-red-600/90 text-white text-[10px] sm:text-[11px] font-black tracking-[0.15em] sm:tracking-[0.2em] uppercase h-12 hover:bg-red-600 transition-all duration-300 cursor-pointer"
+                                className="flex-1 bg-red-655 text-white text-[10px] sm:text-[11px] font-black tracking-[0.15em] sm:tracking-[0.2em] uppercase h-12 hover:bg-red-600 transition-all duration-300 cursor-pointer shadow-[0_0_15px_rgba(239,68,68,0.15)] active:scale-[0.98]"
                             >
                                 Delete
                             </button>
@@ -894,7 +886,7 @@ export default SellerProductDetail;
 
 /* ═══════════════════════════════════════════════════════
    Variant Images Scroller
-═══════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════ */
 const VariantImagesScroller = ({ images }) => {
     const scrollContainerRef = useRef(null);
 
@@ -926,13 +918,13 @@ const VariantImagesScroller = ({ images }) => {
             >
                 {images && images.length > 0 ? (
                     images.map((img, imgIdx) => (
-                        <div key={imgIdx} className="w-20 sm:w-24 md:w-[100px] shrink-0 aspect-[4/5] bg-[#0f0f0f] border border-white/10 flex items-center justify-center overflow-hidden relative group/img snap-start">
+                        <div key={imgIdx} className="w-20 sm:w-24 md:w-[100px] shrink-0 aspect-[4/5] bg-zinc-950/80 border border-white/[0.06] flex items-center justify-center overflow-hidden relative group/img snap-start">
                             <img src={img.url || img.previewUrl} alt={`Variant ${imgIdx + 1}`} className="w-full h-full object-cover group-hover/img:scale-110 transition-transform duration-700" />
                         </div>
                     ))
                 ) : (
-                    <div className="w-20 sm:w-24 md:w-[100px] shrink-0 aspect-[4/5] bg-[#0f0f0f] border border-white/10 flex items-center justify-center overflow-hidden snap-start">
-                        <ImageIcon className="w-6 h-6 text-zinc-700" />
+                    <div className="w-20 sm:w-24 md:w-[100px] shrink-0 aspect-[4/5] bg-zinc-955/80 border border-white/[0.06] flex items-center justify-center overflow-hidden snap-start">
+                        <ImageIcon className="w-6 h-6 text-zinc-750" />
                     </div>
                 )}
             </div>
@@ -952,7 +944,7 @@ const VariantImagesScroller = ({ images }) => {
 
 /* ═══════════════════════════════════════════════════════
    Custom Currency Picker
-═══════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════ */
 const CurrencyPicker = ({ value, onChange }) => {
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
@@ -973,7 +965,7 @@ const CurrencyPicker = ({ value, onChange }) => {
             <button
                 type="button"
                 onClick={() => setOpen((o) => !o)}
-                className="w-full h-full flex items-center justify-between bg-[#0a0a0a] border border-white/[0.1] rounded-md px-4 py-4 hover:border-white/[0.4] focus:border-white/40 focus:ring-1 focus:ring-white/40 transition-all duration-300 outline-none group cursor-pointer shadow-inner"
+                className="w-full h-full flex items-center justify-between bg-[#09090b]/45 border border-white/[0.06] rounded-md px-4 py-4 hover:border-white/[0.15] focus:border-white/[0.2] transition-all duration-300 outline-none group cursor-pointer"
             >
                 <div className="flex items-center gap-2">
                     <span className="text-[16px]">{selected?.flag}</span>
@@ -984,7 +976,7 @@ const CurrencyPicker = ({ value, onChange }) => {
                     </div>
                 </div>
                 <svg
-                    className={`w-3.5 h-3.5 text-zinc-500 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+                    className={`w-3.5 h-3.5 text-zinc-550 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
                     viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
                 >
                     <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
@@ -993,7 +985,7 @@ const CurrencyPicker = ({ value, onChange }) => {
 
             {/* Dropdown panel */}
             {open && (
-                <div className="absolute top-full right-0 mt-1 w-[200px] bg-[#111111] border border-white/[0.1] rounded-md z-50 overflow-hidden shadow-2xl shadow-black/80">
+                <div className="absolute top-full right-0 mt-1 w-[200px] bg-[#09090b]/95 border border-white/[0.08] backdrop-blur-md rounded-md z-50 overflow-hidden shadow-2xl shadow-black/80 animate-in fade-in duration-200">
                     {CURRENCY_OPTIONS.map((c) => {
                         const isActive = c.code === value;
                         return (
@@ -1012,7 +1004,7 @@ const CurrencyPicker = ({ value, onChange }) => {
                                         <span className="text-[13px] font-bold block tracking-[0.05em]">
                                             {c.code}
                                         </span>
-                                        <span className="text-[10px] text-zinc-500 font-semibold block tracking-[0.05em]">
+                                        <span className="text-[10px] text-zinc-550 font-semibold block tracking-[0.05em]">
                                             {c.name}
                                         </span>
                                     </div>

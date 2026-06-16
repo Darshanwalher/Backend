@@ -14,6 +14,7 @@ import { clearError } from "../state/product.slice.js";
 import { useNavigate } from "react-router";
 import Nav from "../../Shared/Components/Nav";
 import { ErrorBanner } from "../../auth/pages/Login.jsx";
+
 const MAX_IMAGES = 7;
 const DESC_MAX = 600;
 
@@ -26,7 +27,7 @@ const CURRENCY_OPTIONS = [
 
 /* ═══════════════════════════════════════════════════════
    CreateProduct
-═══════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════ */
 const CreateProduct = () => {
   const { handleCreateProduct } = useProduct();
   const navigate = useNavigate();
@@ -150,7 +151,7 @@ const CreateProduct = () => {
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] text-zinc-400 font-semibold tracking-[0.15em] uppercase hidden sm:block">
+              <span className="text-[11px] text-zinc-455 font-semibold tracking-[0.15em] uppercase hidden sm:block">
                 Draft
               </span>
             </div>
@@ -158,14 +159,14 @@ const CreateProduct = () => {
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 cursor-pointer text-zinc-600 hover:text-white flex items-center gap-2"
+                className="text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 cursor-pointer text-zinc-500 hover:text-white flex items-center gap-2"
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Back
               </button>
               <button
                 type="button"
                 onClick={() => navigate("/seller/dashboard")}
-                className="text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 cursor-pointer text-zinc-600 hover:text-white flex items-center gap-2"
+                className="text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 cursor-pointer text-zinc-500 hover:text-white flex items-center gap-2"
               >
                 <Home className="w-3.5 h-3.5" /> Home
               </button>
@@ -175,15 +176,22 @@ const CreateProduct = () => {
       />
 
       {/* ══════════ HERO ══════════ */}
-      <div className="pt-16 border-b border-white/[0.05]">
-        <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 py-14 lg:py-20">
+      <div className="pt-16 relative overflow-hidden border-b border-white/[0.05]">
+        {/* Technical drafting grid overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+
+        {/* Ambient glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-white/[0.01] rounded-full filter blur-[120px] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#060606]/20 to-[#060606]" />
+
+        <div className="relative max-w-screen-2xl mx-auto px-6 lg:px-16 py-14 lg:py-20 z-10">
           <div className="flex items-center gap-4 mb-7">
             <span className="text-[11px] text-zinc-400 font-semibold tracking-[0.28em] uppercase">
               New Listing
             </span>
             <div className="h-px w-12 bg-zinc-700" />
-            <span className="text-[11px] text-zinc-600 font-semibold tracking-[0.28em] uppercase">
-              SS 2025
+            <span className="text-[11px] text-zinc-650 font-semibold tracking-[0.28em] uppercase">
+              SS 2026
             </span>
           </div>
 
@@ -195,7 +203,7 @@ const CreateProduct = () => {
             <span className="text-zinc-600">Product</span>
           </h1>
 
-          <p className="mt-6 text-[13px] text-zinc-400 tracking-wide max-w-sm leading-[1.7] font-normal">
+          <p className="mt-6 text-[13px] text-zinc-450 tracking-wide max-w-sm leading-[1.7] font-normal">
             Complete the form below to list your item.
             Fields marked <span className="text-zinc-200 font-semibold">*</span> are required.
           </p>
@@ -204,14 +212,14 @@ const CreateProduct = () => {
 
       {/* ══════════ FORM ══════════ */}
       <form onSubmit={handleSubmit}>
-        <div className="max-w-screen-2xl mx-auto px-6 lg:px-16">
+        <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 relative z-10">
           <div className="flex flex-col lg:flex-row lg:divide-x lg:divide-white/[0.05]">
 
             {/* ── LEFT — fields ── */}
             <div className="flex-1 py-12 lg:py-16 lg:pr-16 xl:pr-24 space-y-14 min-w-0">
 
               {success && (
-                <div className="flex items-start gap-3 border border-emerald-800/60 bg-emerald-950/25 px-4 py-3">
+                <div className="flex items-start gap-3 border border-emerald-800/40 bg-emerald-950/15 px-4 py-3.5 backdrop-blur-sm">
                   <div className="w-[3px] self-stretch bg-emerald-500 shrink-0" />
                   <p className="text-emerald-300 text-[13px] font-medium tracking-wide leading-relaxed">
                     Product listed successfully! The form has been reset for your next listing.
@@ -237,12 +245,11 @@ const CreateProduct = () => {
                     onChange={handleChange}
                     required
                     placeholder="e.g. Washed Oversized Varsity Jacket"
-                    className="w-full bg-transparent border-b border-zinc-700 focus:border-white py-3 text-[16px] lg:text-[18px] text-white placeholder-zinc-600 outline-none transition-all duration-500 tracking-tight font-medium"
+                    className="w-full bg-[#09090b]/45 border border-white/[0.06] focus:border-white/[0.2] focus:bg-[#0c0c0e]/85 py-3.5 px-4 text-[15px] text-white placeholder-zinc-650 outline-none transition-all duration-300 tracking-tight font-medium"
                     style={{ fontFamily: "'DM Sans', sans-serif" }}
                   />
-                  <span className="absolute bottom-0 left-0 h-px w-0 bg-white transition-all duration-600 group-focus-within:w-full" />
                   {formData.title.length > 0 && (
-                    <span className="absolute right-0 bottom-3.5 text-[11px] text-zinc-500 tabular-nums font-semibold">
+                    <span className="absolute right-4 bottom-3 text-[11px] text-zinc-500 tabular-nums font-semibold">
                       {formData.title.length}
                     </span>
                   )}
@@ -260,15 +267,15 @@ const CreateProduct = () => {
                     rows={5}
                     maxLength={DESC_MAX}
                     placeholder="Describe the silhouette, fabric composition, fit, care instructions, and any special details that make this piece stand out…"
-                    className="w-full bg-white/[0.025] hover:bg-white/[0.035] focus:bg-white/[0.035] border border-white/[0.06] focus:border-white/[0.14] py-4 px-5 text-[13px] text-zinc-100 placeholder-zinc-600 outline-none transition-all duration-500 resize-none leading-[1.75] tracking-wide"
+                    className="w-full bg-[#09090b]/45 border border-white/[0.06] focus:border-white/[0.2] focus:bg-[#0c0c0e]/85 py-4 px-5 text-[13px] text-zinc-100 placeholder-zinc-650 outline-none transition-all duration-300 resize-none leading-[1.75] tracking-wide"
                     style={{ fontFamily: "'DM Sans', sans-serif" }}
                   />
-                  <div className="flex items-center justify-between px-4 py-2 border-x border-b border-white/[0.06] bg-white/[0.015]">
-                    <span className="text-[11px] text-zinc-500 tracking-[0.18em] uppercase font-semibold">
+                  <div className="flex items-center justify-between px-4 py-2.5 border-x border-b border-white/[0.06] bg-[#09090b]/20">
+                    <span className="text-[10px] text-zinc-550 tracking-[0.18em] uppercase font-bold">
                       Characters
                     </span>
                     <span className={`text-[11px] tabular-nums font-bold transition-colors duration-300 ${
-                      formData.description.length > DESC_MAX * 0.9 ? "text-amber-400" : "text-zinc-500"
+                      formData.description.length > DESC_MAX * 0.9 ? "text-amber-450" : "text-zinc-500"
                     }`}>
                       {formData.description.length}
                       <span className="text-zinc-700 font-normal">/{DESC_MAX}</span>
@@ -291,7 +298,7 @@ const CreateProduct = () => {
                     </label>
                     <div className="relative">
                       {/* Currency symbol prefix */}
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 text-base font-bold text-zinc-500 group-focus-within:text-zinc-200 transition-colors duration-300 pointer-events-none">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-500 group-focus-within:text-zinc-350 transition-colors duration-350 pointer-events-none">
                         {selectedCurrency?.symbol}
                       </span>
                       <input
@@ -304,10 +311,9 @@ const CreateProduct = () => {
                         step="0.01"
                         required
                         placeholder="0.00"
-                        className="w-full bg-transparent border-b border-zinc-700 focus:border-white pl-5 py-3 text-[16px] text-white placeholder-zinc-700 outline-none transition-all duration-500 font-bold tracking-tight"
+                        className="w-full bg-[#09090b]/45 border border-white/[0.06] focus:border-white/[0.2] focus:bg-[#0c0c0e]/85 pl-8 pr-4 py-3.5 text-[15px] text-white placeholder-zinc-650 outline-none transition-all duration-300 font-bold tracking-tight"
                         style={{ fontFamily: "'DM Sans', sans-serif" }}
                       />
-                      <span className="absolute bottom-0 left-0 h-px w-0 bg-white transition-all duration-600 group-focus-within:w-full" />
                     </div>
                   </div>
 
@@ -325,12 +331,12 @@ const CreateProduct = () => {
 
                 {/* Live price preview */}
                 {formData.priceAmount && !isNaN(Number(formData.priceAmount)) && Number(formData.priceAmount) > 0 && (
-                  <div className="mt-7 flex items-center gap-4 border-l-[3px] border-zinc-700 pl-4">
+                  <div className="mt-8 flex items-center gap-4 border-l-2 border-white/20 pl-4 py-1">
                     <span className="text-[11px] text-zinc-500 font-bold tracking-[0.2em] uppercase">
-                      Listed at
+                      Listed value
                     </span>
                     <span
-                      className="text-[26px] text-white font-black tracking-tight"
+                      className="text-[24px] text-white font-black tracking-tight"
                       style={{ fontFamily: "'DM Sans', sans-serif" }}
                     >
                       {new Intl.NumberFormat("en-US", {
@@ -346,7 +352,7 @@ const CreateProduct = () => {
               {/* Desktop submit */}
               <div className="hidden lg:block pt-2">
                 <SubmitButton isSubmitting={isSubmitting} />
-                <p className="mt-4 text-[11px] text-zinc-600 tracking-wide leading-relaxed">
+                <p className="mt-4 text-[11px] text-zinc-650 tracking-wide leading-relaxed">
                   By listing this product you agree to Snitch's{" "}
                   <span className="text-zinc-400 underline underline-offset-2 cursor-pointer hover:text-white transition-colors">Seller Terms</span>{" "}
                   and{" "}
@@ -383,12 +389,12 @@ const CreateProduct = () => {
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                   onDragLeave={() => setDragOver(false)}
                   onDrop={handleDrop}
-                  className={`relative aspect-[4/5] border transition-all duration-500 mb-3 ${
+                  className={`relative aspect-[4/5] border transition-all duration-550 mb-3 overflow-hidden ${
                     dragOver
                       ? "border-white/40 bg-white/5"
                       : images[0]
-                      ? "border-zinc-700"
-                      : "border-dashed border-zinc-700 hover:border-zinc-500"
+                      ? "border-white/[0.06] bg-[#09090b]/40"
+                      : "border-dashed border-white/[0.1] hover:border-white/[0.25] hover:bg-white/[0.02]"
                   }`}
                 >
                   {images[0] ? (
@@ -413,14 +419,14 @@ const CreateProduct = () => {
                       onClick={() => fileInputRef.current?.click()}
                       className="w-full h-full flex flex-col items-center justify-center gap-4 cursor-pointer group"
                     >
-                      <div className="w-12 h-12 border border-zinc-700 group-hover:border-zinc-400 flex items-center justify-center transition-all duration-400">
-                        <Plus className="w-5 h-5 text-zinc-600 group-hover:text-white transition-colors duration-400" strokeWidth={1.5} />
+                      <div className="w-12 h-12 border border-white/[0.08] group-hover:border-white/[0.2] flex items-center justify-center transition-all duration-400 bg-white/[0.01]">
+                        <Plus className="w-5 h-5 text-zinc-650 group-hover:text-white transition-colors duration-400" strokeWidth={1.5} />
                       </div>
                       <div className="text-center space-y-1.5">
                         <p className="text-[12px] text-zinc-400 font-semibold tracking-[0.14em] uppercase">
                           Add Primary Image
                         </p>
-                        <p className="text-[11px] text-zinc-600 tracking-wide">
+                        <p className="text-[11px] text-zinc-650 tracking-wide">
                           Drag & drop or click to browse
                         </p>
                       </div>
@@ -434,8 +440,8 @@ const CreateProduct = () => {
                     const idx   = i + 1;
                     const canAdd = images.length < MAX_IMAGES;
                     return img ? (
-                      <div key={idx} className="relative aspect-square group">
-                        <img src={img.preview} alt={`Image ${idx + 1}`} className="w-full h-full object-cover border border-zinc-700/60" />
+                      <div key={idx} className="relative aspect-square group overflow-hidden">
+                        <img src={img.preview} alt={`Image ${idx + 1}`} className="w-full h-full object-cover border border-white/[0.08]" />
                         <button
                           type="button"
                           onClick={() => removeImage(idx)}
@@ -452,8 +458,8 @@ const CreateProduct = () => {
                         disabled={!canAdd}
                         className={`aspect-square border border-dashed flex items-center justify-center transition-all duration-300 ${
                           canAdd
-                            ? "border-zinc-700 hover:border-zinc-500 hover:bg-white/[0.02] cursor-pointer group"
-                            : "border-zinc-800 opacity-20 cursor-not-allowed"
+                            ? "border-white/[0.08] hover:border-white/[0.22] hover:bg-[#09090b]/40 cursor-pointer group"
+                            : "border-white/[0.03] opacity-20 cursor-not-allowed"
                         }`}
                       >
                         <Plus className="w-3.5 h-3.5 text-zinc-700 group-hover:text-zinc-400 transition-colors duration-300" strokeWidth={1.5} />
@@ -470,7 +476,7 @@ const CreateProduct = () => {
                     "Include detail, back, and flat-lay shots",
                   ].map((tip) => (
                     <div key={tip} className="flex items-start gap-2.5">
-                      <div className="w-1 h-1 rounded-full bg-zinc-600 mt-1.5 shrink-0" />
+                      <div className="w-1 h-1 rounded-full bg-zinc-650 mt-1.5 shrink-0" />
                       <p className="text-[12px] text-zinc-500 tracking-wide leading-snug">{tip}</p>
                     </div>
                   ))}
@@ -483,7 +489,7 @@ const CreateProduct = () => {
         {/* Mobile submit */}
         <div className="lg:hidden border-t border-white/[0.05] px-6 py-8">
           <SubmitButton isSubmitting={isSubmitting} />
-          <p className="mt-3 text-[11px] text-zinc-600 text-center tracking-wide">
+          <p className="mt-3 text-[11px] text-zinc-650 text-center tracking-wide">
             By listing you agree to Snitch's Seller Terms and Content Policy.
           </p>
         </div>
@@ -492,10 +498,10 @@ const CreateProduct = () => {
       {/* ══════════ FOOTER ══════════ */}
       <footer className="border-t border-white/[0.05] mt-4">
         <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 h-14 flex items-center justify-between">
-          <span className="text-[11px] text-zinc-600 font-bold tracking-[0.22em] uppercase">
-            Snitch © 2025
+          <span className="text-[11px] text-zinc-650 font-bold tracking-[0.22em] uppercase">
+            Snitch © 2026
           </span>
-          <span className="text-[11px] text-zinc-600 tracking-[0.22em] uppercase font-semibold">
+          <span className="text-[11px] text-zinc-650 tracking-[0.22em] uppercase font-semibold">
             Seller Studio v1
           </span>
         </div>
@@ -506,7 +512,7 @@ const CreateProduct = () => {
 
 /* ═══════════════════════════════════════════════════════
    Custom Currency Picker
-═══════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════ */
 const CurrencyPicker = ({ value, onChange }) => {
   const [open, setOpen] = useState(false);
   const ref             = useRef(null);
@@ -527,21 +533,21 @@ const CurrencyPicker = ({ value, onChange }) => {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between border-b border-zinc-700 hover:border-zinc-500 focus:border-white py-3 transition-all duration-300 outline-none group cursor-pointer"
+        className="w-full flex items-center justify-between bg-[#09090b]/45 border border-white/[0.06] hover:border-white/[0.15] focus:border-white/[0.2] py-3.5 px-4 transition-all duration-300 outline-none group cursor-pointer"
       >
         <div className="flex items-center gap-2.5">
           <span className="text-base">{selected?.flag}</span>
           <div className="text-left">
-            <span className="text-[16px] font-bold text-white tracking-tight block leading-tight">
+            <span className="text-[15px] font-bold text-white tracking-tight block leading-tight">
               {selected?.code}
             </span>
-            <span className="text-[10px] text-zinc-500 font-semibold tracking-[0.1em] uppercase block">
+            <span className="text-[9px] text-zinc-500 font-semibold tracking-[0.1em] uppercase block mt-0.5">
               {selected?.symbol} · {selected?.name}
             </span>
           </div>
         </div>
         <svg
-          className={`w-3.5 h-3.5 text-zinc-500 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+          className={`w-3.5 h-3.5 text-zinc-550 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
           viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
         >
           <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
@@ -550,7 +556,7 @@ const CurrencyPicker = ({ value, onChange }) => {
 
       {/* Dropdown panel */}
       {open && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-[#111111] border border-zinc-800 z-50 overflow-hidden shadow-2xl shadow-black/80">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-[#09090b]/95 border border-white/[0.08] backdrop-blur-md z-50 overflow-hidden shadow-2xl">
           {CURRENCY_OPTIONS.map((c) => {
             const isActive = c.code === value;
             return (
@@ -558,7 +564,7 @@ const CurrencyPicker = ({ value, onChange }) => {
                 key={c.code}
                 type="button"
                 onClick={() => { onChange(c.code); setOpen(false); }}
-                className={`w-full flex items-center justify-between px-4 py-3.5 transition-all duration-200 cursor-pointer ${
+                className={`w-full flex items-center justify-between px-4 py-3 transition-all duration-200 cursor-pointer ${
                   isActive
                     ? "bg-white/[0.06] text-white"
                     : "text-zinc-400 hover:bg-white/[0.03] hover:text-white"
@@ -567,16 +573,16 @@ const CurrencyPicker = ({ value, onChange }) => {
                 <div className="flex items-center gap-3">
                   <span className="text-lg">{c.flag}</span>
                   <div className="text-left">
-                    <span className="text-[14px] font-bold block tracking-tight" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                    <span className="text-[13px] font-bold block tracking-tight" style={{ fontFamily: "'DM Sans', sans-serif" }}>
                       {c.code}
                     </span>
-                    <span className="text-[11px] text-zinc-500 font-medium block tracking-wide">
+                    <span className="text-[10px] text-zinc-550 font-medium block tracking-wide">
                       {c.name}
                     </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-[15px] font-black text-zinc-400">{c.symbol}</span>
+                  <span className="text-[14px] font-black text-zinc-500">{c.symbol}</span>
                   {isActive && <Check className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />}
                 </div>
               </button>
@@ -590,11 +596,11 @@ const CurrencyPicker = ({ value, onChange }) => {
 
 /* ═══════════════════════════════════════════════════════
    Section header
-═══════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════ */
 const Section = ({ index, label, children }) => (
   <div>
     <div className="flex items-center gap-3 mb-5">
-      <span className="text-[11px] text-zinc-600 font-black tracking-[0.2em] tabular-nums">
+      <span className="text-[11px] text-zinc-650 font-black tracking-[0.2em] tabular-nums">
         {index}
       </span>
       <div className="h-px flex-1 bg-white/[0.05]" />
@@ -608,7 +614,7 @@ const Section = ({ index, label, children }) => (
 
 /* ═══════════════════════════════════════════════════════
    Submit
-═══════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════ */
 const SubmitButton = ({ isSubmitting }) => (
   <button
     type="submit"

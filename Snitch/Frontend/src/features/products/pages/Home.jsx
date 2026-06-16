@@ -7,17 +7,15 @@ import {
   ShoppingBag,
   ArrowRight,
   ImageOff,
-  User,
   SlidersHorizontal,
   ChevronLeft,
   ChevronRight,
-  LogOut,
 } from "lucide-react";
 import Nav from "../../Shared/Components/Nav";
 
 /* ══════════════════════════════════════════════════════
    Constants & Helpers
-══════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════ */
 const DM = "'DM Sans', sans-serif";
 const BEBAS = "'Bebas Neue', sans-serif";
 
@@ -37,7 +35,7 @@ export const formatPrice = (amount, currency) => {
 
 /* ══════════════════════════════════════════════════════
    ProductCard
-══════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════ */
 export const ProductCard = ({ product, index }) => {
   const [imgIdx, setImgIdx] = useState(0);
   const [errorSet, setErrorSet] = useState(new Set());
@@ -63,13 +61,13 @@ export const ProductCard = ({ product, index }) => {
 
   return (
     <article
-      className="group relative flex flex-col bg-white/[0.025] border border-white/[0.06] hover:border-white/[0.16] transition-all duration-500 overflow-hidden cursor-pointer"
+      className="group relative flex flex-col bg-[#09090b]/65 border border-white/[0.04] hover:border-white/[0.12] hover:bg-[#0c0c0e]/80 hover:shadow-[0_25px_50px_rgba(0,0,0,0.7)] backdrop-blur-sm transition-all duration-500 overflow-hidden cursor-pointer"
       style={{ animationDelay: `${index * 50}ms` }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       {/* Image area */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900/60 select-none">
+      <div className="relative aspect-[3/4] overflow-hidden bg-zinc-955/80 select-none border-b border-white/[0.03]">
         {hasImages ? (
           <>
             <img
@@ -82,25 +80,25 @@ export const ProductCard = ({ product, index }) => {
                 );
                 handleError(origIdx >= 0 ? origIdx : safeIdx);
               }}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-[1.02] filter group-hover:brightness-[1.05]"
             />
 
-            {/* Dark overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            {/* Ambient vignette gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-40 group-hover:opacity-85 transition-opacity duration-500 pointer-events-none" />
 
-            {/* Arrows */}
+            {/* Arrows with fine borders */}
             {validImages.length > 1 && (
               <>
                 <button
                   onClick={prev}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/70 backdrop-blur-sm border border-white/10 text-white opacity-0 group-hover:opacity-100 hover:bg-black transition-all duration-200 cursor-pointer z-10"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/80 backdrop-blur-md border border-white/10 text-white opacity-0 group-hover:opacity-100 hover:bg-white hover:text-black transition-all duration-300 cursor-pointer z-10"
                   aria-label="Previous image"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" strokeWidth={2.5} />
                 </button>
                 <button
                   onClick={next}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/70 backdrop-blur-sm border border-white/10 text-white opacity-0 group-hover:opacity-100 hover:bg-black transition-all duration-200 cursor-pointer z-10"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/80 backdrop-blur-md border border-white/10 text-white opacity-0 group-hover:opacity-100 hover:bg-white hover:text-black transition-all duration-300 cursor-pointer z-10"
                   aria-label="Next image"
                 >
                   <ChevronRight className="w-3.5 h-3.5" strokeWidth={2.5} />
@@ -108,7 +106,7 @@ export const ProductCard = ({ product, index }) => {
               </>
             )}
 
-            {/* Dot indicators */}
+            {/* Indicator dots */}
             {validImages.length > 1 && (
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
                 {validImages.map((_, i) => (
@@ -117,8 +115,8 @@ export const ProductCard = ({ product, index }) => {
                     onClick={(e) => { e.stopPropagation(); setImgIdx(i); }}
                     className={`transition-all duration-300 cursor-pointer rounded-full ${
                       i === safeIdx
-                        ? "w-5 h-1.5 bg-white"
-                        : "w-1.5 h-1.5 bg-white/40 hover:bg-white/70"
+                        ? "w-4 h-1 bg-white"
+                        : "w-1 h-1 bg-white/30 hover:bg-white/60"
                     }`}
                     aria-label={`Image ${i + 1}`}
                   />
@@ -126,10 +124,10 @@ export const ProductCard = ({ product, index }) => {
               </div>
             )}
 
-            {/* Counter */}
+            {/* Top-Right counter */}
             {validImages.length > 1 && (
-              <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/70 backdrop-blur-sm px-2 py-1 z-10">
-                <span className="text-[10px] text-zinc-300 font-bold tracking-widest tabular-nums">
+              <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/80 backdrop-blur-md border border-white/10 px-2 py-0.5 z-10">
+                <span className="text-[9px] text-zinc-400 font-black tracking-widest tabular-nums">
                   {safeIdx + 1}/{validImages.length}
                 </span>
               </div>
@@ -137,8 +135,8 @@ export const ProductCard = ({ product, index }) => {
           </>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-3">
-            <ImageOff className="w-8 h-8 text-zinc-700" strokeWidth={1} />
-            <span className="text-[11px] text-zinc-600 font-semibold tracking-[0.2em] uppercase">
+            <ImageOff className="w-8 h-8 text-zinc-800" strokeWidth={1} />
+            <span className="text-[10px] text-zinc-700 font-bold tracking-[0.2em] uppercase">
               No image
             </span>
           </div>
@@ -146,48 +144,42 @@ export const ProductCard = ({ product, index }) => {
 
         {/* Currency badge */}
         <div className="absolute top-3 left-3 z-10">
-          <span className="bg-black/70 backdrop-blur-sm border border-white/10 text-[9px] font-black text-zinc-400 tracking-[0.22em] uppercase px-2 py-1">
+          <span className="bg-black/80 backdrop-blur-md border border-white/10 text-[9px] font-black text-zinc-400 tracking-[0.22em] uppercase px-2 py-0.5">
             {product.price?.currency || "INR"}
           </span>
         </div>
-
-        {/* Quick-add hover CTA */}
-        <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-10 p-4">
-          {/* <button className="w-full flex items-center justify-between bg-white text-black text-[10px] font-black tracking-[0.2em] uppercase py-3 px-4 hover:bg-zinc-100 transition-colors duration-200 cursor-pointer group/btn">
-            <span>Add to Cart</span>
-            <ShoppingBag className="w-3.5 h-3.5 group-hover/btn:scale-110 transition-transform duration-200" strokeWidth={2.5} />
-          </button> */}
-        </div>
       </div>
 
-      {/* Info */}
-      <div className="flex-1 flex flex-col p-4 gap-2">
+      {/* Info area */}
+      <div className="flex-1 flex flex-col p-5 gap-2.5">
         <h2
-          className="text-[14px] font-bold text-white leading-snug tracking-tight line-clamp-1"
+          className="text-[14px] font-bold text-white leading-snug tracking-tight line-clamp-1 group-hover:text-zinc-200 transition-colors duration-300"
           style={{ fontFamily: DM }}
         >
           {product.title}
         </h2>
 
         {product.description && (
-          <p className="text-[12px] text-zinc-500 leading-relaxed tracking-wide line-clamp-1 font-normal">
+          <p className="text-[11px] text-zinc-500 leading-relaxed tracking-wide line-clamp-1 font-normal group-hover:text-zinc-400 transition-colors duration-300">
             {product.description}
           </p>
         )}
 
-        <div className="h-px bg-white/[0.05] mt-auto mb-2" />
+        <div className="h-px bg-white/[0.04] mt-auto mb-2" />
 
         <div className="flex items-end justify-between">
           <span
-            className="text-[20px] font-black text-white tracking-tight leading-none"
+            className="text-[18px] font-black text-white tracking-tight leading-none"
             style={{ fontFamily: DM }}
           >
             {formatPrice(product.price?.amount, product.price?.currency)}
           </span>
-          <ArrowRight
-            className="w-4 h-4 text-zinc-600 group-hover:text-white group-hover:translate-x-1 transition-all duration-300"
-            strokeWidth={2}
-          />
+          <div className="w-7 h-7 rounded-full border border-white/5 flex items-center justify-center text-zinc-650 group-hover:text-white group-hover:border-white/20 transition-all duration-300">
+            <ArrowRight
+              className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300"
+              strokeWidth={2}
+            />
+          </div>
         </div>
       </div>
     </article>
@@ -196,33 +188,33 @@ export const ProductCard = ({ product, index }) => {
 
 /* ══════════════════════════════════════════════════════
    Skeleton Card
-══════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════ */
 export const SkeletonCard = () => (
-  <div className="flex flex-col bg-white/[0.02] border border-white/[0.04] overflow-hidden animate-pulse">
-    <div className="aspect-[3/4] bg-zinc-800/50" />
-    <div className="p-4 space-y-3">
-      <div className="h-4 bg-zinc-800/50 rounded-sm w-3/4" />
-      <div className="h-3 bg-zinc-800/30 rounded-sm w-full" />
-      <div className="h-px bg-white/[0.04]" />
-      <div className="h-6 bg-zinc-800/40 rounded-sm w-1/2" />
+  <div className="flex flex-col bg-white/[0.01] border border-white/[0.03] overflow-hidden animate-pulse">
+    <div className="aspect-[3/4] bg-zinc-900/60" />
+    <div className="p-5 space-y-3">
+      <div className="h-4 bg-zinc-850 rounded-sm w-3/4" />
+      <div className="h-3 bg-zinc-900 rounded-sm w-full" />
+      <div className="h-px bg-white/[0.03]" />
+      <div className="h-5 bg-zinc-850 rounded-sm w-1/2" />
     </div>
   </div>
 );
 
 /* ══════════════════════════════════════════════════════
    Empty State
-══════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════ */
 const EmptyState = () => (
-  <div className="col-span-full flex flex-col items-center justify-center py-28 gap-6">
-    <div className="w-20 h-20 border border-dashed border-zinc-700 flex items-center justify-center">
-      <ShoppingBag className="w-8 h-8 text-zinc-600" strokeWidth={1} />
+  <div className="col-span-full flex flex-col items-center justify-center py-32 gap-6 animate-in fade-in duration-500">
+    <div className="w-20 h-20 border border-dashed border-white/10 flex items-center justify-center bg-white/[0.01] relative group">
+      <ShoppingBag className="w-8 h-8 text-zinc-650 group-hover:scale-110 transition-transform duration-300" strokeWidth={1} />
     </div>
-    <div className="text-center space-y-2">
-      <p className="text-[13px] text-zinc-400 font-semibold tracking-[0.2em] uppercase">
-        No products found
+    <div className="text-center space-y-3">
+      <p className="text-[12px] text-zinc-400 font-black tracking-[0.25em] uppercase">
+        No Products Found
       </p>
-      <p className="text-[12px] text-zinc-600 tracking-wide max-w-xs leading-relaxed">
-        Try a different search or check back later.
+      <p className="text-[12px] text-zinc-650 tracking-wide max-w-xs leading-relaxed mx-auto font-normal">
+        Our exclusive drops update frequently. Try adjusting filters or check back soon.
       </p>
     </div>
   </div>
@@ -230,10 +222,10 @@ const EmptyState = () => (
 
 /* ══════════════════════════════════════════════════════
    Home Page
-══════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════ */
 export const Home = () => {
   const { handleGetAllProducts } = useProduct();
-  const {handleLogout} = useAuth();
+  const { handleLogout } = useAuth();
   const products = useSelector((state) => state.product.products);
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
@@ -242,20 +234,6 @@ export const Home = () => {
   const isActionLoading = useSelector((state) => state.product?.loading);
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const profileRef = React.useRef(null);
-
-  // Close dropdown when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (profileRef.current && !profileRef.current.contains(e.target)) {
-        setProfileOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   useEffect(() => {
     const fetch = async () => {
@@ -297,42 +275,43 @@ export const Home = () => {
     >
       {/* ══ GLOBAL ACTION LOADING OVERLAY ══ */}
       {isActionLoading && !loading && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-              <div className="flex flex-col items-center gap-5 bg-[#0a0a0a] border border-white/10 px-10 py-8 shadow-2xl">
-                  <div className="relative flex items-center justify-center">
-                      <div className="w-12 h-12 border-2 border-zinc-800 border-t-white rounded-full animate-spin" />
-                      <div className="absolute inset-0 border-2 border-transparent border-b-zinc-500 rounded-full animate-spin-slow opacity-50" />
-                  </div>
-                  <p className="text-[10px] font-black tracking-[0.3em] uppercase text-white animate-pulse">
-                      Processing...
-                  </p>
-              </div>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="flex flex-col items-center gap-5 bg-[#0a0a0a] border border-white/10 px-10 py-8 shadow-2xl">
+            <div className="relative flex items-center justify-center">
+              <div className="w-12 h-12 border-2 border-zinc-800 border-t-white rounded-full animate-spin" />
+              <div className="absolute inset-0 border-2 border-transparent border-b-zinc-500 rounded-full animate-spin-slow opacity-50" />
+            </div>
+            <p className="text-[10px] font-black tracking-[0.3em] uppercase text-white animate-pulse">
+              Processing...
+            </p>
           </div>
+        </div>
       )}
 
       {/* ══ NAVBAR ══ */}
-      <Nav
-        title="New Season"
-        hideBack={true}
-      />
+      <Nav title="New Season" hideBack={true} />
 
       {/* ══ HERO ══ */}
-      <section className="pt-16">
+      <section className="pt-16 relative">
+        {/* Technical drafting grid overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+
         <div className="relative border-b border-white/[0.05] overflow-hidden">
           {/* Ambient glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-zinc-800 rounded-full filter blur-[160px] opacity-10 pointer-events-none" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-white/[0.01] rounded-full filter blur-[120px] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#060606]/20 to-[#060606]" />
 
-          <div className="relative max-w-screen-2xl mx-auto px-6 lg:px-16 py-16 lg:py-24">
+          <div className="relative max-w-screen-2xl mx-auto px-6 lg:px-16 py-16 lg:py-24 z-10">
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10">
               {/* Headline */}
               <div>
                 <div className="flex items-center gap-4 mb-6">
-                  <span className="text-[11px] text-zinc-400 font-semibold tracking-[0.28em] uppercase">
+                  <span className="text-[10px] text-zinc-400 font-black tracking-[0.3em] uppercase">
                     New Arrivals
                   </span>
-                  <div className="h-px w-12 bg-zinc-700" />
-                  <span className="text-[11px] text-zinc-600 font-semibold tracking-[0.28em] uppercase">
-                    SS 2025
+                  <div className="h-[2px] w-8 bg-white" />
+                  <span className="text-[10px] text-zinc-555 font-black tracking-[0.3em] uppercase">
+                    SS 2026
                   </span>
                 </div>
                 <h1
@@ -349,7 +328,7 @@ export const Home = () => {
               </div>
 
               {/* Stats */}
-              <div className="flex items-stretch divide-x divide-white/[0.06] border border-white/[0.06]">
+              <div className="flex items-stretch divide-x divide-white/[0.04] border border-white/[0.04] bg-[#09090b]/40 backdrop-blur-sm shadow-2xl">
                 {[
                   { label: "Products", value: loading ? "—" : String(allProducts.length).padStart(2, "0") },
                   { label: "Brands", value: "01" },
@@ -357,13 +336,13 @@ export const Home = () => {
                 ].map((s) => (
                   <div
                     key={s.label}
-                    className="flex flex-col justify-between px-6 py-4 min-w-[100px] bg-white/[0.02] hover:bg-white/[0.04] transition-colors duration-300"
+                    className="flex flex-col justify-between px-6 sm:px-8 py-5 min-w-[110px] bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-300 group/stat hover:scale-[1.02]"
                   >
-                    <span className="text-[10px] text-zinc-600 font-bold tracking-[0.22em] uppercase mb-3">
+                    <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300 font-black tracking-[0.25em] uppercase mb-4">
                       {s.label}
                     </span>
                     <span
-                      className="text-[22px] font-black text-white tracking-tight"
+                      className="text-[24px] font-black text-white tracking-tight group-hover:translate-x-0.5 transition-transform duration-300"
                       style={{ fontFamily: DM }}
                     >
                       {s.value}
@@ -381,7 +360,7 @@ export const Home = () => {
         <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 h-12 flex items-center justify-between gap-4">
           {/* Currency tabs */}
           <div className="flex items-center gap-6 overflow-x-auto scrollbar-none">
-            {currencies.map((cur, i) => (
+            {currencies.map((cur) => (
               <button
                 key={cur}
                 id={`filter-tab-${cur}`}
@@ -389,7 +368,7 @@ export const Home = () => {
                 className={`shrink-0 text-[11px] font-bold tracking-[0.18em] uppercase pb-0.5 transition-all duration-300 cursor-pointer ${
                   activeFilter === cur
                     ? "text-white border-b border-white"
-                    : "text-zinc-600 hover:text-zinc-300 border-b border-transparent"
+                    : "text-zinc-650 hover:text-zinc-300 border-b border-transparent"
                 }`}
               >
                 {cur}
@@ -407,11 +386,11 @@ export const Home = () => {
       </div>
 
       {/* ══ PRODUCT GRID ══ */}
-      <main className="max-w-screen-2xl mx-auto px-6 lg:px-16 py-10 lg:py-14">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-white/[0.04]">
+      <main className="max-w-screen-2xl mx-auto px-6 lg:px-16 py-12 lg:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 bg-transparent">
           {loading ? (
             Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="bg-[#060606]">
+              <div key={i} className="bg-transparent">
                 <SkeletonCard />
               </div>
             ))
@@ -419,7 +398,11 @@ export const Home = () => {
             <EmptyState />
           ) : (
             filtered.map((product, i) => (
-              <div onClick = {()=>navigate(`/product/${product._id}`)} key={product._id} className="bg-[#060606]">
+              <div
+                onClick={() => navigate(`/product/${product._id}`)}
+                key={product._id}
+                className="bg-transparent"
+              >
                 <ProductCard product={product} index={i} />
               </div>
             ))
@@ -429,11 +412,11 @@ export const Home = () => {
 
       {/* ══ FOOTER ══ */}
       <footer className="border-t border-white/[0.05] mt-4">
-        <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
             <span
-              className="text-white text-3xl leading-none tracking-[0.3em] uppercase block mb-2"
+              className="text-white text-3xl leading-none tracking-[0.3em] uppercase block mb-3"
               style={{ fontFamily: BEBAS, letterSpacing: "0.3em" }}
             >
               Snitch
@@ -484,7 +467,7 @@ export const Home = () => {
 
         <div className="border-t border-white/[0.04] max-w-screen-2xl mx-auto px-6 lg:px-16 h-12 flex items-center justify-between">
           <span className="text-[11px] text-zinc-700 font-bold tracking-[0.22em] uppercase">
-            Snitch © 2025
+            Snitch © 2026
           </span>
           <span className="text-[11px] text-zinc-700 tracking-[0.22em] uppercase font-semibold">
             All rights reserved
