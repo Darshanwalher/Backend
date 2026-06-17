@@ -184,7 +184,7 @@ const CreateProduct = () => {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-white/[0.01] rounded-full filter blur-[120px] pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#060606]/20 to-[#060606]" />
 
-        <div className="relative max-w-screen-2xl mx-auto px-6 lg:px-16 py-14 lg:py-20 z-10">
+        <div className="relative max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-16 py-14 lg:py-20 z-10">
           <div className="flex items-center gap-4 mb-7">
             <span className="text-[11px] text-zinc-400 font-semibold tracking-[0.28em] uppercase">
               New Listing
@@ -212,7 +212,7 @@ const CreateProduct = () => {
 
       {/* ══════════ FORM ══════════ */}
       <form onSubmit={handleSubmit}>
-        <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 relative z-10">
+        <div className="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-16 relative z-10">
           <div className="flex flex-col lg:flex-row lg:divide-x lg:divide-white/[0.05]">
 
             {/* ── LEFT — fields ── */}
@@ -497,7 +497,7 @@ const CreateProduct = () => {
 
       {/* ══════════ FOOTER ══════════ */}
       <footer className="border-t border-white/[0.05] mt-4">
-        <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 h-14 flex items-center justify-between">
+        <div className="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-16 h-14 flex items-center justify-between">
           <span className="text-[11px] text-zinc-650 font-bold tracking-[0.22em] uppercase">
             Snitch © 2026
           </span>

@@ -30,7 +30,7 @@ const Nav = ({ title, rightContent, homeRoute, hideBack = false }) => {
         <>
             {/* ══════════ HEADER ══════════ */}
             <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.05] bg-[#060606]/95 backdrop-blur-md">
-                <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 h-16 flex items-center justify-between">
+                <div className="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-16 h-16 flex items-center justify-between">
                     
                     {/* Wordmark (Left side) */}
                     <div 
@@ -42,12 +42,12 @@ const Nav = ({ title, rightContent, homeRoute, hideBack = false }) => {
                         </div>
                         <div className="flex flex-col items-start">
                             <span
-                                className="text-white text-2xl leading-none tracking-[0.3em] uppercase group-hover:text-zinc-300 transition-colors duration-500"
+                                className="hidden sm:block text-white text-2xl leading-none tracking-[0.3em] uppercase group-hover:text-zinc-300 transition-colors duration-500"
                                 style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.3em" }}
                             >
                                 Snitch
                             </span>
-                            <span className="text-[9px] text-zinc-500 tracking-[0.28em] uppercase mt-0.5 font-bold flex items-center gap-1.5">
+                            <span className="text-[9px] text-zinc-500 tracking-[0.28em] uppercase sm:mt-0.5 font-bold flex items-center gap-1.5">
                                 <span className="w-1 h-1 bg-white inline-block animate-pulse"></span>
                                 {title || "Checkout"}
                             </span>
@@ -55,26 +55,26 @@ const Nav = ({ title, rightContent, homeRoute, hideBack = false }) => {
                     </div>
 
                     {/* Nav Right (Actions + Links) */}
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-4 sm:gap-6">
                         
                         {/* Custom links if passed, otherwise default back/home buttons */}
                         {rightContent ? (
                             rightContent
                         ) : (
-                            <nav className="flex items-center gap-6">
+                            <nav className="flex items-center gap-3 sm:gap-6">
                                 {!hideBack && (
                                     <button
                                         onClick={() => navigate(-1)}
-                                        className="text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 cursor-pointer text-zinc-500 hover:text-white flex items-center gap-2"
+                                        className="text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 cursor-pointer text-zinc-500 hover:text-white flex items-center gap-1.5"
                                     >
-                                        <ArrowLeft className="w-3.5 h-3.5" /> Back
+                                        <ArrowLeft className="w-4 h-4 sm:w-3.5 sm:h-3.5" /> <span className="hidden sm:inline">Back</span>
                                     </button>
                                 )}
                                 <button
                                     onClick={() => navigate(homeRoute || "/")}
-                                    className="text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 cursor-pointer text-zinc-500 hover:text-white flex items-center gap-2"
+                                    className="text-[11px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 cursor-pointer text-zinc-500 hover:text-white flex items-center gap-1.5"
                                 >
-                                    <Home className="w-3.5 h-3.5" /> Home
+                                    <Home className="w-4 h-4 sm:w-3.5 sm:h-3.5" /> <span className="hidden sm:inline">Home</span>
                                 </button>
                             </nav>
                         )}
@@ -107,7 +107,7 @@ const Nav = ({ title, rightContent, homeRoute, hideBack = false }) => {
                         )}
 
                         {/* Profile Logo Avatar Dropdown - AT THE VERY LAST */}
-                        <div ref={profileRef} className="relative border-l border-white/10 pl-6 h-6 flex items-center">
+                        <div ref={profileRef} className="relative border-l border-white/10 pl-4 sm:pl-6 h-6 flex items-center">
                             {user ? (
                                 <div className="relative">
                                     <button

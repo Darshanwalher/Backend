@@ -95,7 +95,7 @@ const Cart = () => {
 
             <Nav title="Checkout" />
 
-            <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 animate-in fade-in duration-500">
+            <div className="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-16 animate-in fade-in duration-500">
 
                 {/* ══════════ HERO ══════════ */}
                 <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-6 mt-6">
@@ -167,7 +167,7 @@ const Cart = () => {
                                             )}
                                         </div>
 
-                                        <div className="flex-1 flex flex-col p-6 gap-3.5">
+                                        <div className="flex-1 flex flex-col p-4 sm:p-6 gap-3.5">
                                             <div className="flex justify-between items-start gap-4">
                                                 <h2 className="text-[15px] font-bold text-white leading-snug tracking-tight">
                                                     {item.product?.title}
@@ -264,7 +264,7 @@ const Cart = () => {
 
                         {/* Order Summary */}
                         <div className="lg:col-span-4">
-                            <div className="bg-[#09090b]/80 border border-white/[0.04] p-8 backdrop-blur-md shadow-[0_30px_70px_rgba(0,0,0,0.85)] sticky top-24 relative overflow-hidden z-10">
+                            <div className="bg-[#09090b]/80 border border-white/[0.04] p-6 sm:p-8 backdrop-blur-md shadow-[0_30px_70px_rgba(0,0,0,0.85)] sticky top-24 relative overflow-hidden z-10">
                                 <h3
                                     className="text-2xl text-white uppercase tracking-wider mb-6"
                                     style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.08em" }}

@@ -58,7 +58,7 @@ const Skeleton = () => (
         {/* nav skeleton */}
         <div className="fixed top-0 left-0 right-0 h-16 border-b border-white/[0.05] bg-[#060606]/95 backdrop-blur-md z-40" />
 
-        <div className="max-w-screen-xl mx-auto px-6 lg:px-16 pt-28 pb-20">
+        <div className="max-w-screen-xl mx-auto px-4 md:px-6 lg:px-16 pt-28 pb-20">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
                 {/* image skeleton */}
                 <div className="aspect-[3/4] bg-zinc-900/50 w-full" />
@@ -469,7 +469,7 @@ const ProductDetail = () => {
                             <div className="h-px bg-white/[0.06] shrink-0" />
 
                             {/* ── CTA Buttons ── */}
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 {/* Add to Cart */}
                                 <button
                                     onClick={async () => {
@@ -570,7 +570,7 @@ const ProductDetail = () => {
                             <div className="h-px bg-white/[0.06] shrink-0" />
 
                             {/* Perks */}
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 {[
                                     {
                                         icon: <Package className="w-4 h-4" strokeWidth={1.5} />,
@@ -643,7 +643,7 @@ const ProductDetail = () => {
 
             {/* ══ FOOTER ══ */}
             <footer className="border-t border-white/[0.05] shrink-0">
-                <div className="max-w-screen-xl mx-auto px-6 lg:px-16 h-12 flex items-center justify-between">
+                <div className="max-w-screen-xl mx-auto px-4 md:px-6 lg:px-16 h-12 flex items-center justify-between">
                     <span className="text-[11px] text-zinc-700 font-bold tracking-[0.22em] uppercase">
                         Snitch © 2026
                     </span>

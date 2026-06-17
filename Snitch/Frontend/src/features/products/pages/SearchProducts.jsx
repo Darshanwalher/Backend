@@ -358,7 +358,7 @@ export const SearchProducts = () => {
 
       {/* ══ HERO HEADER ══ */}
       <section className="pt-24 border-b border-white/[0.04]">
-        <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 pb-8">
+        <div className="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-16 pb-8">
           <div className="flex items-center gap-4 mb-3">
             <span className="text-[10px] text-zinc-500 font-bold tracking-[0.3em] uppercase">
               Catalogue Search
@@ -384,7 +384,7 @@ export const SearchProducts = () => {
       </section>
 
       {/* ══ SEARCH & GRID CONTAINER ══ */}
-      <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 py-8">
+      <div className="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-16 py-8">
         <div className="flex flex-col lg:flex-row gap-10">
           
           {/* ══ DESKTOP FILTERS SIDEBAR ══ */}

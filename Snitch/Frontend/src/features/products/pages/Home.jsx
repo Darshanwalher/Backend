@@ -301,7 +301,7 @@ export const Home = () => {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-white/[0.01] rounded-full filter blur-[120px] pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#060606]/20 to-[#060606]" />
 
-          <div className="relative max-w-screen-2xl mx-auto px-6 lg:px-16 py-16 lg:py-24 z-10">
+          <div className="relative max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-16 py-16 lg:py-24 z-10">
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10">
               {/* Headline */}
               <div>
@@ -328,7 +328,7 @@ export const Home = () => {
               </div>
 
               {/* Stats */}
-              <div className="flex items-stretch divide-x divide-white/[0.04] border border-white/[0.04] bg-[#09090b]/40 backdrop-blur-sm shadow-2xl">
+              <div className="grid grid-cols-3 sm:flex sm:items-stretch divide-x sm:divide-x sm:divide-white/[0.04] border border-white/[0.04] bg-[#09090b]/40 backdrop-blur-sm shadow-2xl w-full sm:w-auto">
                 {[
                   { label: "Products", value: loading ? "—" : String(allProducts.length).padStart(2, "0") },
                   { label: "Brands", value: "01" },
@@ -336,7 +336,7 @@ export const Home = () => {
                 ].map((s) => (
                   <div
                     key={s.label}
-                    className="flex flex-col justify-between px-6 sm:px-8 py-5 min-w-[110px] bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-300 group/stat hover:scale-[1.02]"
+                    className="flex flex-col justify-between px-3 sm:px-8 py-4 sm:py-5 min-w-0 sm:min-w-[110px] bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-300 group/stat hover:scale-[1.02] border-r sm:border-none border-white/[0.04] last:border-r-0"
                   >
                     <span className="text-[9px] text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300 font-black tracking-[0.25em] uppercase mb-4">
                       {s.label}
@@ -357,7 +357,7 @@ export const Home = () => {
 
       {/* ══ FILTER BAR ══ */}
       <div className="sticky top-16 z-30 border-b border-white/[0.05] bg-[#060606]/90 backdrop-blur-md">
-        <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 h-12 flex items-center justify-between gap-4">
+        <div className="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-16 h-12 flex items-center justify-between gap-4">
           {/* Currency tabs */}
           <div className="flex items-center gap-6 overflow-x-auto scrollbar-none">
             {currencies.map((cur) => (
@@ -386,7 +386,7 @@ export const Home = () => {
       </div>
 
       {/* ══ PRODUCT GRID ══ */}
-      <main className="max-w-screen-2xl mx-auto px-6 lg:px-16 py-12 lg:py-16">
+      <main className="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-16 py-12 lg:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 bg-transparent">
           {loading ? (
             Array.from({ length: 8 }).map((_, i) => (
@@ -412,7 +412,7 @@ export const Home = () => {
 
       {/* ══ FOOTER ══ */}
       <footer className="border-t border-white/[0.05] mt-4">
-        <div className="max-w-screen-2xl mx-auto px-6 lg:px-16 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-16 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
             <span
@@ -465,7 +465,7 @@ export const Home = () => {
           </div>
         </div>
 
-        <div className="border-t border-white/[0.04] max-w-screen-2xl mx-auto px-6 lg:px-16 h-12 flex items-center justify-between">
+        <div className="border-t border-white/[0.04] max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-16 h-12 flex items-center justify-between">
           <span className="text-[11px] text-zinc-700 font-bold tracking-[0.22em] uppercase">
             Snitch © 2026
           </span>
