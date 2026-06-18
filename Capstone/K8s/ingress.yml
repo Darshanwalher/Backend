@@ -16,7 +16,8 @@ metadata:
 
     nginx.ingress.kubernetes.io/session-cookie-path: "/"
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "http://localhost:5173"
+    # Localhost API: nginx.ingress.kubernetes.io/cors-allow-origin: "http://localhost:5173"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://www.code-spaces.online"
     nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
     nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, PATCH, OPTIONS, DELETE"
 
@@ -58,7 +59,8 @@ spec:
                 port:
                   number: 80
 
-    - host: "*.preview.localhost"
+    # Localhost API: - host: "*.preview.localhost"
+    - host: "*.preview.code-spaces.online"
       http:
         paths:
         - path: "/"
@@ -69,7 +71,8 @@ spec:
               port:
                 number: 80
 
-    - host: "*.agent.localhost"
+    # Localhost API: - host: "*.agent.localhost"
+    - host: "*.agent.code-spaces.online"
       http:
         paths:
         - path: "/"

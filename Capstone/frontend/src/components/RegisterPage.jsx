@@ -135,7 +135,8 @@ export default function RegisterPage() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = 'https://code-spaces.online/api/auth/google';
+    // Localhost API: window.location.href = 'http://localhost/api/auth/google';
+    window.location.href = 'https://www.code-spaces.online/api/auth/google';
   };
 
   return (

@@ -22,7 +22,8 @@ export default function ProvisioningScreen({ sandboxId, onComplete }) {
     'DHCP: Received offer from 192.168.99.105',
     'FS: Mount point /workspace allocated',
     'FS: Restoring boilerplate React template: [src/App.jsx, src/index.css]',
-    'NET: Listening on virtual interface agent.localhost:80',
+    // Localhost API: 'NET: Listening on virtual interface agent.localhost:80'
+    'NET: Listening on virtual interface agent.code-spaces.online:80',
     'KERNEL: Establishing terminal socket multiplexers on event: terminal-input',
     'KERNEL: Sandbox handshake verified. Sandbox ID: ' + sandboxId,
     'SYSTEM: Container environment initialized successfully.',
@@ -127,7 +128,8 @@ export default function ProvisioningScreen({ sandboxId, onComplete }) {
         const pollInterval = setInterval(async () => {
           attempts++;
           try {
-            const res = await fetch(`http://${sandboxId}.agent.localhost/`);
+            // Localhost API: const res = await fetch(`http://${sandboxId}.agent.localhost/`);
+            const res = await fetch(`https://${sandboxId}.agent.code-spaces.online/`);
             if (res.ok) {
               setLogs(prev => [...prev, 'SYSTEM: Agent network propagation verified.']);
               clearInterval(pollInterval);

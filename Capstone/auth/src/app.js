@@ -18,7 +18,8 @@ app.use(cookieParser());
 app.use(passport.initialize());
 
 app.use(cors({
-    origin: 'http://localhost:5173',  
+    // Localhost API: origin: 'http://localhost:5173',  
+    origin: 'https://www.code-spaces.online',  
     credentials: true
 }));
 

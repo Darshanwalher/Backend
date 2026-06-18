@@ -39,7 +39,8 @@ agentRouter.post('/invoke', async (req, res) => {
 
         if (!sandboxId) {
             return res.status(400).json({
-                error: "sandboxId is required. Please pass it in the request body ('sandboxId'), in the 'x-sandbox-id' header, or make the request through your sandbox subdomain (e.g., http://{sandboxId}.preview.localhost/api/ai/invoke)."
+                // Localhost API: ... e.g., http://{sandboxId}.preview.localhost/api/ai/invoke
+                error: "sandboxId is required. Please pass it in the request body ('sandboxId'), in the 'x-sandbox-id' header, or make the request through your sandbox subdomain (e.g., https://{sandboxId}.preview.code-spaces.online/api/ai/invoke)."
             });
         }
 

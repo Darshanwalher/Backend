@@ -143,7 +143,8 @@ export default function AppRoutes({ isAuthenticated }) {
                     <div className="flex items-center gap-4">
                       <span className="flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#4ec9b0]"></span>
-                        Host: codespace.localhost
+                        {/* Localhost Host: codespace.localhost */}
+                        Host: code-spaces.online
                       </span>
                     </div>
                     <span>UTF-8 • Line endings: LF</span>

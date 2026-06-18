@@ -67,7 +67,8 @@ export default function TerminalPanel() {
     // --- REAL SOCKET.IO INTEGRATION ---
     term.writeln('\x1b[36mConnecting to sandbox terminal agent socket...\x1b[0m');
     
-    const agentHost = `http://${sandboxId}.agent.localhost`;
+    // Localhost API: const agentHost = `http://${sandboxId}.agent.localhost`;
+    const agentHost = `https://${sandboxId}.agent.code-spaces.online`;
     const socket = io(agentHost, {
       transports: ['websocket'],
       timeout: 5000

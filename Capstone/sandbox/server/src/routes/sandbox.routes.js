@@ -82,7 +82,8 @@ router.post('/start',authMiddleware, async (req, res) => {
     return res.status(200).json({
         message: "Sandbox environment created successfully",
         sandboxId,
-        previewUrl: `http://${sandboxId}.preview.localhost`
+        // Localhost API: previewUrl: `http://${sandboxId}.preview.localhost`
+        previewUrl: `https://${sandboxId}.preview.code-spaces.online`
     });
 
 });

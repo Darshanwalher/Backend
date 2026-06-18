@@ -52,7 +52,8 @@ export function FileSystemProvider({ children }) {
   const fetchFileTree = useCallback(async () => {
     if (!sandboxId) return;
     try {
-      const response = await fetch(`http://${sandboxId}.agent.localhost/list-files`);
+      // Localhost API: const response = await fetch(`http://${sandboxId}.agent.localhost/list-files`);
+      const response = await fetch(`https://${sandboxId}.agent.code-spaces.online/list-files`);
       if (response.ok) {
         const data = await response.json();
         const standardizedFiles = (data.files || []).map(standardizePath);
@@ -81,7 +82,8 @@ export function FileSystemProvider({ children }) {
     if (contentToSave === undefined) return;
 
     try {
-      const response = await fetch(`http://${sandboxId}.agent.localhost/update-files`, {
+      // Localhost API: const response = await fetch(`http://${sandboxId}.agent.localhost/update-files`, {
+      const response = await fetch(`https://${sandboxId}.agent.code-spaces.online/update-files`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -118,7 +120,8 @@ export function FileSystemProvider({ children }) {
     if (fileContents[filePath] === undefined) {
       setIsLoadingFiles(true);
       try {
-        const response = await fetch(`http://${sandboxId}.agent.localhost/read-files?files=${filePath}`);
+        // Localhost API: const response = await fetch(`http://${sandboxId}.agent.localhost/read-files?files=${filePath}`);
+        const response = await fetch(`https://${sandboxId}.agent.code-spaces.online/read-files?files=${filePath}`);
         if (response.ok) {
           const data = await response.json();
           let content = '';

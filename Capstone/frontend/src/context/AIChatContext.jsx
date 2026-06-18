@@ -135,7 +135,8 @@ export function AIChatProvider({ children }) {
       await fetchFileTree();
 
       if (activeTab !== 'preview') {
-        const activeRes = await fetch(`http://${sandboxId}.agent.localhost/read-files?files=${activeTab}`);
+        // Localhost API: const activeRes = await fetch(`http://${sandboxId}.agent.localhost/read-files?files=${activeTab}`);
+        const activeRes = await fetch(`https://${sandboxId}.agent.code-spaces.online/read-files?files=${activeTab}`);
         if (activeRes.ok) {
           const activeData = await activeRes.json();
           let content = '';

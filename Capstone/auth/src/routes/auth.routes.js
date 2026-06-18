@@ -51,7 +51,8 @@ router.get('/google/callback', passport.authenticate('google', {
         // Generate JWT token
         const token = jwt.sign({ id: user._id }, process.env.jwt_secret, { expiresIn: '1h' });
         res.cookie('token', token, { httpOnly: true });
-        res.redirect('http://localhost:5173');
+        // Localhost API: res.redirect('http://localhost:5173');
+        res.redirect('https://www.code-spaces.online');
     } catch (err) {
         console.error('Error occurred while processing Google login:', err);
     }
