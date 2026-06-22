@@ -2,8 +2,8 @@ import axios from "axios";
 
 
 const productApiInstance = axios.create({
-    baseURL: `https://snitch-nvsg.onrender.com/api/products`,
-    withCredentials:true,
+    baseURL: `/api/products`,
+    withCredentials: true,
 });
 
 export const createProduct = async(formData)=>{

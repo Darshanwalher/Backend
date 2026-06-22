@@ -46,5 +46,9 @@ export const config = {
     RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
     RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
     GOOGLE_REFRESH_TOKEN: process.env.GOOGLE_REFRESH_TOKEN,
-    GOOGLE_USER: process.env.GOOGLE_USER
+    GOOGLE_USER: process.env.GOOGLE_USER,
+    NODE_ENV: process.env.NODE_ENV || "development",
+    PORT: parseInt(process.env.PORT || "3000", 10),
+    FRONTEND_URL: process.env.FRONTEND_URL || "http://localhost:5173"
 }
+

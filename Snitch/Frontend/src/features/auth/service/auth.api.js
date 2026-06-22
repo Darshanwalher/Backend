@@ -2,8 +2,8 @@ import axios from "axios";
 
 
 const authApiInstance = axios.create({
-    baseURL:`https://snitch-nvsg.onrender.com/api/auth`,
-    withCredentials:true,
+    baseURL: `/api/auth`,
+    withCredentials: true,
 })
 
 export const register = async ({email,contact,password,fullname,isSeller})=>{

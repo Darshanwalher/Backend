@@ -80,7 +80,7 @@ export const register = async (req,res)=>{
                                 </p>
                                 
                                 <div style="margin-bottom: 24px;">
-                                    <a href="https://snitch-nvsg.onrender.com/login" style="background-color: #ffffff; color: #000000; padding: 12px 24px; font-size: 12px; font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; display: inline-block; border-radius: 2px;">
+                                    <a href="${config.FRONTEND_URL}/login" style="background-color: #ffffff; color: #000000; padding: 12px 24px; font-size: 12px; font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; display: inline-block; border-radius: 2px;">
                                         Sign In to Account
                                     </a>
                                 </div>
@@ -170,7 +170,7 @@ export const googleCallback = async (req,res)=>{
 
     
 
-    res.redirect("https://snitch-nvsg.onrender.com/");
+    res.redirect(`${config.FRONTEND_URL}/`);
 }
 
 export const getMe = async (req,res)=>{

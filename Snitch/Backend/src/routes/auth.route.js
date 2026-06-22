@@ -3,6 +3,7 @@ import { validateRegisterUser, validateLoginUser, validateForgotPassword, valida
 import {register,login,googleCallback, getMe, logout, forgotPassword, resetPassword} from "../controllers/auth.controller.js"
 import passport from "passport";
 import { authtenticateUser } from "../middleware/auth.middleware.js";
+import { config } from "../config/config.js";
 
 
 const authRouter = Router();
@@ -14,7 +15,7 @@ authRouter.post("/reset-password", validateResetPassword, resetPassword);
 
 authRouter.get("/google", passport.authenticate("google", {scope:["profile","email"]}));
 
-authRouter.get("/google/callback", passport.authenticate("google",{session:false,failureRedirect:"http://localhost:5173/login"}), googleCallback);
+authRouter.get("/google/callback", passport.authenticate("google",{session:false,failureRedirect:`${config.FRONTEND_URL}/login`}), googleCallback);
 
 authRouter.get("/me",authtenticateUser,getMe);
 
