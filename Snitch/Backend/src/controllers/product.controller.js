@@ -40,12 +40,25 @@ export const createProduct = async (req, res) => {
 export const getSellerProducts = async (req, res) => {
     try {
         const seller = req.user;
-        const products = await productModel.find({ seller: seller._id });
+        const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+        const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 12));
+        const skip = (page - 1) * limit;
+
+        const [products, totalProducts] = await Promise.all([
+            productModel.find({ seller: seller._id }).sort({ createdAt: -1 }).skip(skip).limit(limit),
+            productModel.countDocuments({ seller: seller._id })
+        ]);
 
         res.status(200).json({
             message: "Products fetched successfully",
             success: true,
-            products
+            products,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(totalProducts / limit),
+                totalProducts,
+                limit
+            }
         });
     } catch (error) {
         console.error("[getSellerProducts]", error);
@@ -55,12 +68,25 @@ export const getSellerProducts = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
     try {
-        const products = await productModel.find();
+        const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+        const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 12));
+        const skip = (page - 1) * limit;
+
+        const [products, totalProducts] = await Promise.all([
+            productModel.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
+            productModel.countDocuments()
+        ]);
 
         return res.status(200).json({
             message: "Products fetched successfully.",
             success: true,
-            products
+            products,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(totalProducts / limit),
+                totalProducts,
+                limit
+            }
         });
     } catch (error) {
         console.error("[getAllProducts]", error);
@@ -381,12 +407,26 @@ export const searchProduct = async (req, res) => {
             queryBuilder = queryBuilder.sort({ createdAt: -1 });
         }
 
-        const products = await queryBuilder;
+        // Pagination
+        const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+        const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 12));
+        const skip = (page - 1) * limit;
+
+        const [products, totalProducts] = await Promise.all([
+            queryBuilder.skip(skip).limit(limit),
+            productModel.countDocuments(query)
+        ]);
 
         return res.status(200).json({
             message: "Products searched successfully.",
             success: true,
-            products
+            products,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(totalProducts / limit),
+                totalProducts,
+                limit
+            }
         });
     } catch (error) {
         console.error("[searchProduct]", error);

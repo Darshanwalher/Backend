@@ -14,6 +14,8 @@ import {
 import {
     setSellerProducts,
     setProducts,
+    setPagination,
+    setSellerPagination,
     setDeleteProduct,
     setDeleteProductVariant,
     setUpdateProductVariant,
@@ -49,12 +51,13 @@ export const useProduct = () => {
         }
     }
 
-    async function handleGetSellerProducts() {
+    async function handleGetSellerProducts(params) {
         dispatch(setLoading(true));
         dispatch(clearError());
         try {
-            const data = await getSellerProducts();
+            const data = await getSellerProducts(params);
             dispatch(setSellerProducts(data.products));
+            dispatch(setSellerPagination(data.pagination));
             return data.products;
         } catch (error) {
             const message = extractMessage(error, "Failed to fetch your products.");
@@ -65,12 +68,13 @@ export const useProduct = () => {
         }
     }
 
-    async function handleGetAllProducts() {
+    async function handleGetAllProducts(params) {
         dispatch(setLoading(true));
         dispatch(clearError());
         try {
-            const data = await getAllProducts();
+            const data = await getAllProducts(params);
             dispatch(setProducts(data.products));
+            dispatch(setPagination(data.pagination));
         } catch (error) {
             const message = extractMessage(error, "Failed to fetch products.");
             dispatch(setError(message));
@@ -86,6 +90,7 @@ export const useProduct = () => {
         try {
             const data = await searchProducts(params);
             dispatch(setProducts(data.products));
+            dispatch(setPagination(data.pagination));
             return data.products;
         } catch (error) {
             const message = extractMessage(error, "Failed to search products.");

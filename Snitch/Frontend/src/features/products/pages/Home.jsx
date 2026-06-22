@@ -227,6 +227,7 @@ export const Home = () => {
   const { handleGetAllProducts } = useProduct();
   const { handleLogout } = useAuth();
   const products = useSelector((state) => state.product.products);
+  const pagination = useSelector((state) => state.product.pagination);
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
 
@@ -234,14 +235,16 @@ export const Home = () => {
   const isActionLoading = useSelector((state) => state.product?.loading);
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     const fetch = async () => {
-      await handleGetAllProducts();
+      setLoading(true);
+      await handleGetAllProducts({ page, limit: 12 });
       setLoading(false);
     };
     fetch();
-  }, []);
+  }, [page]);
 
   const allProducts = Array.isArray(products) ? products : [];
 
@@ -408,6 +411,31 @@ export const Home = () => {
             ))
           )}
         </div>
+
+        {/* Pagination controls */}
+        {pagination && pagination.totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-12 pt-8 border-t border-white/[0.04]">
+            <button
+              disabled={pagination.currentPage === 1}
+              onClick={() => setPage(pagination.currentPage - 1)}
+              className="w-10 h-10 flex items-center justify-center border border-white/10 text-white disabled:opacity-20 disabled:pointer-events-none hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-[11px] tracking-[0.25em] text-zinc-400 font-black uppercase">
+              PAGE {pagination.currentPage} OF {pagination.totalPages}
+            </span>
+            <button
+              disabled={pagination.currentPage === pagination.totalPages}
+              onClick={() => setPage(pagination.currentPage + 1)}
+              className="w-10 h-10 flex items-center justify-center border border-white/10 text-white disabled:opacity-20 disabled:pointer-events-none hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
+              aria-label="Next page"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </main>
 
       {/* ══ FOOTER ══ */}

@@ -5,12 +5,22 @@ const productSlice = createSlice({
     initialState: {
         sellerProducts: [],
         products: [],
+        pagination: null,
+        sellerPagination: null,
         loading: false,
         error: null,
     },
     reducers: {
         setSellerProducts: (state, action) => {
             state.sellerProducts = action.payload;
+        },
+
+        setPagination: (state, action) => {
+            state.pagination = action.payload;
+        },
+
+        setSellerPagination: (state, action) => {
+            state.sellerPagination = action.payload;
         },
 
         setProducts: (state, action) => {
@@ -70,6 +80,8 @@ const productSlice = createSlice({
 export const {
     setSellerProducts,
     setProducts,
+    setPagination,
+    setSellerPagination,
     setDeleteProduct,
     setDeleteProductVariant,
     setUpdateProductVariant,

@@ -265,6 +265,7 @@ export const SearchProducts = () => {
   const navigate = useNavigate();
   const { handleSearchProducts } = useProduct();
   const products = useSelector((state) => state.product.products);
+  const pagination = useSelector((state) => state.product.pagination);
   const loading = useSelector((state) => state.product.loading);
 
   // Search & Filter State
@@ -275,6 +276,7 @@ export const SearchProducts = () => {
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedColors, setSelectedColors] = useState([]);
   const [sort, setSort] = useState("newest");
+  const [page, setPage] = useState(1);
 
   // Accordion open/close state
   const [openSections, setOpenSections] = useState({
@@ -294,10 +296,15 @@ export const SearchProducts = () => {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
+  // Reset page to 1 whenever search query or filters change
+  useEffect(() => {
+    setPage(1);
+  }, [q, minPrice, maxPrice, selectedSizes, selectedColors, sort]);
+
   // Fetch products on search or filter change
   useEffect(() => {
     const performSearch = async () => {
-      const params = {};
+      const params = { page, limit: 9 };
       if (q.trim()) params.q = q.trim();
       if (minPrice) params.minPrice = Number(minPrice);
       if (maxPrice) params.maxPrice = Number(maxPrice);
@@ -312,7 +319,7 @@ export const SearchProducts = () => {
       }
     };
     performSearch();
-  }, [q, minPrice, maxPrice, selectedSizes, selectedColors, sort]);
+  }, [q, minPrice, maxPrice, selectedSizes, selectedColors, sort, page]);
 
   const handleToggleSize = (size) => {
     setSelectedSizes((prev) =>
@@ -713,6 +720,31 @@ export const SearchProducts = () => {
                 ))
               )}
             </div>
+
+            {/* Pagination Controls */}
+            {pagination && pagination.totalPages > 1 && (
+              <div className="flex items-center justify-center gap-4 mt-12 pt-8 border-t border-white/[0.04]">
+                <button
+                  disabled={pagination.currentPage === 1}
+                  onClick={() => setPage(pagination.currentPage - 1)}
+                  className="w-10 h-10 flex items-center justify-center border border-white/10 text-white disabled:opacity-20 disabled:pointer-events-none hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-[11px] tracking-[0.25em] text-zinc-400 font-black uppercase">
+                  PAGE {pagination.currentPage} OF {pagination.totalPages}
+                </span>
+                <button
+                  disabled={pagination.currentPage === pagination.totalPages}
+                  onClick={() => setPage(pagination.currentPage + 1)}
+                  className="w-10 h-10 flex items-center justify-center border border-white/10 text-white disabled:opacity-20 disabled:pointer-events-none hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
+                  aria-label="Next page"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </main>
         </div>
       </div>

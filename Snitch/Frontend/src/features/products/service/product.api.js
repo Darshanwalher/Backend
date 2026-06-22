@@ -11,15 +11,15 @@ export const createProduct = async(formData)=>{
     return response.data;
 }
 
-export const getSellerProducts = async()=>{
+export const getSellerProducts = async(params)=>{
    
-    const response = await productApiInstance.get("/seller");
+    const response = await productApiInstance.get("/seller", { params });
     return response.data;
     
 }
 
-export const getAllProducts = async()=>{
-    const response = await productApiInstance.get("/");
+export const getAllProducts = async(params)=>{
+    const response = await productApiInstance.get("/", { params });
     return response.data;
 }
 
