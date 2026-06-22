@@ -9,6 +9,7 @@ import passport from "passport";
 import {Strategy as GoogleStrategy} from "passport-google-oauth20";
 import {config} from "./config/config.js";
 import path from "path";
+import { apiLimiter } from "./middleware/rateLimiter.middleware.js";
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.get("/",(req,res)=>{
     res.status(200).json({message:"server is running"});
 })
 
+app.use("/api", apiLimiter);
 app.use("/api/auth", authRouter);
 app.use("/api/products", ProductRouter);
 app.use("/api/cart", cartRouter);
