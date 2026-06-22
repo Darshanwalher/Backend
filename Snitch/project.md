@@ -20,6 +20,7 @@ Snitch is a production-deployed, multi-vendor e-commerce platform purpose-built 
 - **OTP-based password reset** with time-limited (10-minute) codes auto-expiring via MongoDB TTL indexes, preventing replay attacks
 - **Role-based access control** with separate `buyer` and `seller` roles enforced at the middleware layer — sellers access product management endpoints, buyers access cart and checkout
 - **Request validation layer** using `express-validator` on all mutation endpoints, catching malformed input before it reaches business logic
+- **API Rate Limiting** via `express-rate-limit` — strict limits (15 attempts/15 mins) on authentication endpoints to prevent brute-force attacks, and general limits (100 requests/15 mins) globally across all API routes to protect system resources
 
 ### Product Management (Seller)
 - **Multi-image product listings** with images uploaded to ImageKit CDN via buffer streaming (no disk I/O), supporting up to 7 images per product
@@ -32,6 +33,7 @@ Snitch is a production-deployed, multi-vendor e-commerce platform purpose-built 
 - **Cart with stock-awareness** — quantity adjustments are validated against real-time inventory, preventing overselling with clear user feedback
 - **Buy Now + Cart checkout** — two purchase flows: instant single-item purchase or standard cart-based checkout, both routing through the same payment pipeline
 - **Razorpay payment integration** with server-side order creation, client-side checkout widget, and cryptographic signature verification on the backend
+- **Server-Side Pagination** on product listings and search results returning structured metadata (`currentPage`, `totalPages`, `totalProducts`, `limit`) to minimize initial load times and network overhead
 
 ### Order Processing & Notifications
 - **Atomic stock deduction with rollback** — on payment verification, stock is decremented per-variant with a compensating transaction pattern; if any item is out of stock, all prior deductions are reversed
@@ -54,14 +56,15 @@ Snitch is a production-deployed, multi-vendor e-commerce platform purpose-built 
 | **Frontend** | React Router v7 | Client-side routing with protected routes |
 | **Frontend** | Redux Toolkit | Centralized state management |
 | **Frontend** | Tailwind CSS v4 | Utility-first responsive styling |
-| **Frontend** | Axios | HTTP client with cookie credential forwarding |
-| **Frontend** | Vite 8 | Dev server with HMR and API proxy |
+| **Frontend** | Axios | HTTP client with cookie credential |
+| **Backend** | Vite 8 | Dev server with HMR and API proxy |
 | **Backend** | Express 5 | REST API framework |
 | **Backend** | Passport.js | Google OAuth 2.0 strategy |
 | **Backend** | JSON Web Tokens | Stateless session authentication |
 | **Backend** | express-validator | Request input validation |
 | **Backend** | Multer | Multipart form-data / image upload parsing |
 | **Backend** | bcrypt | Password hashing (10 salt rounds) |
+| **Backend** | express-rate-limit | Brute-force and API abuse protection |
 | **Database** | MongoDB Atlas | Cloud-hosted document database |
 | **Database** | Mongoose 9 | ODM with schema validation and aggregation pipelines |
 | **Payments** | Razorpay | Order creation, payment capture, signature verification |
@@ -69,6 +72,10 @@ Snitch is a production-deployed, multi-vendor e-commerce platform purpose-built 
 | **Email** | Gmail REST API | Transactional email dispatch via OAuth2 |
 | **DevOps** | Render | Full-stack cloud deployment (static frontend served from Express) |
 | **Logging** | Morgan | HTTP request logging in development |
+| **Testing** | Jest | Test runner and expectation framework |
+| **Testing** | Supertest | HTTP integration test library |
+| **Testing** | mongodb-memory-server | In-memory isolated database instance |
+| **CI/CD** | GitHub Actions | Automated testing and verification workflow |
 
 ---
 
@@ -461,10 +468,10 @@ npm run dev
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| `GET` | `/api/products` | List all products | No |
-| `GET` | `/api/products/search?q=&minPrice=&maxPrice=&size=&color=&sort=` | Search and filter products | No |
+| `GET` | `/api/products` | List all products (paginated) | No |
+| `GET` | `/api/products/search?q=&minPrice=&maxPrice=&size=&color=&sort=` | Search and filter products (paginated) | No |
 | `GET` | `/api/products/detail/:id` | Get product details by ID | No |
-| `GET` | `/api/products/seller` | Get authenticated seller's products | Seller |
+| `GET` | `/api/products/seller` | Get authenticated seller's products (paginated) | Seller |
 | `POST` | `/api/products` | Create a new product (multipart, up to 7 images) | Seller |
 | `PATCH` | `/api/products/update/product/:id` | Update product details | Seller |
 | `DELETE` | `/api/products/delete/:id` | Delete a product | Seller |
@@ -491,6 +498,6 @@ npm run dev
 
 - **Order history and tracking** — Persistent order dashboard for buyers to view past purchases, and for sellers to manage fulfillment status (processing → shipped → delivered)
 - **Wishlist and save-for-later** — Allow buyers to bookmark products and move items between wishlist and cart, improving conversion rates
-- **Pagination and infinite scroll** — Implement cursor-based pagination on product listings and search results to handle large catalogs without performance degradation
 - **Review and rating system** — Enable verified buyers to leave product reviews with star ratings, building social proof and helping purchase decisions
 - **Admin dashboard with analytics** — Platform-level admin panel with sales metrics, user growth charts, and inventory alerts — enabling data-driven merchandising decisions
+- **Expanded Test Coverage** — Implement end-to-end frontend tests using Playwright/Cypress, and add unit testing coverage for controller functions
